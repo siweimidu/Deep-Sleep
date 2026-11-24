@@ -57,6 +57,21 @@ const session = {
   updatedAt: now,
   messages,
   rootMessageId: messages[0].id,
+  // 摘要数据：验证"上下文摘要"卡片是否能被渲染出来
+  anchor: {
+    text: '用户最初要求验证两件事：行内代码与正文的基线是否对齐，以及含公式的选区复制出来是什么。后续把验证范围扩展到滚动行为、镜像恢复与宽屏布局。',
+    upTo: 'a2',
+    createdAt: now - 8500,
+  },
+  memory: [
+    {
+      index: 0,
+      fromRound: 3,
+      toRound: 4,
+      text: '列表需要足够长的内容才会出现"回到底部"按钮，因此后续轮次都塞了长段落。',
+      createdAt: now - 4000,
+    },
+  ],
 }
 
 const t = await (await fetch('http://127.0.0.1:9222/json')).json()

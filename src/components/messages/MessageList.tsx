@@ -12,6 +12,7 @@ import { closeSearchPanel } from '../search/searchPanelState.js'
 import { AssistantMessage } from './AssistantMessage.js'
 import { ScrollToBottomContext } from './scrollContext.js'
 import { JumpToBottomButton } from './JumpToBottomButton.js'
+import { ContextSummaryCard } from './ContextSummaryCard.js'
 import { UserMessage } from './UserMessage.js'
 import type { Message } from '../../services/chat/types.js'
 
@@ -292,6 +293,8 @@ export const MessageList = ({
       <div ref={isMobile ? undefined : scrollRef} className={styles.container}>
         <div ref={isMobile ? scrollRef : undefined} className={styles.scroll}>
           <div ref={contentRef} className={styles.column}>
+            {/* 上下文摘要放在最上面：它解释的是"更早的内容已被压缩"，位置就该在最早处 */}
+            <ContextSummaryCard anchor={session.anchor} memory={session.memory} />
             {messages.map((message, index) =>
               message.role === 'user' ? (
                 <UserMessage
