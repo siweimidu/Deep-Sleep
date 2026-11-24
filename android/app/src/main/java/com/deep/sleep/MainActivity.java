@@ -19,7 +19,6 @@ import android.provider.MediaStore;
 import android.provider.Settings;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 import android.view.WindowInsets;
 import android.view.WindowInsetsController;
 import android.webkit.JavascriptInterface;
@@ -67,6 +66,8 @@ public final class MainActivity extends Activity {
             swipeBlocked = blocked;
         }
     }
+    /** 实验开关：false = 不做 edge-to-edge，完全交给系统 adjustResize 处理键盘 */
+    private static final boolean EDGE_TO_EDGE = true;
     private static final float SWIPE_DP = 24f;
     private static final float SWIPE_RATIO = 1.2f;
 
@@ -99,10 +100,7 @@ public final class MainActivity extends Activity {
                 swipeDownX = event.getX();
                 swipeDownY = event.getY();
                 swipeTracking = true;
-                // 每次按下都确保 WebView 持有焦点，否则输入法可能不弹（见上面 setFocusable 的说明）。
-                if (webView != null && !webView.hasFocus()) {
-                    webView.requestFocus();
-                }
+
                 break;
             case MotionEvent.ACTION_UP:
                 if (swipeTracking) {
@@ -163,13 +161,15 @@ public final class MainActivity extends Activity {
         frame.addView(webView, new FrameLayout.LayoutParams(-1, -1));
         // API 30 起才能用 WindowInsets.Type；Android 5-10 只有 getSystemWindowInset*。
         // 分开写，否则在老系统上一进页面就是 NoSuchMethodError。
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            frame.setOnApplyWindowInsetsListener(this::applyInsetsModern);
-        } else {
-            frame.setOnApplyWindowInsetsListener(this::applyInsetsLegacy);
+        if (EDGE_TO_EDGE) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                frame.setOnApplyWindowInsetsListener(this::applyInsetsModern);
+            } else {
+                frame.setOnApplyWindowInsetsListener(this::applyInsetsLegacy);
+            }
         }
         setContentView(frame);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        if (EDGE_TO_EDGE && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             // 真正铺满屏幕：内容画到系统状态栏/导航栏下面，留白由页面按 --android-status-inset 处理
             getWindow().setDecorFitsSystemWindows(false);
         }
@@ -733,28 +733,6 @@ public final class MainActivity extends Activity {
 
         @JavascriptInterface
         public void setDarkBars(boolean dark) { runOnUiThread(() -> setBars(dark)); }
-
-        /**
-         * 页面里的输入框拿到焦点后主动补一刀 showSoftInput。
-         *
-         * WebView 自己会请求输入法，但在部分 ROM（ColorOS / EMUI 这类）上这一步会被吞掉，表现就是
-         * "点了输入框、光标有了、键盘死活不出来"。由页面在 focusin 时回调这里，等于绕开 WebView
-         * 的内部判断直接向 InputMethodManager 请求。对已经弹出的键盘是空操作，重复调用没有副作用。
-         */
-        @JavascriptInterface
-        public void showKeyboard() {
-            runOnUiThread(() -> {
-                if (webView == null) {
-                    return;
-                }
-                webView.requestFocus();
-                InputMethodManager imm =
-                    (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
-                if (imm != null) {
-                    imm.showSoftInput(webView, InputMethodManager.SHOW_FORCED);
-                }
-            });
-        }
 
         @JavascriptInterface
         public void requestRecentPhotos() { runOnUiThread(() -> showRecentPhotos()); }
