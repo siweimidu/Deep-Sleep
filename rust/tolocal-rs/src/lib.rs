@@ -122,7 +122,7 @@ static S_TO_LOCAL_SESSION_OUT: wire::Schema = wire::Schema::Obj(&[
 #[wasm_bindgen(js_name = "toLocalSessionWire")]
 pub fn to_local_session_wire(len: u32) -> Result<u32, JsError> {
     wire_io(len, |r, w| {
-        let file: serde_json::Value = wire::read_value(r, &S_TO_LOCAL_SESSION_0)?;
+        let file: Value = wire::read_value(r, &S_TO_LOCAL_SESSION_0)?;
         let out = &port::to_local_session(file)?;
         wire::write_value(w, out, &S_TO_LOCAL_SESSION_OUT)?;
         Ok(())

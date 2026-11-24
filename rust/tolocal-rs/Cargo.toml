@@ -13,6 +13,7 @@ crate-type = ["cdylib", "rlib"]
 wasm-bindgen = "0.2"
 serde = "1"
 serde_json = { version = "1", features = ["preserve_order", "float_roundtrip", "unbounded_depth"] }
+unicode-normalization = "0.1"
 
 [profile.release]
 lto = true

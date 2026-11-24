@@ -434,7 +434,7 @@ o0[k0] = rDyn()
 }
 t = o0
 }
-return t
+return revive(t)
 }
 module.exports.toLocalSession = function toLocalSession (a0) {
   try {

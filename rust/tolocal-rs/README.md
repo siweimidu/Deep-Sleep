@@ -15,3 +15,23 @@ rust-anything diff .     # run the recorded cases against Rust
 rust-anything shadow .   # run both in the app, log mismatches
 rust-anything gate .     # fmt, clippy, tests, unsafe, API, diff
 ```
+
+## Local deviations (hand-written, not generated)
+
+- **`index.cjs` carries a one-line patch.** The binary wire's `decode` ends with `return revive(t)`
+  instead of `return t`, so the `{"$map": [[key, value]]}` marker comes back as a real JS `Map`, the
+  way the JSON path already does it (`const decode = text => … revive(value)`). `bridge` emits a
+  `rDyn()` for `images` and `wire.rs` has no tag for a `Map`, so without this line `images` arrives
+  as a plain object and every successful case differs. **`rust-anything refresh` rewrites this file
+  and drops the patch** — re-apply it, or `cases.jsonl`'s `images: {"$map": [...]}` can never match.
+- **`known-diffs.jsonl` holds six recorded cases the port is meant to differ on,** all `Date.parse`:
+  five non-ISO strings that V8's *legacy* parser accepts as a year in the **host time zone**, and one
+  date-time with no offset (local time in JS). A wasm build has no time zone, so `port::time`
+  implements the ES-spec Date Time String Format only — the one the archive writes — and answers
+  `NaN` for those.
+- **`new URL(value).protocol` is not in the Rust crate either.** `port::is_web_url` reimplements just
+  the part that decides the answer: the scheme, the C0/tab/newline clean-up, and "a special scheme
+  needs a host".
+- `cases-extra.jsonl` is 115 hand-authored cases; `gen-extra.mjs` is the form they were written in
+  (`node gen-extra.mjs cases-extra.jsonl` reproduces the file byte for byte).
+

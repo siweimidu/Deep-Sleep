@@ -1,0 +1,199 @@
+{
+  "schema": "rust-anything/bridge@1",
+  "root": "D:\\Code\\重构\\deepseek",
+  "unit": "src/services/attachments.ts",
+  "language": "ts",
+  "kind": "wasm",
+  "crate_name": "attachments-rs",
+  "exports": [
+    {
+      "name": "getFileExt",
+      "file": "src/services/attachments.ts",
+      "line": 21,
+      "params": [
+        {
+          "name": "name",
+          "ts_type": "string",
+          "optional": false,
+          "rest": false
+        }
+      ],
+      "returns": "unknown",
+      "is_async": false,
+      "is_generator": false,
+      "type_params": [],
+      "uses_instanceof": false
+    },
+    {
+      "name": "isAcceptedExt",
+      "file": "src/services/attachments.ts",
+      "line": 26,
+      "params": [
+        {
+          "name": "name",
+          "ts_type": "string",
+          "optional": false,
+          "rest": false
+        }
+      ],
+      "returns": "unknown",
+      "is_async": false,
+      "is_generator": false,
+      "type_params": [],
+      "uses_instanceof": false
+    },
+    {
+      "name": "getUploadPurpose",
+      "file": "src/services/attachments.ts",
+      "line": 32,
+      "params": [
+        {
+          "name": "name",
+          "ts_type": "string",
+          "optional": false,
+          "rest": false
+        },
+        {
+          "name": "isImage",
+          "ts_type": "boolean",
+          "optional": false,
+          "rest": false
+        }
+      ],
+      "returns": "('rich_layout_recognition' | 'user_data') | null",
+      "is_async": false,
+      "is_generator": false,
+      "type_params": [],
+      "uses_instanceof": false
+    },
+    {
+      "name": "validateFiles",
+      "file": "src/services/attachments.ts",
+      "line": 46,
+      "params": [
+        {
+          "name": "files",
+          "ts_type": "File[]",
+          "optional": false,
+          "rest": false
+        },
+        {
+          "name": "currentCount",
+          "ts_type": "number",
+          "optional": false,
+          "rest": false
+        }
+      ],
+      "returns": "{ key: keyof typeof zh; params?: (Record<string, string | number>) } | null",
+      "is_async": false,
+      "is_generator": false,
+      "type_params": [],
+      "uses_instanceof": false
+    },
+    {
+      "name": "resolveMimeType",
+      "file": "src/services/attachments.ts",
+      "line": 223,
+      "params": [
+        {
+          "name": "file",
+          "ts_type": "File",
+          "optional": false,
+          "rest": false
+        }
+      ],
+      "returns": "unknown",
+      "is_async": false,
+      "is_generator": false,
+      "type_params": [],
+      "uses_instanceof": false
+    },
+    {
+      "name": "isImage",
+      "file": "src/services/attachments.ts",
+      "line": 225,
+      "params": [
+        {
+          "name": "mimeType",
+          "ts_type": "string",
+          "optional": false,
+          "rest": false
+        }
+      ],
+      "returns": "unknown",
+      "is_async": false,
+      "is_generator": false,
+      "type_params": [],
+      "uses_instanceof": false
+    },
+    {
+      "name": "getExtension",
+      "file": "src/services/attachments.ts",
+      "line": 228,
+      "params": [
+        {
+          "name": "name",
+          "ts_type": "string",
+          "optional": false,
+          "rest": false
+        }
+      ],
+      "returns": "unknown",
+      "is_async": false,
+      "is_generator": false,
+      "type_params": [],
+      "uses_instanceof": false
+    },
+    {
+      "name": "formatSize",
+      "file": "src/services/attachments.ts",
+      "line": 233,
+      "params": [
+        {
+          "name": "bytes",
+          "ts_type": "number",
+          "optional": false,
+          "rest": false
+        }
+      ],
+      "returns": "unknown",
+      "is_async": false,
+      "is_generator": false,
+      "type_params": [],
+      "uses_instanceof": false
+    }
+  ],
+  "classes": [],
+  "js_only": [
+    {
+      "name": "describeUploadError",
+      "file": "src/services/attachments.ts",
+      "line": 64,
+      "reason": "delegates to src/services/api/errors.ts (separate unit)"
+    },
+    {
+      "name": "onUploadNotice",
+      "file": "src/services/attachments.ts",
+      "line": 78,
+      "reason": "takes or returns a function"
+    },
+    {
+      "name": "describeUploadQuota",
+      "file": "src/services/attachments.ts",
+      "line": 89,
+      "reason": "delegates to src/services/api/errors.ts (separate unit)"
+    },
+    {
+      "name": "uploadAttachment",
+      "file": "src/services/attachments.ts",
+      "line": 167,
+      "reason": "needs Blob/AbortController plus the module-level queue and zustand store state"
+    },
+    {
+      "name": "cancelUpload",
+      "file": "src/services/attachments.ts",
+      "line": 208,
+      "reason": "aborts an AbortController and mutates the zustand store"
+    }
+  ]
+}
