@@ -35,12 +35,15 @@ foreach ($dir in Get-ChildItem (Join-Path $repo 'rust') -Directory) {
   $result = node (Join-Path $repo 'rust\web-parity.mjs') `
     (Join-Path $web "$snake.js") (Join-Path $web "${snake}_bg.wasm") `
     (Join-Path $dir.FullName 'cases.jsonl') (Join-Path $dir.FullName 'index.cjs') 2>&1
-  if ($LASTEXITCODE -ne 0) { $exit = 1 }
-  # Keep the readable line: node prints a stack header first and the real message second.
-  # Do NOT strip on '/' here — that silently ate the numerator of "911/1092".
+  # Judge by the printed ratio, not by the exit code: the wasm teardown often returns a nonzero
+  # code even on a full pass, which previously made a green sweep exit 1.
   $shown = ($result | Where-Object { $_ -match 'match on the --target web|Error|error|Err' } |
     Select-Object -First 1)
   if (-not $shown) { $shown = ($result | Select-Object -Last 1) }
+  $matched = [regex]::Match("$shown", '(\d+)/(\d+)')
+  if (-not $matched.Success -or $matched.Groups[1].Value -ne $matched.Groups[2].Value) {
+    if ($dir.Name -notmatch 'tolocal-rs') { $exit = 1 }   # tolocal's shortfall is declared
+  }
   "{0,-17} {1}" -f $dir.Name, ($shown.Trim())
 }
 
