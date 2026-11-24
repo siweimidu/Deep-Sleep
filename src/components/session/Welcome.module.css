@@ -26,6 +26,12 @@
   font-weight: 600;
   text-align: center;
   color: var(--dsw-alias-label-primary);
+  /* 纯装饰：问候语和头像是背景，长按不该被选中、也不该弹"保存图片/复制"这类系统菜单。
+     消息正文不在这里，所以不影响复制回答。 */
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  pointer-events: none;
 }
 
 [data-android] .welcome {
