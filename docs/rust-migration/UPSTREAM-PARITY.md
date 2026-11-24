@@ -43,12 +43,14 @@ cd android; gradlew.bat assembleDebug
 > | 个人资料编辑 | `components/settings/AvatarEditor.tsx` |
 > | 深色状态栏 | `setDarkBars` / `app/theme.ts` |
 > | 会话操作 | 长按菜单：重命名 / 详情 / 置顶 / 多选 / 删除 |
+| 内容搜索 | components/search/SessionSearchPage.tsx（按批加载会话 + 标题与正文匹配 + 命中缓存） |
+| 正文可选中 | 消息正文未禁用选择；user-select: none 只在小徽章/脚注序号上 |
 
 真正还缺的 6 项，按建议顺序：
 
 1. **内容搜索**：跨会话全文搜索。现有 `SessionSearchPage` 只搜标题与会话内；需要匹配、摘要、高亮与跳转。
-2. **上下文摘要**（`contextSummary`）：长会话的可见摘要卡片，配合已有的锚点卡 + 事实账本。
-3. **自由文本选择 + LaTeX 复制格式**：Android WebView 长按选择，公式按 LaTeX / 纯文本复制。
+1. **上下文摘要**（`contextSummary`）：长会话的可见摘要卡片，配合已有的锚点卡 + 事实账本。
+2. ~~自由文本选择 + LaTeX 复制~~ **已完成**（批次 6：`app/latexCopy.ts`）。
 4. **高级 API 设置 / 自定义 endpoint**（OpenAI 兼容转发）。
 5. **导入走 worker**：导入目前在主线程解压 + 解析，长归档会卡 UI。
 6. **token 估算分档**：现在是「宽字符 + 窄字符/3.6」；改为按码位区间分档。

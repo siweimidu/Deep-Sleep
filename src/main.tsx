@@ -6,6 +6,7 @@ import { setupTheme } from './app/theme.js'
 import { ensureKatex } from './services/markdown/katex.js'
 import { diagnosticsEnabled } from './rust-core/diagnostics.js'
 import { installMirrorFlush } from './services/chat/nativeMirror.js'
+import { installLatexCopy } from './app/latexCopy.js'
 import './app/theme.css'
 import './app/motion.css'
 import './app/global.css'
@@ -18,6 +19,7 @@ if (android) {
 }
 setupTheme()
 installMirrorFlush()
+installLatexCopy()
 
 // 诊断入口：设备侧用 CDP 验证归档解析的两条路径（rust/cdp-archive.mjs）。
 // 只在 debug 包 + ?diag=1 时挂上；归档模块是按需加载的 chunk，不被调用就什么都不会拉取。
