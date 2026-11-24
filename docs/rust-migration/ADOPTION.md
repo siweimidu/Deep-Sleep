@@ -67,6 +67,12 @@ Android 侧资产是由 `WebViewAssetLoader` 以 `https://appassets.androidplatf
 其余 crate 照抄这个模板即可；差异只有两点：`Value` 参数/返回值要 `JSON.stringify`/`JSON.parse`
 （见下表），`async` 要 `await`。
 
+### 适配层自身也要验一次
+
+`web-parity` 验的是 crate 的函数；适配层还多了一层（`JSON.parse`、就绪判断、回退）。
+`node rust/adapter-check.mjs` 用 fetch 垫片让浏览器胶水在 Node 里真的初始化，再断言适配层输出：
+**9/9 通过**（含 NFC 归一化与 `null` 返回值）。改适配层后请跑这一条。
+
 **注意 `Map` 返回值**：`toLocalSession`、`branches` 这类返回 JS `Map` 的单元，二进制 wire 路径需要
 `index.cjs` 里那行 `return revive(t)` 补丁（见 `rust/tolocal-rs/fix-glue.mjs`）。换成
 `--target web` 的胶水后这条路径不同，仍需在真机上确认 `images instanceof Map === true` ——
