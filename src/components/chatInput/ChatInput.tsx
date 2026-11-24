@@ -75,6 +75,14 @@ const Input = ({ sessionId }: { sessionId: string | null }) => {
   const [showAttachments, setShowAttachments] = useState(false)
   const [typing, setTyping] = useState(false)
   const sendSpoken = useRef(false)
+  // 退出语音模式后把焦点交回输入框：否则 Android 上要再点一次输入框才能继续打字
+  const wasVoiceMode = useRef(voiceMode)
+  useEffect(() => {
+    if (wasVoiceMode.current && !voiceMode) {
+      textareaRef.current?.focus()
+    }
+    wasVoiceMode.current = voiceMode
+  }, [voiceMode])
 
   useLayoutEffect(() => {
     const toggles = togglesRef.current
@@ -306,10 +314,16 @@ const Input = ({ sessionId }: { sessionId: string | null }) => {
                 }
               }}
               onKeyDown={(event) => {
-                if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) {
-                  event.preventDefault()
-                  send()
+                if (event.key !== 'Enter' || event.shiftKey || event.nativeEvent.isComposing) {
+                  return
                 }
+                // 移动端/Android 上回车是"换行"：让人能在多行里正常打字，发送交给右侧按钮。
+                // 桌面保持回车发送（Shift+Enter 换行）。
+                if (android || isMobile) {
+                  return
+                }
+                event.preventDefault()
+                send()
               }}
               onPaste={(event) => {
                 const files = Array.from(event.clipboardData.files)

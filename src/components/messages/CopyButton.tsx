@@ -6,7 +6,7 @@ import { showToast } from '../base/toastState.js'
 import { copyText } from '../../utils/clipboard.js'
 
 /** 复制成功后图标换成对勾 1 秒，期间再次点击不重复复制 */
-export const CopyButton = ({ text }: { text: string }) => {
+export const CopyButton = ({ text, notify = false }: { text: string; notify?: boolean }) => {
   const t = useTranslate()
   const [copied, setCopied] = useState(false)
   const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined)
@@ -27,6 +27,10 @@ export const CopyButton = ({ text }: { text: string }) => {
         }
         setCopied(true)
         timerRef.current = setTimeout(() => setCopied(false), 1000)
+        // 图标对勾在这个尺寸下很容易被忽略：回答正文的复制额外给一条 toast 明确反馈
+        if (notify) {
+          showToast({ key: 'copyDone' })
+        }
       }}
     />
   )

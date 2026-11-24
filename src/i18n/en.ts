@@ -87,6 +87,7 @@ export const en = {
   copy: 'Copy',
   copied: 'Copied',
   copyFailed: 'Copy failed. Please long-press or select the text to copy.',
+  copyDone: 'Copied',
   send: 'Send',
   editMessage: 'Edit message',
   androidEditMessage: 'Edit',

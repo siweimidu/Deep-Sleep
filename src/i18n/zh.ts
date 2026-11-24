@@ -83,6 +83,7 @@ export const zh = {
   copy: '复制',
   copied: '已复制',
   copyFailed: '复制失败，请长按或选中文本后复制',
+  copyDone: '已复制',
   send: '发送',
   editMessage: '编辑消息',
   androidEditMessage: '修改',

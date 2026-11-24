@@ -40,8 +40,9 @@
   box-sizing: border-box;
   padding: 10px 16px;
   border-radius: 22px;
-  font-size: 16px;
-  line-height: 24px;
+  /* 跟着"设置 → 字体大小"一起缩放：之前这里写死 16px，用户消息是唯一不随字号变化的地方 */
+  font-size: calc(16px * var(--android-chat-font-scale, 1));
+  line-height: calc(24px * var(--android-chat-font-scale, 1));
   color: var(--dsw-alias-label-primary);
   background-color: var(--dsw-specific-bubble);
   white-space: pre-wrap;
@@ -120,8 +121,8 @@
   outline: none;
   resize: none;
   font: inherit;
-  font-size: 16px;
-  line-height: 24px;
+  font-size: calc(16px * var(--android-chat-font-scale, 1));
+  line-height: calc(24px * var(--android-chat-font-scale, 1));
   color: var(--dsw-alias-label-primary);
   background: transparent;
 }
