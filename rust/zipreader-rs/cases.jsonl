@@ -1,0 +1,322 @@
+{"fn":"parseArchiveBase64","args":["abc"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":[".leading"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["emoji 👍🏽 mix"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["line1\nline2"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["trailing."],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["a.b.c"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["tab\tseparated"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["a:b:c"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["日本語のテキスト"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["key_name-1"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["Hello World"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":[".leading.leading"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["a.b.cab"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":[""],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["ns:key.patha.b.c"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["src/a/b.tsHello World"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["é"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["src/a/b.ts"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["helloabc"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["  padded  "],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["ab"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["ns:key.path"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["./x/**/*.json"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["{name} has {count} items"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["hello world"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["{name} has {count} items日本語のテキスト"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["﻿bom"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["straße"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["İstanbulHello World"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["a"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["😀"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["ahello world"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["abca.b.c"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["ünïcödé"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["HELLO"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":[":"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["İstanbul"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["HELLOline1\nline2"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["src/a/b.tsa"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":[".leadinga.b.c"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["ΣΊΣΥΦΟΣ"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["a..bstraße"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["a😀b😀c"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["HELLOİstanbul"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["a..b"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["a..bns:key.path"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["éHELLO"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["hello"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["abtab\tseparated"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["﻿bomİstanbul"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["a😀b😀ca:b:c"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":[".leadingtab\tseparated"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["trailing.abc"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["abtrailing."],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["ΣΊΣΥΦΟΣns:key.path"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["./x/**/*.json﻿bom"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["a😀b😀cemoji 👍🏽 mix"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["key_name-1İstanbul"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["hello﻿bom"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["ünïcödétab\tseparated"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["éns:key.path"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["tab\tseparatedhello world"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["line1\nline2ünïcödé"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["abcstraße"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["key_name-1a:b:c"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["hello worlda:b:c"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["ns:key.patha..b"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["日本語のテキストab"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["  padded  abc"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["ünïcödékey_name-1"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":[".leadingns:key.path"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["{name} has {count} itemsΣΊΣΥΦΟΣ"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["trailing.  padded  "],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["İstanbula:b:c"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["tab\tseparatedline1\nline2"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["./x/**/*.jsonns:key.path"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["key_name-1ab"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["ΣΊΣΥΦΟΣ{name} has {count} items"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["src/a/b.tstrailing."],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["src/a/b.tsé"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["tab\tseparatedtrailing."],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["straßeab"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["Hello Worlda😀b😀c"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["ΣΊΣΥΦΟΣ😀"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["éünïcödé"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["a.b.cünïcödé"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["HELLOsrc/a/b.ts"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["trailing.ΣΊΣΥΦΟΣ"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["日本語のテキストé"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["İstanbula..b"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["tab\tseparated日本語のテキスト"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["abcünïcödé"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["hellokey_name-1"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["a😀b😀chello world"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["日本語のテキストa😀b😀c"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["tab\tseparatedemoji 👍🏽 mix"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["a:"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":[":./x/**/*.json"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["étrailing."],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["ns:key.pathhello world"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["Hello World﻿bom"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["tab\tseparatedhello"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["straße./x/**/*.json"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["abé"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["{name} has {count} itemsa.b.c"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["abc  padded  "],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["straße﻿bom"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["tab\tseparated😀"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["ünïcödé./x/**/*.json"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["😀a😀b😀c"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["a:b:cab"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["hello world日本語のテキスト"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["a..bİstanbul"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":[".leadingab"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["tab\tseparatedtab\tseparated"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["日本語のテキストtab\tseparated"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["ünïcödéa"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["😀é"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["Hello World./x/**/*.json"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["trailing.emoji 👍🏽 mix"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["trailing.İstanbul"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["ΣΊΣΥΦΟΣa..b"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["abchello"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["./x/**/*.jsonkey_name-1"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["aa.b.c"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["ünïcödéemoji 👍🏽 mix"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["ünïcödéabc"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["tab\tseparatedHELLO"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["﻿bom:"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["Hello Worldİstanbul"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":[".leading日本語のテキスト"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["a😀b😀ckey_name-1"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["straßeabc"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["a.b.cemoji 👍🏽 mix"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["HELLOtrailing."],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["tab\tseparated  padded  "],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["line1\nline2hello"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["a.b.ctrailing."],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["hello world:"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["a..b😀"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["ΣΊΣΥΦΟΣΣΊΣΥΦΟΣ"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["ΣΊΣΥΦΟΣ:"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["tab\tseparatedsrc/a/b.ts"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["a..ba:b:c"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["src/a/b.tssrc/a/b.ts"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["tab\tseparateda..b"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["helloemoji 👍🏽 mix"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["line1\nline2﻿bom"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":[":ns:key.path"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["﻿bomabc"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["hellons:key.path"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["  padded  straße"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["a😀b😀csrc/a/b.ts"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["  padded  .leading"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["tab\tseparated.leading"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["a:b:ca😀b😀c"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":[":line1\nline2"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["emoji 👍🏽 mix  padded  "],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["  padded  HELLO"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["ns:key.patha:b:c"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["HELLO./x/**/*.json"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["ΣΊΣΥΦΟΣ﻿bom"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["abc日本語のテキスト"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["a:b:c./x/**/*.json"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["é:"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["emoji 👍🏽 mixhello"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":[".leadinga..b"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["😀emoji 👍🏽 mix"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["a😀b😀cabc"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["  padded  é"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["  padded  src/a/b.ts"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":[":src/a/b.ts"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["src/a/b.tshello world"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["emoji 👍🏽 mixa😀b😀c"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["{name} has {count} itemsline1\nline2"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["a😀b😀cİstanbul"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["trailing.hello world"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["ünïcödéé"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["src/a/b.tsline1\nline2"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["a😀b😀ca😀b😀c"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["helloHello World"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["abcΣΊΣΥΦΟΣ"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["ΣΊΣΥΦΟΣa.b.c"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["a:b:c{name} has {count} items"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["trailing.src/a/b.ts"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["key_name-1é"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["Hello Worlda:b:c"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["a{name} has {count} items"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["::"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["straßeHello World"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["日本語のテキスト😀"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["src/a/b.tsİstanbul"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["src/a/b.tsHELLO"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["Hello Worldns:key.path"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["HELLO日本語のテキスト"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["ΣΊΣΥΦΟΣa:b:c"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":[".leading:"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["./x/**/*.jsona😀b😀c"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["😀a.b.c"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["emoji 👍🏽 mix﻿bom"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["héllo wörld"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["👍🏽 thumbs"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["日本語"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["ılık ırmak"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["👨‍👩‍👧 family"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["a b"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["a😀b"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["a²b x½ y①"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["aⅠb Ⅻ"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["a𐐀b 𝐀bc"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["कि ٣٤"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["Iı İi"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["K K k"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["ſ s S"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["x‍y 👨‍👩‍👧"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["a b c　d"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["١٢٣ ٤٥"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["𝟘𝟙 ²³"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["snake_case foo-bar o'neil"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["ǅungla Ǆ"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["one\r\ntwo threefour"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["café café"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["ΣΑΣ σας ς"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["UEsDBBQAAAAAAAAAIQAfyGIjGwAAABsAAAANAAAAbWFuaWZlc3QuanNvbnsiZXhwb3J0X2Zvcm1hdF92ZXJzaW9uIjozfVBLAwQUAAAAAAAAACEAv+EM5xgAAAAYAAAAFQAAAGNoYXRfc2Vzc2lvbnMvczEuanNvbnsiaWQiOiJzMSIsInRpdGxlIjoiaGkifVBLAwQUAAAAAAAAACEAAAAAAAAAAAAAAAAAFwAAAGNoYXRfc2Vzc2lvbnMvczFfZmlsZXMvUEsDBBQAAAAAAAAAIQBXILenCwAAAAsAAAAfAAAAY2hhdF9zZXNzaW9ucy9zMV9maWxlcy9mMV9hLnBuZ4lQTkcNChoKAP/+UEsBAhQAFAAAAAAAAAAhAB/IYiMbAAAAGwAAAA0AAAAAAAAAAAAAAAAAAAAAAG1hbmlmZXN0Lmpzb25QSwECFAAUAAAAAAAAACEAv+EM5xgAAAAYAAAAFQAAAAAAAAAAAAAAAABGAAAAY2hhdF9zZXNzaW9ucy9zMS5qc29uUEsBAhQAFAAAAAAAAAAhAAAAAAAAAAAAAAAAABcAAAAAAAAAAAAAAAAAkQAAAGNoYXRfc2Vzc2lvbnMvczFfZmlsZXMvUEsBAhQAFAAAAAAAAAAhAFcgt6cLAAAACwAAAB8AAAAAAAAAAAAAAAAAxgAAAGNoYXRfc2Vzc2lvbnMvczFfZmlsZXMvZjFfYS5wbmdQSwUGAAAAAAQABAAQAQAADgEAAAAA"],"ok":{"offset":270,"entries":[{"path":"manifest.json","size":27,"flags":0,"method":0,"crc":593676319,"compressedSize":27,"offset":0,"start":43},{"path":"chat_sessions/s1.json","size":24,"flags":0,"method":0,"crc":3876381119,"compressedSize":24,"offset":70,"start":121},{"path":"chat_sessions/s1_files/f1_a.png","size":11,"flags":0,"method":0,"crc":2813796439,"compressedSize":11,"offset":198,"start":259}]}}
+{"fn":"parseArchiveBase64","args":["UEsDBBQAAAAAAAAAIQAfyGIjGwAAABsAAAANAAAAbWFuaWZlc3QuanNvbnsiZXhwb3J0X2Zvcm1hdF92ZXJzaW9uIjozfVBLAQIUABQAAAAAAAAAIQAfyGIjGwAAABsAAAANAAAAAAAAAAAAAAAAAAAAAABtYW5pZmVzdC5qc29uUEsFBgAAAAABAAEAOwAAAEYAAAAAAA=="],"ok":{"offset":70,"entries":[{"path":"manifest.json","size":27,"flags":0,"method":0,"crc":593676319,"compressedSize":27,"offset":0,"start":43}]}}
+{"fn":"parseArchiveBase64","args":["UEsDBBQAAAAAAAAAIQAAAAAAAAAAAAAAAAAGAAAAYS5qc29uUEsBAhQAFAAAAAAAAAAhAAAAAAAAAAAAAAAAAAYAAAAAAAAAAAAAAAAAAAAAAGEuanNvblBLBQYAAAAAAQABADQAAAAkAAAAAAA="],"ok":{"offset":36,"entries":[{"path":"a.json","size":0,"flags":0,"method":0,"crc":0,"compressedSize":0,"offset":0,"start":36}]}}
+{"fn":"parseArchiveBase64","args":["UEsDBBQAAAAAAAAAIQCN7wLSAQAAAAEAAAAGAAAAYS5qc29uAFBLAQIUABQAAAAAAAAAIQCN7wLSAQAAAAEAAAAGAAAAAAAAAAAAAAAAAAAAAABhLmpzb25QSwUGAAAAAAEAAQA0AAAAJQAAAAAA"],"ok":{"offset":37,"entries":[{"path":"a.json","size":1,"flags":0,"method":0,"crc":3523407757,"compressedSize":1,"offset":0,"start":36}]}}
+{"fn":"parseArchiveBase64","args":["UEsDBBQAAAAAAAAAIQCshaIUAgAAAAIAAAAGAAAAYS5qc29uDQpQSwECFAAUAAAAAAAAACEArIWiFAIAAAACAAAABgAAAAAAAAAAAAAAAAAAAAAAYS5qc29uUEsFBgAAAAABAAEANAAAACYAAAAAAA=="],"ok":{"offset":38,"entries":[{"path":"a.json","size":2,"flags":0,"method":0,"crc":346195372,"compressedSize":2,"offset":0,"start":36}]}}
+{"fn":"parseArchiveBase64","args":["UEsDBBQAAAAIAAAAIQAfyGIjHQAAABsAAAANAAAAbWFuaWZlc3QuanNvbqtWSq0oyC8qiU/LL8pNLIkvSy0qzszPU7IyrgUAUEsDBBQAAAAIAAAAIQC/4QznGgAAABgAAAAVAAAAY2hhdF9zZXNzaW9ucy9zMS5qc29uq1bKTFGyUio2VNJRKsksyUlVslLKyFSqBQBQSwECFAAUAAAACAAAACEAH8hiIx0AAAAbAAAADQAAAAAAAAAAAAAAAAAAAAAAbWFuaWZlc3QuanNvblBLAQIUABQAAAAIAAAAIQC/4QznGgAAABgAAAAVAAAAAAAAAAAAAAAAAEgAAABjaGF0X3Nlc3Npb25zL3MxLmpzb25QSwUGAAAAAAIAAgB+AAAAlQAAAAAA"],"ok":{"offset":149,"entries":[{"path":"manifest.json","size":27,"flags":0,"method":8,"crc":593676319,"compressedSize":29,"offset":0,"start":43},{"path":"chat_sessions/s1.json","size":24,"flags":0,"method":8,"crc":3876381119,"compressedSize":26,"offset":72,"start":123}]}}
+{"fn":"parseArchiveBase64","args":["UEsDBBQAAAAIAAAAIQAAAAAAAgAAAAAAAAAGAAAAYS5qc29uAwBQSwECFAAUAAAACAAAACEAAAAAAAIAAAAAAAAABgAAAAAAAAAAAAAAAAAAAAAAYS5qc29uUEsFBgAAAAABAAEANAAAACYAAAAAAA=="],"ok":{"offset":38,"entries":[{"path":"a.json","size":0,"flags":0,"method":8,"crc":0,"compressedSize":2,"offset":0,"start":36}]}}
+{"fn":"parseArchiveBase64","args":["UEsDBBQAAAAIAAAAIQAAAAAAAAAAAAAAAAAGAAAAYS5qc29uUEsBAhQAFAAAAAgAAAAhAAAAAAAAAAAAAAAAAAYAAAAAAAAAAAAAAAAAAAAAAGEuanNvblBLBQYAAAAAAQABADQAAAAkAAAAAAA="],"ok":{"offset":36,"entries":[{"path":"a.json","size":0,"flags":0,"method":8,"crc":0,"compressedSize":0,"offset":0,"start":36}]}}
+{"fn":"parseArchiveBase64","args":["UEsDBBQACAAAAAAAIQAAAAAAAAAAAAAAAAANAAAAbWFuaWZlc3QuanNvbnsiZXhwb3J0X2Zvcm1hdF92ZXJzaW9uIjozfVBLBwgfyGIjGwAAABsAAABQSwECFAAUAAgAAAAAACEAH8hiIxsAAAAbAAAADQAAAAAAAAAAAAAAAAAAAAAAbWFuaWZlc3QuanNvblBLBQYAAAAAAQABADsAAABWAAAAAAA="],"ok":{"offset":86,"entries":[{"path":"manifest.json","size":27,"flags":8,"method":0,"crc":593676319,"compressedSize":27,"offset":0,"start":43}]}}
+{"fn":"parseArchiveBase64","args":["UEsDBBQACAAIAAAAIQAAAAAAAAAAAAAAAAAGAAAAYS5qc29uq1ZKrSjILyqJT8svyk0siS9LLSrOzM9TsjKuBQAfyGIjHQAAABsAAABQSwECFAAUAAgACAAAACEAH8hiIx0AAAAbAAAABgAAAAAAAAAAAAAAAAAAAAAAYS5qc29uUEsFBgAAAAABAAEANAAAAE0AAAAAAA=="],"ok":{"offset":77,"entries":[{"path":"a.json","size":27,"flags":8,"method":8,"crc":593676319,"compressedSize":29,"offset":0,"start":36}]}}
+{"fn":"parseArchiveBase64","args":["UEsDBBQAAAAAAAAAIQAfyGIjGwAAABsAAAANAAAAbWFuaWZlc3QuanNvbnsiZXhwb3J0X2Zvcm1hdF92ZXJzaW9uIjozfVBLAQIUABQAAAAAAAAAIQAfyGIjGwAAABsAAAANAAAAAAAAAAAAAAAAAAAAAABtYW5pZmVzdC5qc29uUEsFBgAAAAABAAEAOwAAAEYAAAAIAGV4cG9ydGVk"],"ok":{"offset":70,"entries":[{"path":"manifest.json","size":27,"flags":0,"method":0,"crc":593676319,"compressedSize":27,"offset":0,"start":43}]}}
+{"fn":"parseArchiveBase64","args":["UEsFBgAAAAAAAAAAAAAAAAAAAAAAAA=="],"ok":{"offset":0,"entries":[]}}
+{"fn":"parseArchiveBase64","args":["UEsDBBQAAAgAAAAAIQAfyGIjGwAAABsAAAALAAAA5Lya6K+dLmpzb257ImV4cG9ydF9mb3JtYXRfdmVyc2lvbiI6M31QSwECFAAUAAAIAAAAACEAH8hiIxsAAAAbAAAACwAAAAAAAAAAAAAAAAAAAAAA5Lya6K+dLmpzb25QSwUGAAAAAAEAAQA5AAAARAAAAAAA"],"ok":{"offset":68,"entries":[{"path":"会话.json","size":27,"flags":2048,"method":0,"crc":593676319,"compressedSize":27,"offset":0,"start":41}]}}
+{"fn":"parseArchiveBase64","args":["UEsDBBQAAAgAAAAAIQAfyGIjGwAAABsAAAAHAAAAw6kuanNvbnsiZXhwb3J0X2Zvcm1hdF92ZXJzaW9uIjozfVBLAQIUABQAAAgAAAAAIQAfyGIjGwAAABsAAAAHAAAAAAAAAAAAAAAAAAAAAADDqS5qc29uUEsFBgAAAAABAAEANQAAAEAAAAAAAA=="],"ok":{"offset":64,"entries":[{"path":"é.json","size":27,"flags":2048,"method":0,"crc":593676319,"compressedSize":27,"offset":0,"start":37}]}}
+{"fn":"parseArchiveBase64","args":["UEsDBBQAAAgAAAAAIQAfyGIjGwAAABsAAAAIAAAAZcyBLmpzb257ImV4cG9ydF9mb3JtYXRfdmVyc2lvbiI6M31QSwECFAAUAAAIAAAAACEAH8hiIxsAAAAbAAAACAAAAAAAAAAAAAAAAAAAAAAAZcyBLmpzb25QSwUGAAAAAAEAAQA2AAAAQQAAAAAA"],"ok":{"offset":65,"entries":[{"path":"é.json","size":27,"flags":2048,"method":0,"crc":593676319,"compressedSize":27,"offset":0,"start":38}]}}
+{"fn":"parseArchiveBase64","args":["UEsDBBQAAAAAAAAAIQAfyGIjGwAAABsAAAAGAAAAYS5qc29ueyJleHBvcnRfZm9ybWF0X3ZlcnNpb24iOjN9UEsDBBQAAAAAAAAAIQAfyGIjGwAAABsAAAAGAAAAQS5qc29ueyJleHBvcnRfZm9ybWF0X3ZlcnNpb24iOjN9UEsBAhQAFAAAAAAAAAAhAB/IYiMbAAAAGwAAAAYAAAAAAAAAAAAAAAAAAAAAAGEuanNvblBLAQIUABQAAAAAAAAAIQAfyGIjGwAAABsAAAAGAAAAAAAAAAAAAAAAAD8AAABBLmpzb25QSwUGAAAAAAIAAgBoAAAAfgAAAAAA"],"ok":{"offset":126,"entries":[{"path":"a.json","size":27,"flags":0,"method":0,"crc":593676319,"compressedSize":27,"offset":0,"start":36},{"path":"A.json","size":27,"flags":0,"method":0,"crc":593676319,"compressedSize":27,"offset":63,"start":99}]}}
+{"fn":"parseArchiveBase64","args":["UEsDBBQAAAAAAAAAIQAfyGIjGwAAABsAAAABAAAAYXsiZXhwb3J0X2Zvcm1hdF92ZXJzaW9uIjozfVBLAwQUAAAAAAAAACEAH8hiIxsAAAAbAAAAAwAAAGEvYnsiZXhwb3J0X2Zvcm1hdF92ZXJzaW9uIjozfVBLAQIUABQAAAAAAAAAIQAfyGIjGwAAABsAAAABAAAAAAAAAAAAAAAAAAAAAABhUEsBAhQAFAAAAAAAAAAhAB/IYiMbAAAAGwAAAAMAAAAAAAAAAAAAAAAAOgAAAGEvYlBLBQYAAAAAAgACAGAAAAB2AAAAAAA="],"ok":{"offset":118,"entries":[{"path":"a","size":27,"flags":0,"method":0,"crc":593676319,"compressedSize":27,"offset":0,"start":31},{"path":"a/b","size":27,"flags":0,"method":0,"crc":593676319,"compressedSize":27,"offset":58,"start":91}]}}
+{"fn":"parseArchiveBase64","args":["UEsDBBQAAAAAAAAAIQAfyGIjGwAAABsAAAAFAAAAQUI6L3h7ImV4cG9ydF9mb3JtYXRfdmVyc2lvbiI6M31QSwECFAAUAAAAAAAAACEAH8hiIxsAAAAbAAAABQAAAAAAAAAAAAAAAAAAAAAAQUI6L3hQSwUGAAAAAAEAAQAzAAAAPgAAAAAA"],"ok":{"offset":62,"entries":[{"path":"AB:/x","size":27,"flags":0,"method":0,"crc":593676319,"compressedSize":27,"offset":0,"start":35}]}}
+{"fn":"parseArchiveBase64","args":["UEsDBBQAAAgAAAAAIQAfyGIjGwAAABsAAAAJAAAA77u/YS5qc29ueyJleHBvcnRfZm9ybWF0X3ZlcnNpb24iOjN9UEsBAhQAFAAACAAAAAAhAB/IYiMbAAAAGwAAAAkAAAAAAAAAAAAAAAAAAAAAAO+7v2EuanNvblBLBQYAAAAAAQABADcAAABCAAAAAAA="],"ok":{"offset":66,"entries":[{"path":"a.json","size":27,"flags":2048,"method":0,"crc":593676319,"compressedSize":27,"offset":0,"start":39}]}}
+{"fn":"parseArchiveBase64","args":["UEsDBBQAAAAAAAAAIQAfyGIjGwAAABsAAAAGAAgAYS5qc29uAgAEAAAAAAB7ImV4cG9ydF9mb3JtYXRfdmVyc2lvbiI6M31QSwECFAAUAAAAAAAAACEAH8hiIxsAAAAbAAAABgAIAAAAAAAAAAAAAAAAAAAAYS5qc29uAgAEAAAAAABQSwUGAAAAAAEAAQA8AAAARwAAAAAA"],"ok":{"offset":71,"entries":[{"path":"a.json","size":27,"flags":0,"method":0,"crc":593676319,"compressedSize":27,"offset":0,"start":44}]}}
+{"fn":"parseArchiveBase64","args":["UEsDBBQAAAAAAAAAIQC/4QznGAAAABgAAAAGAAAAYi5qc29ueyJpZCI6InMxIiwidGl0bGUiOiJoaSJ9UEsDBBQAAAAAAAAAIQAfyGIjGwAAABsAAAAGAAAAYS5qc29ueyJleHBvcnRfZm9ybWF0X3ZlcnNpb24iOjN9UEsBAhQAFAAAAAAAAAAhAL/hDOcYAAAAGAAAAAYAAAAAAAAAAAAAAAAAAAAAAGIuanNvblBLAQIUABQAAAAAAAAAIQAfyGIjGwAAABsAAAAGAAAAAAAAAAAAAAAAADwAAABhLmpzb25QSwUGAAAAAAIAAgBoAAAAewAAAAAA"],"ok":{"offset":123,"entries":[{"path":"b.json","size":24,"flags":0,"method":0,"crc":3876381119,"compressedSize":24,"offset":0,"start":36},{"path":"a.json","size":27,"flags":0,"method":0,"crc":593676319,"compressedSize":27,"offset":60,"start":96}]}}
+{"fn":"parseArchiveBase64","args":["UEsDBBQAAAAAAAAAIQAfyGIjGwAAABsAAAAGAAAAYS5qc29ueyJleHBvcnRfZm9ybWF0X3ZlcnNpb24iOjN9UEsDBBQAAAAAAAAAIQC/4QznGAAAABgAAAAGAAAAYi5qc29ueyJpZCI6InMxIiwidGl0bGUiOiJoaSJ9UEsBAhQAFAAAAAAAAAAhAL/hDOcYAAAAGAAAAAYAAAAAAAAAAAAAAAAAPwAAAGIuanNvblBLAQIUABQAAAAAAAAAIQAfyGIjGwAAABsAAAAGAAAAAAAAAAAAAAAAAAAAAABhLmpzb25QSwUGAAAAAAIAAgBoAAAAewAAAAAA"],"ok":{"offset":123,"entries":[{"path":"a.json","size":27,"flags":0,"method":0,"crc":593676319,"compressedSize":27,"offset":0,"start":36},{"path":"b.json","size":24,"flags":0,"method":0,"crc":3876381119,"compressedSize":24,"offset":63,"start":99}]}}
+{"fn":"parseArchiveBase64","args":[""],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["hello!"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["YQ"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["YW Jj"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["a"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["YQ==="],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["YQ==\n"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["YQ--"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["UFBQUFBQUFBQUFBQUFBQUFBQUFBQ"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["AAAA"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQQ=="],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["UEsDBBQAAAAAAAAAIQAfyGIjGwAAABsAAAAGAAAAYS5qc29ueyJleHBvcnRfZm9ybWF0X3ZlcnNpb24iOjN9UEsBAhQAFAAAAAAAAAAhAB/IYiMbAAAAGwAAAAYAAAAAAAAAAAAAAAAAAAAAAGEuanNvblFLBQYAAAAAAQABADQAAAA/AAAAAAA="],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["UEsDBBQAAAAAAAAAIQAfyGIjGwAAABsAAAAGAAAAYS5qc29ueyJleHBvcnRfZm9ybWF0X3ZlcnNpb24iOjN9UUsBAhQAFAAAAAAAAAAhAB/IYiMbAAAAGwAAAAYAAAAAAAAAAAAAAAAAAAAAAGEuanNvblBLBQYAAAAAAQABADQAAAA/AAAAAAA="],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["UUsDBBQAAAAAAAAAIQAfyGIjGwAAABsAAAAGAAAAYS5qc29ueyJleHBvcnRfZm9ybWF0X3ZlcnNpb24iOjN9UEsBAhQAFAAAAAAAAAAhAB/IYiMbAAAAGwAAAAYAAAAAAAAAAAAAAAAAAAAAAGEuanNvblBLBQYAAAAAAQABADQAAAA/AAAAAAA="],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["UEsDBBQAAAAAAAAAIQAfyGIjGwAAABsAAAAGAAAAYS5qc29ueyJleHBvcnRfZm9ybWF0X3ZlcnNpb24iOjN9UEsBAhQAFAAAAAAAAAAhAB/IYiMbAAAAGwAAAAYAAAAAAAAAAAAAAAAAAAAAAGEuanNvblBLBQYAAAAAAQABADQAAAA/AAAAAA=="],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["UEsDBBQAAAAAAAAAIQAfyGIjGwAAABsAAAAGAAAAYS5qc29ueyJleHBvcnRfZm9ybWF0X3ZlcnNpb24i"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["UEsDBBQAAAAAAAAA"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["UEsDBBQAAAAAAAAAIQAfyGIjGwAAABsAAAAGAAAAYS5qc29ueyJleHBvcnRfZm9ybWF0X3ZlcnNpb24iOjN9UEsBAhQAFAAAAAAAAAAhAB/IYiMbAAAAGwAAAAYAAAAAAAAAAAAAAAAAAAAAAGEuanNvblBLBQYAAAAAAQABADQAAAA/AAAAAAAAAA=="],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["UEsDBBQAAAAAAAAAIQAfyGIjGwAAABsAAAAGAAAAYS5qc29ueyJleHBvcnRfZm9ybWF0X3ZlcnNpb24iOjN9UEsBAhQAFAAAAAAAAAAhAB/IYiMbAAAAGwAAAAYAAAAAAAAAAAAAAAAAAAAAAGEuanNvblBLBQYAAAAAAQABADQAAAA/AAAAAABQSwUG"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["UEsDBBQAAAAAAAAAIQAfyGIjGwAAABsAAAAGAAAAYS5qc29ueyJleHBvcnRfZm9ybWF0X3ZlcnNpb24iOjN9UEsBAhQAFAAAAAAAAAAhAB/IYiMbAAAAGwAAAAYAAAAAAAAAAAAAAAAAAAAAAGEuanNvblBLBQYAAAAAAQACADQAAAA/AAAAAAA="],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["UEsDBBQAAAAAAAAAIQAfyGIjGwAAABsAAAAGAAAAYS5qc29ueyJleHBvcnRfZm9ybWF0X3ZlcnNpb24iOjN9UEsDBBQAAAAAAAAAIQAfyGIjGwAAABsAAAAGAAAAYi5qc29ueyJleHBvcnRfZm9ybWF0X3ZlcnNpb24iOjN9UEsBAhQAFAAAAAAAAAAhAB/IYiMbAAAAGwAAAAYAAAAAAAAAAAAAAAAAAAAAAGEuanNvblBLAQIUABQAAAAAAAAAIQAfyGIjGwAAABsAAAAGAAAAAAAAAAAAAAAAAD8AAABiLmpzb25QSwUGAAAAAAEAAgBoAAAAfgAAAAAA"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["UEsDBBQAAAAAAAAAIQAfyGIjGwAAABsAAAAGAAAAYS5qc29ueyJleHBvcnRfZm9ybWF0X3ZlcnNpb24iOjN9UEsBAhQAFAAAAAAAAAAhAB/IYiMbAAAAGwAAAAYAAAAAAAAAAAAAAAAAAAAAAGEuanNvblBLBQYBAAAAAQABADQAAAA/AAAAAAA="],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["UEsDBBQAAAAAAAAAIQAfyGIjGwAAABsAAAAGAAAAYS5qc29ueyJleHBvcnRfZm9ybWF0X3ZlcnNpb24iOjN9UEsBAhQAFAAAAAAAAAAhAB/IYiMbAAAAGwAAAAYAAAAAAAAAAAAAAAAAAAAAAGEuanNvblBLBQYAAAEAAQABADQAAAA/AAAAAAA="],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["UEsDBBQAAAAAAAAAIQAfyGIjGwAAABsAAAAGAAAAYS5qc29ueyJleHBvcnRfZm9ybWF0X3ZlcnNpb24iOjN9UEsBAhQAFAAAAAAAAAAhAB/IYiMbAAAAGwAAAAYAAAAAAAAAAAAAAAAAAAAAAGEuanNvblBLBQYAAAAAAQD//zQAAAA/AAAAAAA="],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["UEsDBBQAAAAAAAAAIQAfyGIjGwAAABsAAAAGAAAAYS5qc29ueyJleHBvcnRfZm9ybWF0X3ZlcnNpb24iOjN9UEsBAhQAFAAAAAAAAAAhAB/IYiMbAAAAGwAAAAYAAAAAAAAAAAAAAAAAAAAAAGEuanNvblBLBQYAAAAAAQABAP////8/AAAAAAA="],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["UEsDBBQAAAAAAAAAIQAfyGIjGwAAABsAAAAGAAAAYS5qc29ueyJleHBvcnRfZm9ybWF0X3ZlcnNpb24iOjN9UEsBAhQAFAAAAAAAAAAhAB/IYiMbAAAAGwAAAAYAAAAAAAAAAAAAAAAAAAAAAGEuanNvblBLBQYAAAAAAQABADQAAAD/////AAA="],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["UEsDBBQAAAAAAAAAIQAfyGIjGwAAABsAAAAGAAAAYS5qc29ueyJleHBvcnRfZm9ybWF0X3ZlcnNpb24iOjN9UEsBAhQAFAAAAAAAAAAhAB/IYiMbAAAAGwAAAAYAAAAAAAAAAAAAAAAAAAAAAGEuanNvblBLBQYAAAAAAQABADQAAAABAAAAAAA="],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["UEsDBBQAAAAAAAAAIQAfyGIjGwAAABsAAAAGAAAAYS5qc29ueyJleHBvcnRfZm9ybWF0X3ZlcnNpb24iOjN9UEsBAhQAFAAAAAAAAAAhAB/IYiMbAAAAGwAAAAYAAAAAAAAAAAAAAAAAAAAAAGEuanNvblBLBQYAAAAAAQABAAEAAAA/AAAAAAA="],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["UEsDBBQAAAAAAAAAIQAfyGIjGwAAABsAAAAGAAAAYS5qc29ueyJleHBvcnRfZm9ybWF0X3ZlcnNpb24iOjN9UEsBAhQAFAAAAAAAAAAhAB/IYiP/////GwAAAAYAAAAAAAAAAAAAAAAAAAAAAGEuanNvblBLBQYAAAAAAQABADQAAAA/AAAAAAA="],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["UEsDBBQAAAAAAAAAIQAfyGIjGwAAABsAAAAGAAAAYS5qc29ueyJleHBvcnRfZm9ybWF0X3ZlcnNpb24iOjN9UEsBAhQAFAAAAAAAAAAhAB/IYiMbAAAA/////wYAAAAAAAAAAAAAAAAAAAAAAGEuanNvblBLBQYAAAAAAQABADQAAAA/AAAAAAA="],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["UEsDBBQAAAAAAAAAIQAfyGIjGwAAABsAAAAGAAAAYS5qc29ueyJleHBvcnRfZm9ybWF0X3ZlcnNpb24iOjN9UEsBAhQAFAAAAAAAAAAhAB/IYiMbAAAAGwAAAAYAAAAAAAAAAAAAAAAA/////2EuanNvblBLBQYAAAAAAQABADQAAAA/AAAAAAA="],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["UEsDBBQAAQAAAAAAIQAfyGIjGwAAABsAAAAGAAAAYS5qc29ueyJleHBvcnRfZm9ybWF0X3ZlcnNpb24iOjN9UEsBAhQAFAABAAAAAAAhAB/IYiMbAAAAGwAAAAYAAAAAAAAAAAAAAAAAAAAAAGEuanNvblBLBQYAAAAAAQABADQAAAA/AAAAAAA="],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["UEsDBBQAQQAAAAAAIQAfyGIjGwAAABsAAAAGAAAAYS5qc29ueyJleHBvcnRfZm9ybWF0X3ZlcnNpb24iOjN9UEsBAhQAFABBAAAAAAAhAB/IYiMbAAAAGwAAAAYAAAAAAAAAAAAAAAAAAAAAAGEuanNvblBLBQYAAAAAAQABADQAAAA/AAAAAAA="],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["UEsDBBQAAAAMAAAAIQAfyGIjHQAAABsAAAAGAAAAYS5qc29uq1ZKrSjILyqJT8svyk0siS9LLSrOzM9TsjKuBQBQSwECFAAUAAAADAAAACEAH8hiIx0AAAAbAAAABgAAAAAAAAAAAAAAAAAAAAAAYS5qc29uUEsFBgAAAAABAAEANAAAAEEAAAAAAA=="],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["UEsDBBQAAAAAAAAAIQAfyGIjGwAAABsAAAAGAAAAYS5qc29ueyJleHBvcnRfZm9ybWF0X3ZlcnNpb24iOjN9UEsBAhQAFAAAAAAAAAAhAB/IYiMDAAAAGwAAAAYAAAAAAAAAAAAAAAAAAAAAAGEuanNvblBLBQYAAAAAAQABADQAAAA/AAAAAAA="],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["UEsDBBQAAAAAAAAAIQAfyGIjGwAAABsAAAAGAAAAYS5qc29ueyJleHBvcnRfZm9ybWF0X3ZlcnNpb24iOjN9UEsBAhQAFAAAAAAAAAAhAB/IYiMbAAAAGwAAAAYAAAAAAAAAAAAAAAAA/38AAGEuanNvblBLBQYAAAAAAQABADQAAAA/AAAAAAA="],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["UEsDBBQAAAAAAAAAIQAfyGIjGwAAABsAAAAGAAAAYS5qc29ueyJleHBvcnRfZm9ybWF0X3ZlcnNpb24iOjN9UEsBAhQAFAAAAAAAAAAhAB/IYiMbAAAAGwAAAAYAAAAAAAEAAAAAAAAAAAAAAGEuanNvblBLBQYAAAAAAQABADQAAAA/AAAAAAA="],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["UEsDBBQAAAAAAAAAIQAfyGIjGwAAABsAAAAGAAAAYS5qc29ueyJleHBvcnRfZm9ybWF0X3ZlcnNpb24iOjN9UEsBAhQAFAAAAAAAAAAhAB/IYiMbAAAAGwAAAAYAAAAAAAAAAAAAAP+hAAAAAGEuanNvblBLBQYAAAAAAQABADQAAAA/AAAAAAA="],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["UEsDBBQAAAAAAAAAIQAfyGIjGwAAABsAAAAGAAAAYS5qc29ueyJleHBvcnRfZm9ybWF0X3ZlcnNpb24iOjN9UEsBAhQAFAAAAAAAAAAhAB/IYiMbAAAAGwAAAAYAAAD//wAAAAAAAAAAAAAAAGEuanNvblBLBQYAAAAAAQABADQAAAA/AAAAAAA="],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["UEsDBBQAAAAAAAAAIQAfyGIjGwAAABsAAAAGAAAAYS5qc29ueyJleHBvcnRfZm9ybWF0X3ZlcnNpb24iOjN9UEsBAhQAFAAAAAAAAAAhAB/IYiMbAAAAGwAAAP//AAAAAAAAAAAAAAAAAAAAAGEuanNvblBLBQYAAAAAAQABADQAAAA/AAAAAAA="],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["UEsDBBQAAAAAAAAAIQAfyGIjGwAAABsAAAAGAAQAYS5qc29uAQAAAHsiZXhwb3J0X2Zvcm1hdF92ZXJzaW9uIjozfVBLAQIUABQAAAAAAAAAIQAfyGIjGwAAABsAAAAGAAQAAAAAAAAAAAAAAAAAAABhLmpzb24BAAAAUEsFBgAAAAABAAEAOAAAAEMAAAAAAA=="],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["UEsDBBQAAAAAAAAAIQAfyGIjGwAAABsAAAAGAAQAYS5qc29uAgAJAHsiZXhwb3J0X2Zvcm1hdF92ZXJzaW9uIjozfVBLAQIUABQAAAAAAAAAIQAfyGIjGwAAABsAAAAGAAQAAAAAAAAAAAAAAAAAAABhLmpzb24CAAkAUEsFBgAAAAABAAEAOAAAAEMAAAAAAA=="],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["UEsDBBQAAAAAAAAAIQAfyGIjGwAAABsAAAAGAAIAYS5qc29uAgB7ImV4cG9ydF9mb3JtYXRfdmVyc2lvbiI6M31QSwECFAAUAAAAAAAAACEAH8hiIxsAAAAbAAAABgACAAAAAAAAAAAAAAAAAAAAYS5qc29uAgBQSwUGAAAAAAEAAQA2AAAAQQAAAAAA"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["UEsDBBQAAAAAAAAAIQAfyGIjGwAAABsAAAAGAAoAYS5qc29uAgAEAAAAAAAAAHsiZXhwb3J0X2Zvcm1hdF92ZXJzaW9uIjozfVBLAQIUABQAAAAAAAAAIQAfyGIjGwAAABsAAAAGAAoAAAAAAAAAAAAAAAAAAABhLmpzb24CAAQAAAAAAAAAUEsFBgAAAAABAAEAPgAAAEkAAAAAAA=="],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["UEsDBBQAAAAAAAAAIQAfyGIjGwAAABsAAAALAAAAYS8uLi9iLmpzb257ImV4cG9ydF9mb3JtYXRfdmVyc2lvbiI6M31QSwECFAAUAAAAAAAAACEAH8hiIxsAAAAbAAAACwAAAAAAAAAAAAAAAAAAAAAAYS8uLi9iLmpzb25QSwUGAAAAAAEAAQA5AAAARAAAAAAA"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["UEsDBBQAAAAAAAAAIQAfyGIjGwAAABsAAAAIAAAALi9hLmpzb257ImV4cG9ydF9mb3JtYXRfdmVyc2lvbiI6M31QSwECFAAUAAAAAAAAACEAH8hiIxsAAAAbAAAACAAAAAAAAAAAAAAAAAAAAAAALi9hLmpzb25QSwUGAAAAAAEAAQA2AAAAQQAAAAAA"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["UEsDBBQAAAAAAAAAIQAfyGIjGwAAABsAAAAJAAAAYS8vYi5qc29ueyJleHBvcnRfZm9ybWF0X3ZlcnNpb24iOjN9UEsBAhQAFAAAAAAAAAAhAB/IYiMbAAAAGwAAAAkAAAAAAAAAAAAAAAAAAAAAAGEvL2IuanNvblBLBQYAAAAAAQABADcAAABCAAAAAAA="],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["UEsDBBQAAAAAAAAAIQAfyGIjGwAAABsAAAALAAAAL2V0Yy9wYXNzd2R7ImV4cG9ydF9mb3JtYXRfdmVyc2lvbiI6M31QSwECFAAUAAAAAAAAACEAH8hiIxsAAAAbAAAACwAAAAAAAAAAAAAAAAAAAAAAL2V0Yy9wYXNzd2RQSwUGAAAAAAEAAQA5AAAARAAAAAAA"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["UEsDBBQAAAAAAAAAIQAfyGIjGwAAABsAAAAJAAAAQzovYS5qc29ueyJleHBvcnRfZm9ybWF0X3ZlcnNpb24iOjN9UEsBAhQAFAAAAAAAAAAhAB/IYiMbAAAAGwAAAAkAAAAAAAAAAAAAAAAAAAAAAEM6L2EuanNvblBLBQYAAAAAAQABADcAAABCAAAAAAA="],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["UEsDBBQAAAAAAAAAIQAfyGIjGwAAABsAAAAIAAAAYTpiLmpzb257ImV4cG9ydF9mb3JtYXRfdmVyc2lvbiI6M31QSwECFAAUAAAAAAAAACEAH8hiIxsAAAAbAAAACAAAAAAAAAAAAAAAAAAAAAAAYTpiLmpzb25QSwUGAAAAAAEAAQA2AAAAQQAAAAAA"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["UEsDBBQAAAAAAAAAIQAfyGIjGwAAABsAAAAIAAAAYVxiLmpzb257ImV4cG9ydF9mb3JtYXRfdmVyc2lvbiI6M31QSwECFAAUAAAAAAAAACEAH8hiIxsAAAAbAAAACAAAAAAAAAAAAAAAAAAAAAAAYVxiLmpzb25QSwUGAAAAAAEAAQA2AAAAQQAAAAAA"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["UEsDBBQAAAAAAAAAIQAfyGIjGwAAABsAAAAIAAAAYQBiLmpzb257ImV4cG9ydF9mb3JtYXRfdmVyc2lvbiI6M31QSwECFAAUAAAAAAAAACEAH8hiIxsAAAAbAAAACAAAAAAAAAAAAAAAAAAAAAAAYQBiLmpzb25QSwUGAAAAAAEAAQA2AAAAQQAAAAAA"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["UEsDBBQAAAAAAAAAIQAfyGIjGwAAABsAAAAAAAAAeyJleHBvcnRfZm9ybWF0X3ZlcnNpb24iOjN9UEsBAhQAFAAAAAAAAAAhAB/IYiMbAAAAGwAAAAAAAAAAAAAAAAAAAAAAAAAAAFBLBQYAAAAAAQABAC4AAAA5AAAAAAA="],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["UEsDBBQAAAAAAAAAIQAAAAAAAAAAAAAAAAABAAAAL1BLAQIUABQAAAAAAAAAIQAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAvUEsFBgAAAAABAAEALwAAAB8AAAAAAA=="],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["UEsDBBQAAAAAAAAAIQAfyGIjGwAAABsAAAABAAAALnsiZXhwb3J0X2Zvcm1hdF92ZXJzaW9uIjozfVBLAQIUABQAAAAAAAAAIQAfyGIjGwAAABsAAAABAAAAAAAAAAAAAAAAAAAAAAAuUEsFBgAAAAABAAEALwAAADoAAAAAAA=="],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["UEsDBBQAAAAAAAAAIQAfyGIjGwAAABsAAAACAAAALi57ImV4cG9ydF9mb3JtYXRfdmVyc2lvbiI6M31QSwECFAAUAAAAAAAAACEAH8hiIxsAAAAbAAAAAgAAAAAAAAAAAAAAAAAAAAAALi5QSwUGAAAAAAEAAQAwAAAAOwAAAAAA"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["UEsDBBQAAAAAAAAAIQAfyGIjGwAAABsAAAAFAAAAYS8uL2J7ImV4cG9ydF9mb3JtYXRfdmVyc2lvbiI6M31QSwECFAAUAAAAAAAAACEAH8hiIxsAAAAbAAAABQAAAAAAAAAAAAAAAAAAAAAAYS8uL2JQSwUGAAAAAAEAAQAzAAAAPgAAAAAA"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["UEsDBBQAAAAAAAAAIQAfyGIjGwAAABsAAAAGAAAAYS5qc29ueyJleHBvcnRfZm9ybWF0X3ZlcnNpb24iOjN9UEsDBBQAAAAAAAAAIQAfyGIjGwAAABsAAAAGAAAAYS5qc29ueyJleHBvcnRfZm9ybWF0X3ZlcnNpb24iOjN9UEsBAhQAFAAAAAAAAAAhAB/IYiMbAAAAGwAAAAYAAAAAAAAAAAAAAAAAAAAAAGEuanNvblBLAQIUABQAAAAAAAAAIQAfyGIjGwAAABsAAAAGAAAAAAAAAAAAAAAAAD8AAABhLmpzb25QSwUGAAAAAAIAAgBoAAAAfgAAAAAA"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["UEsDBBQAAAgAAAAAIQAfyGIjGwAAABsAAAAHAAAAw6kuanNvbnsiZXhwb3J0X2Zvcm1hdF92ZXJzaW9uIjozfVBLAwQUAAAIAAAAACEAH8hiIxsAAAAbAAAACAAAAGXMgS5qc29ueyJleHBvcnRfZm9ybWF0X3ZlcnNpb24iOjN9UEsBAhQAFAAACAAAAAAhAB/IYiMbAAAAGwAAAAcAAAAAAAAAAAAAAAAAAAAAAMOpLmpzb25QSwECFAAUAAAIAAAAACEAH8hiIxsAAAAbAAAACAAAAAAAAAAAAAAAAABAAAAAZcyBLmpzb25QSwUGAAAAAAIAAgBrAAAAgQAAAAAA"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["UEsDBBQAAAAAAAAAIQAfyGIjGwAAABsAAAABAAAAYXsiZXhwb3J0X2Zvcm1hdF92ZXJzaW9uIjozfVBLAwQUAAAAAAAAACEAAAAAAAAAAAAAAAAAAgAAAGEvUEsBAhQAFAAAAAAAAAAhAB/IYiMbAAAAGwAAAAEAAAAAAAAAAAAAAAAAAAAAAGFQSwECFAAUAAAAAAAAACEAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAA6AAAAYS9QSwUGAAAAAAIAAgBfAAAAWgAAAAAA"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["UEsDBBQAAAAAAAAAIQAfyGIjGwAAABsAAAACAAAAYS97ImV4cG9ydF9mb3JtYXRfdmVyc2lvbiI6M31QSwECFAAUAAAAAAAAACEAH8hiIxsAAAAbAAAAAgAAAAAAAAAAAAAAAAAAAAAAYS9QSwUGAAAAAAEAAQAwAAAAOwAAAAAA"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["UEsDBBQAAAAAAAAAIQAAAAAAAAAAAAAAAAADAAAAYS7pUEsBAhQAFAAAAAAAAAAhAAAAAAAAAAAAAAAAAAMAAAAAAAAAAAAAAAAAAAAAAGEu6VBLBQYAAAAAAQABADEAAAAhAAAAAAA="],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["UEsDBBQAAAgAAAAAIQAAAAAAAAAAAAAAAAADAAAAYf/+UEsBAhQAFAAACAAAAAAhAAAAAAAAAAAAAAAAAAMAAAAAAAAAAAAAAAAAAAAAAGH//lBLBQYAAAAAAQABADEAAAAhAAAAAAA="],"error":"The encoded data was not valid for encoding utf-8"}
+{"fn":"parseArchiveBase64","args":["UEsDBBQACAAAAAAAIQAfyGIjGwAAABsAAAAGAAAAYS5qc29ueyJleHBvcnRfZm9ybWF0X3ZlcnNpb24iOjN9UEsBAhQAFAAAAAAAAAAhAB/IYiMbAAAAGwAAAAYAAAAAAAAAAAAAAAAAAAAAAGEuanNvblBLBQYAAAAAAQABADQAAAA/AAAAAAA="],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["UEsDBBQAAAAIAAAAIQAfyGIjGwAAABsAAAAGAAAAYS5qc29ueyJleHBvcnRfZm9ybWF0X3ZlcnNpb24iOjN9UEsBAhQAFAAAAAAAAAAhAB/IYiMbAAAAGwAAAAYAAAAAAAAAAAAAAAAAAAAAAGEuanNvblBLBQYAAAAAAQABADQAAAA/AAAAAAA="],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["UEsDBBQAAAAAAAAAIQAfyGIjGwAAABsAAAAFAAAAYS5qc29ueyJleHBvcnRfZm9ybWF0X3ZlcnNpb24iOjN9UEsBAhQAFAAAAAAAAAAhAB/IYiMbAAAAGwAAAAYAAAAAAAAAAAAAAAAAAAAAAGEuanNvblBLBQYAAAAAAQABADQAAAA/AAAAAAA="],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["UEsDBBQAAAAAAAAAIQABAAAAGwAAABsAAAAGAAAAYS5qc29ueyJleHBvcnRfZm9ybWF0X3ZlcnNpb24iOjN9UEsBAhQAFAAAAAAAAAAhAB/IYiMbAAAAGwAAAAYAAAAAAAAAAAAAAAAAAAAAAGEuanNvblBLBQYAAAAAAQABADQAAAA/AAAAAAA="],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["UEsDBBQAAAAAAAAAIQAfyGIjAwAAABsAAAAGAAAAYS5qc29ueyJleHBvcnRfZm9ybWF0X3ZlcnNpb24iOjN9UEsBAhQAFAAAAAAAAAAhAB/IYiMbAAAAGwAAAAYAAAAAAAAAAAAAAAAAAAAAAGEuanNvblBLBQYAAAAAAQABADQAAAA/AAAAAAA="],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["UEsDBBQAAAAAAAAAIQAfyGIjGwAAAAMAAAAGAAAAYS5qc29ueyJleHBvcnRfZm9ybWF0X3ZlcnNpb24iOjN9UEsBAhQAFAAAAAAAAAAhAB/IYiMbAAAAGwAAAAYAAAAAAAAAAAAAAAAAAAAAAGEuanNvblBLBQYAAAAAAQABADQAAAA/AAAAAAA="],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["UEsDBBQAAAAAAAAAIQAfyGIjGwAAABsAAAAGAAAAYi5qc29ueyJleHBvcnRfZm9ybWF0X3ZlcnNpb24iOjN9UEsBAhQAFAAAAAAAAAAhAB/IYiMbAAAAGwAAAAYAAAAAAAAAAAAAAAAAAAAAAGEuanNvblBLBQYAAAAAAQABADQAAAA/AAAAAAA="],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["UEsDBBQACAAAAAAAIQAAAAAAAAAAAAAAAAAGAAAAYS5qc29ueyJleHBvcnRfZm9ybWF0X3ZlcnNpb24iOjN9UEsHCAEAAAAbAAAAGwAAAFBLAQIUABQACAAAAAAAIQAfyGIjGwAAABsAAAAGAAAAAAAAAAAAAAAAAAAAAABhLmpzb25QSwUGAAAAAAEAAQA0AAAATwAAAAAA"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["UEsDBBQACAAAAAAAIQAAAAAAAAAAAAAAAAAGAAAAYS5qc29ueyJleHBvcnRfZm9ybWF0X3ZlcnNpb24iOjN9UEsHCB/IYiMbAAAAAwAAAFBLAQIUABQACAAAAAAAIQAfyGIjGwAAABsAAAAGAAAAAAAAAAAAAAAAAAAAAABhLmpzb25QSwUGAAAAAAEAAQA0AAAATwAAAAAA"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["UEsDBBQACAAAAAAAIQAAAAAAAAAAAAAAAAAGAAAAYS5qc29ueyJleHBvcnRfZm9ybWF0X3ZlcnNpb24iOjN9AQIDBFBLAQIUABQACAAAAAAAIQAfyGIjGwAAABsAAAAGAAAAAAAAAAAAAAAAAAAAAABhLmpzb25QSwUGAAAAAAEAAQA0AAAAQwAAAAAA"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["UEsDBBQAAAAAAAAAIQAfyGIjGwAAABsAAAAGAAAAYS5qc29ueyJleHBvcnRfZm9ybWF0X3ZlcnNpb24iOjN9UEsDBBQAAAAAAAAAIQAfyGIjGwAAABsAAAAGAAAAYi5qc29ueyJleHBvcnRfZm9ybWF0X3ZlcnNpb24iOjN9UEsBAhQAFAAAAAAAAAAhAB/IYiMbAAAAGwAAAAYAAAAAAAAAAAAAAAAAAAAAAGEuanNvblBLAQIUABQAAAAAAAAAIQAfyGIjGwAAABsAAAAGAAAAAAAAAAAAAAAAAAAAAABiLmpzb25QSwUGAAAAAAIAAgBoAAAAfgAAAAAA"],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["UEsDBBQAAAAAAAAAIQB4VjQSGwAAABsAAAAGAAAAYS5qc29ueyJleHBvcnRfZm9ybWF0X3ZlcnNpb24iOjN9UEsBAhQAFAAAAAAAAAAhAHhWNBIbAAAAGwAAAAYAAAAAAAAAAAAAAAAAAAAAAGEuanNvblBLBQYAAAAAAQABADQAAAA/AAAAAAA="],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["UEsDBBQAAAAIAAAAIQB4VjQSHQAAABsAAAAGAAAAYS5qc29uq1ZKrSjILyqJT8svyk0siS9LLSrOzM9TsjKuBQBQSwECFAAUAAAACAAAACEAeFY0Eh0AAAAbAAAABgAAAAAAAAAAAAAAAAAAAAAAYS5qc29uUEsFBgAAAAABAAEANAAAAEEAAAAAAA=="],"error":"Invalid or unsupported history archive"}
+{"fn":"parseArchiveBase64","args":["UEsDBBQAAAAIAAAAIQAfyGIjIgAAABsAAAAGAAAAYS5qc29uq1ZKrSjILyqJT8svyk0siS9LLSrOzM9TsjKuBQBQSwMEFAAAAAAAAAAhAB/IYiMbAAAAGwAAAAYAAABiLmpzb257ImV4cG9ydF9mb3JtYXRfdmVyc2lvbiI6M31QSwECFAAUAAAACAAAACEAH8hiIyIAAAAbAAAABgAAAAAAAAAAAAAAAAAAAAAAYS5qc29uUEsBAhQAFAAAAAAAAAAhAB/IYiMbAAAAGwAAAAYAAAAAAAAAAAAAAAAAQQAAAGIuanNvblBLBQYAAAAAAgACAGgAAACAAAAAAAA="],"error":"Invalid or unsupported history archive"}

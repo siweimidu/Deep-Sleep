@@ -1,0 +1,61 @@
+{
+  "schema": "rust-anything/bridge@1",
+  "root": "D:\\Code\\重构\\deepseek",
+  "unit": "src/services/chat/history/zipReader.ts",
+  "language": "ts",
+  "kind": "wasm",
+  "crate_name": "zipreader-rs",
+  "exports": [
+    {
+      "name": "parseArchiveBase64",
+      "file": "src/services/chat/history/zipReader.ts",
+      "line": 381,
+      "params": [
+        {
+          "name": "base64",
+          "ts_type": "string",
+          "optional": false,
+          "rest": false
+        }
+      ],
+      "returns": "Promise<{\n  /** 中央目录的结束偏移，也是条目区的末尾。 */\n  offset: number\n  entries: {\n    path: string\n    size: number\n    flags: number\n    method: number\n    crc: number\n    compressedSize: number\n    offset: number\n    /** 本地文件头之后、条目数据的起始偏移。 */\n    start: number\n  }[]\n}>",
+      "is_async": true,
+      "is_generator": false,
+      "type_params": [],
+      "uses_instanceof": false
+    }
+  ],
+  "classes": [],
+  "js_only": [
+    {
+      "name": "ArchiveError",
+      "file": "src/services/chat/history/zipReader.ts",
+      "line": 10,
+      "reason": "class: extends another class"
+    },
+    {
+      "name": "isZipFile",
+      "file": "src/services/chat/history/zipReader.ts",
+      "line": 25,
+      "reason": "takes or returns a function"
+    },
+    {
+      "name": "summarizeArchive",
+      "file": "src/services/chat/history/zipReader.ts",
+      "line": 278,
+      "reason": "takes or returns a function"
+    },
+    {
+      "name": "readArchive",
+      "file": "src/services/chat/history/zipReader.ts",
+      "line": 335,
+      "reason": "generator: returns a lazy iterator"
+    },
+    {
+      "name": "readEntry",
+      "file": "src/services/chat/history/zipReader.ts",
+      "line": 354,
+      "reason": "takes or returns a function"
+    }
+  ]
+}

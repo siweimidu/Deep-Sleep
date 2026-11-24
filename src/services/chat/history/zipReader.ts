@@ -355,3 +355,59 @@ export const readEntry = async (entry: ArchiveEntry): Promise<Blob> => {
   const bytes = await entry.bytes()
   return new Blob([bytes as Uint8Array<ArrayBuffer>])
 }
+
+/** `parseArchiveBase64` 的结果：中央目录偏移，以及按物理顺序排列的非目录条目。 */
+export type ParsedArchive = {
+  /** 中央目录的结束偏移，也是条目区的末尾。 */
+  offset: number
+  entries: {
+    path: string
+    size: number
+    flags: number
+    method: number
+    crc: number
+    compressedSize: number
+    offset: number
+    /** 本地文件头之后、条目数据的起始偏移。 */
+    start: number
+  }[]
+}
+
+/**
+ * 只走字节的接缝：base64 进、JSON 出，让 `readDirectory` / `decodePath` / `checkExtra` /
+ * `readEntryOffset` / `readEntryBytes` 与 CRC 校验可以被逐字节验证。
+ * 只接受规范 base64（无空白、补齐完整）；解码失败与结构损坏一样抛 `ArchiveError`。
+ */
+export const parseArchiveBase64 = async (base64: string): Promise<ParsedArchive> => {
+  if (!/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(base64)) {
+    invalid()
+  }
+  const binary = atob(base64)
+  const data = Uint8Array.from(binary, (char: string) => char.charCodeAt(0))
+  const source: ByteSource = {
+    size: data.length,
+    read: async (start, length) => data.subarray(start, start + length),
+  }
+  const readBytes = createReader(source)
+  const directory = await readDirectory(source, readBytes)
+  const entries: ParsedArchive['entries'] = []
+  for (const [index, entry] of directory.entries.entries()) {
+    if (entry.path.endsWith('/')) {
+      continue
+    }
+    const boundary = directory.entries[index + 1]?.offset ?? directory.offset
+    const start = await readEntryOffset(readBytes, entry, boundary)
+    await readEntryBytes(readBytes, entry, start)
+    entries.push({
+      path: entry.path,
+      size: entry.size,
+      flags: entry.flags,
+      method: entry.method,
+      crc: entry.crc,
+      compressedSize: entry.compressedSize,
+      offset: entry.offset,
+      start,
+    })
+  }
+  return { offset: directory.offset, entries }
+}

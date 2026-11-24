@@ -7,8 +7,9 @@
 ## 一句话结论
 
 DeepSleep 的**逻辑层已经用 Rust 重写，并且逐单元用 record/diff 证明了行为等价**：
-**14 个 crate、9170 条记录用例全部通过 `rust-anything gate`**（fmt / clippy -D warnings /
-cargo test / build / api / behavior 全绿）。React 前端与视觉一行未改。
+**15 个 crate、9492 条记录用例全部通过 `rust-anything gate`**（fmt / clippy -D warnings /
+cargo test / build / api / behavior 全绿）。React 前端与视觉一行未改；`src/` 只有一处**纯增量**
+改动（见下节 ZIP 接缝），`pnpm type` 与 `pnpm lint`（156 文件 / 100 规则）仍为 0 warning 0 error。
 
 ## 已移植并通过 gate 的 13 个单元
 
@@ -28,8 +29,9 @@ cargo test / build / api / behavior 全绿）。React 前端与视觉一行未�
 | `view-rs` | `services/chat/view.ts` | 1403/1403 | 回复视图、检索合并、来源去重 |
 | `reply-rs` | `services/chat/reply.ts` | 1533/1533 | 事件应用、结算、上下文轮次 |
 | `budget-rs` | `services/chat/context/budget.ts` | 527/527 | token 估算（按码点）+ 上下文裁剪 |
+| `zipreader-rs` | `services/chat/history/zipReader.ts`（经接缝） | 322/322 | ZIP32 中央目录、CRC32、路径校验 |
 
-**合计 9170 条用例。** 复验一条命令：
+**合计 9492 条用例。** 复验一条命令：
 
 ```powershell
 Set-Location "D:\Code\重构\deepseek"
@@ -42,10 +44,23 @@ Get-ChildItem rust -Directory | Where-Object { Test-Path "$($_.FullName)\rust-an
 **类型上过不了桥的：**
 - `services/api/errors.ts` —— 5 个导出里 4 个靠 `instanceof ApiError`；整份留在 TS。
 - `services/chat/history/source.ts` —— 导出返回函数值。
-- `services/chat/history/zipReader.ts` —— 5 个导出全是函数/生成器/继承类边界，
-  而真正的字节级核心（`readDirectory`、`decodePath`、`checkExtra`）是**私有未导出**的，
-  `record` 根本触不到。要能验证，必须先在 `src/` 里抽出 `parseArchiveBytes(bytes)` 这样的
-  bytes-in/bytes-out 接缝。
+## 唯一一处 `src/` 改动：ZIP 读侧接缝
+
+`zipReader.ts` 原本 5 个导出**全部**过不了桥（`isZipFile`/`summarizeArchive` 收函数，
+`readArchive` 是生成器，`readEntry` 返回 `Blob`，`ArchiveError` 继承 `Error`），而真正的字节级核心
+（`readDirectory`、`decodePath`、`checkExtra`、CRC 校验）是**私有未导出**的 —— `record` 一行都碰不到。
+
+因此加了一个**纯增量**导出（文件末尾，56 行新增、0 行删除，前 357 行逐字节未变）：
+
+```ts
+export type ParsedArchive = { offset: number; entries: { path; size; flags; method; crc;
+                                                     compressedSize; offset; start }[] }
+export const parseArchiveBase64 = async (base64: string): Promise<ParsedArchive>
+```
+
+用 base64 而不是 `Uint8Array`，是因为 wire 没有字节类型。它**复用**原有的 private 核心，零解析逻辑
+被复制。桥之后 `zipreader-rs` 拿到 322/322，而原 5 个导出继续留在 TS。
+`pnpm type` / `pnpm lint` 改动前后都是干净 —— 这是加这个接缝的前提。
 - `toArchive.ts` 的 `toSessionFile` —— 签名收 `ExportImage`（成员是函数），`bridge` 判 `js_only`。
   也就是说**导出侧"写归档"的主函数无法过桥**，只有索引投影可以。
 - `schema.ts` 的 `readSessionIndex` —— 写成 `export const x: Read<T[]>` 泛型标注箭头函数，
@@ -87,8 +102,7 @@ Get-ChildItem rust -Directory | Where-Object { Test-Path "$($_.FullName)\rust-an
 
 ## 还没做的
 
-- **没有接入任何调用点**：`src/` 一行未改，跑起来的仍全是原 TS。接入是开关式的，步骤已在
-  ADOPTION.md 里验证过。
+- **没有接入任何调用点**：`src/` 只加了 ZIP 那个接缝，业务代码没有一处改为调用 Rust，跑起来的仍
+  全是原 TS。接入是开关式的，步骤已在 ADOPTION.md 里验证过。
 - `src/i18n/**`：纯数据，但 `translate` 依赖 store，需要先改成显式 locale 参数。
-- `zipReader.ts`：需要先在 `src/` 抽出上面说的接缝，才能开始验证。
 - wasm 体积/首屏代价没在真机上测过。
