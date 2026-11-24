@@ -94,6 +94,22 @@ pnpm install
 
 ---
 
+## Rust 重构
+
+项目逻辑层正在用 [rust-anything](https://github.com/erkamyaman/rust-anything) 逐步重写为 Rust，
+每个单元都以「录制原版行为 → 移植 → diff 回放 → gate」证明行为等价，React 前端与视觉不变。
+
+- 现状与已完成单元：[docs/rust-migration/STATUS.md](docs/rust-migration/STATUS.md)
+- 范围与取舍：[docs/rust-migration/DESIGN.md](docs/rust-migration/DESIGN.md)
+- 移植操作手册：[docs/rust-migration/HOW-TO-PORT-A-UNIT.md](docs/rust-migration/HOW-TO-PORT-A-UNIT.md)
+- 接入 WebView：[docs/rust-migration/ADOPTION.md](docs/rust-migration/ADOPTION.md)
+
+```bash
+# 复验某个单元与原版行为一致
+rust-anything diff rust/<crate>
+rust-anything gate rust/<crate>
+```
+
 ## 免责声明
 
 本项目仅供个人技术研究与前端/移动端交互学习交流使用，非 DeepSeek 官方发布版本。项目内所有商标、标识及版权均归其各自所有者所有。

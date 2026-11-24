@@ -1,0 +1,60 @@
+{
+  "schema": "rust-anything/bridge@1",
+  "root": "D:\\Code\\重构\\deepseek",
+  "unit": "src/services/chat/context/budget.ts",
+  "language": "ts",
+  "kind": "wasm",
+  "crate_name": "budget-rs",
+  "exports": [
+    {
+      "name": "estimateTokens",
+      "file": "src/services/chat/context/budget.ts",
+      "line": 36,
+      "params": [
+        {
+          "name": "text",
+          "ts_type": "string",
+          "optional": false,
+          "rest": false
+        }
+      ],
+      "returns": "number",
+      "is_async": false,
+      "is_generator": false,
+      "type_params": [],
+      "uses_instanceof": false
+    },
+    {
+      "name": "planContext",
+      "file": "src/services/chat/context/budget.ts",
+      "line": 81,
+      "params": [
+        {
+          "name": "history",
+          "ts_type": "(({\n  parentId?: string | null\n  /** 当前选中的下一条消息；切换版本时保留每条分支原有的选择。 */\n  selectedChildId?: string\n}) & {\n  id: string\n  role: 'user'\n  content: string\n  files: ({\n  id: string\n  serverId: string | null\n  name: string\n  size: number\n  /** 附件类别；导入时沿用归档的 is_image，不由 MIME 识别结果决定。 */\n  isImage: boolean\n  /** 具体 MIME；导入时没有原件或无法识别的为空字符串，不影响图片身份。 */\n  mimeType: string\n})[]\n  createdAt: number\n} | (({\n  parentId?: string | null\n  /** 当前选中的下一条消息；切换版本时保留每条分支原有的选择。 */\n  selectedChildId?: string\n}) & {\n  id: string\n  role: 'assistant'\n  createdAt: number\n  /** 未记录模型时为 null，续写使用当前默认模型。 */\n  model: ('deepseek-flash' | 'deepseek-v4-pro') | null\n  /** 请求时是否开启深度思考 */\n  thinking?: boolean\n  /** 请求时是否声明 deepseek_web_search；关闭时仍声明 deepseek_read_url */\n  search?: boolean\n  /** 本轮请求的系统信息快照；各回答版本独立保存，续写沿用。历史消息中缺省的快照保持为空。 */\n  latestReminder?: string\n  /** 是否允许作为续写前缀；仍需满足回复状态与内容限制。 */\n  prefix: boolean\n  status: ('pending' | 'streaming' | 'done' | 'stopped' | 'error')\n  /** 可识别的内容块按接收顺序排列；续写产生的块追加在已有块之后 */\n  blocks: ({\n  type: 'thinking'\n  thinking: string\n  signature?: string\n  /** content_block_start 的时间；没有事件时间的历史块缺省 */\n  startedAt?: number\n  /** content_block_stop（或回复结束）的时间 */\n  endedAt?: number\n  /** 仅有耗时、没有事件时间时保存秒数。 */\n  elapsedSeconds?: number\n} | {\n  type: 'text'\n  text: string\n  citations?: TextCitation[]\n  /** 服务端提示文案，仅用于展示，不作为模型回答参与上下文或续写。 */\n  isTemplate?: boolean\n} | (| ServerToolUseBlock\n  | WebSearchToolResultBlock\n  | WebFetchToolResultBlock))[]\n  stopReason?: ('end_turn' | 'max_tokens' | 'tool_use' | 'refusal')\n  stopDetails?: { type: 'refusal'; category: null; explanation: null }\n  /** 最近一次请求的用量，续写后更新 */\n  usage?: {\n  /** 未命中缓存的输入 Token */\n  input_tokens: number\n  cache_creation_input_tokens: number\n  cache_read_input_tokens: number\n  /** message_start 中为 0，message_delta 中为全轮累计值 */\n  output_tokens: number\n  /** 仅当 message_delta 中有对外输出的搜索结果块时出现 */\n  server_tool_use?: { web_search_requests: number; tool_search: number }\n}\n  error?: {\n    /** upload：发送前补传附件失败，请求没有发出 */\n    kind: (| 'http'\n  /** 流中返回的错误帧（如等待生成超时），随后连接关闭 */\n  | 'stream'\n  /** 请求没有到达服务端（断网、跨域被拦截等） */\n  | 'network'\n  /** 流在 message_stop 之前结束 */\n  | 'interrupted'\n  /** 响应不符合协议（如非 SSE 响应） */\n  | 'protocol') | 'upload'\n    message: string\n    status?: number\n    localMessage?: { key: keyof typeof zh; params?: (Record<string, string | number>) }\n    /** 仅 upload：重新上传是否可能成功（网络、限流、服务端繁忙）；过大、格式不支持为 false */\n    retryable?: boolean\n  }\n}))[]",
+          "optional": false,
+          "rest": false
+        },
+        {
+          "name": "model",
+          "ts_type": "('deepseek-flash' | 'deepseek-v4-pro')",
+          "optional": false,
+          "rest": false
+        },
+        {
+          "name": "lastInputTokens",
+          "ts_type": "number",
+          "optional": true,
+          "rest": false
+        }
+      ],
+      "returns": "{\n  /** 实际要发的历史（可能被裁剪） */\n  history: (({\n  parentId?: string | null\n  /** 当前选中的下一条消息；切换版本时保留每条分支原有的选择。 */\n  selectedChildId?: string\n}) & {\n  id: string\n  role: 'user'\n  content: string\n  files: ({\n  id: string\n  serverId: string | null\n  name: string\n  size: number\n  /** 附件类别；导入时沿用归档的 is_image，不由 MIME 识别结果决定。 */\n  isImage: boolean\n  /** 具体 MIME；导入时没有原件或无法识别的为空字符串，不影响图片身份。 */\n  mimeType: string\n})[]\n  createdAt: number\n} | (({\n  parentId?: string | null\n  /** 当前选中的下一条消息；切换版本时保留每条分支原有的选择。 */\n  selectedChildId?: string\n}) & {\n  id: string\n  role: 'assistant'\n  createdAt: number\n  /** 未记录模型时为 null，续写使用当前默认模型。 */\n  model: ('deepseek-flash' | 'deepseek-v4-pro') | null\n  /** 请求时是否开启深度思考 */\n  thinking?: boolean\n  /** 请求时是否声明 deepseek_web_search；关闭时仍声明 deepseek_read_url */\n  search?: boolean\n  /** 本轮请求的系统信息快照；各回答版本独立保存，续写沿用。历史消息中缺省的快照保持为空。 */\n  latestReminder?: string\n  /** 是否允许作为续写前缀；仍需满足回复状态与内容限制。 */\n  prefix: boolean\n  status: ('pending' | 'streaming' | 'done' | 'stopped' | 'error')\n  /** 可识别的内容块按接收顺序排列；续写产生的块追加在已有块之后 */\n  blocks: (ThinkingPart | TextPart | ServerToolBlock)[]\n  stopReason?: ('end_turn' | 'max_tokens' | 'tool_use' | 'refusal')\n  stopDetails?: { type: 'refusal'; category: null; explanation: null }\n  /** 最近一次请求的用量，续写后更新 */\n  usage?: {\n  /** 未命中缓存的输入 Token */\n  input_tokens: number\n  cache_creation_input_tokens: number\n  cache_read_input_tokens: number\n  /** message_start 中为 0，message_delta 中为全轮累计值 */\n  output_tokens: number\n  /** 仅当 message_delta 中有对外输出的搜索结果块时出现 */\n  server_tool_use?: { web_search_requests: number; tool_search: number }\n}\n  error?: {\n    /** upload：发送前补传附件失败，请求没有发出 */\n    kind: (| 'http'\n  /** 流中返回的错误帧（如等待生成超时），随后连接关闭 */\n  | 'stream'\n  /** 请求没有到达服务端（断网、跨域被拦截等） */\n  | 'network'\n  /** 流在 message_stop 之前结束 */\n  | 'interrupted'\n  /** 响应不符合协议（如非 SSE 响应） */\n  | 'protocol') | 'upload'\n    message: string\n    status?: number\n    localMessage?: { key: TranslationKey; params?: TranslationParams }\n    /** 仅 upload：重新上传是否可能成功（网络、限流、服务端繁忙）；过大、格式不支持为 false */\n    retryable?: boolean\n  }\n}))[]\n  /** 估算的输入 token */\n  estimate: number\n  /** 本轮是否发生压缩 */\n  compacted: boolean\n  /** 被裁掉的轮数 */\n  droppedRounds: number\n  /** 触发线 / 目标线，供 UI 展示 */\n  trigger: number\n  target: number\n}",
+      "is_async": false,
+      "is_generator": false,
+      "type_params": [],
+      "uses_instanceof": false
+    }
+  ],
+  "classes": [],
+  "js_only": []
+}
