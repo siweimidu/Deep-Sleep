@@ -1,0 +1,260 @@
+{"fn":"isTranslationKey","args":[{}],"ok":false}
+{"fn":"isTranslationKey","args":[null],"ok":false}
+{"fn":"isTranslationKey","args":[0],"ok":false}
+{"fn":"isTranslationKey","args":[["a",1]],"ok":false}
+{"fn":"isTranslationKey","args":["x"],"ok":false}
+{"fn":"isTranslationKey","args":[{"a":"b"}],"ok":false}
+{"fn":"isTranslationKey","args":[true],"ok":false}
+{"fn":"isTranslationKey","args":[[]],"ok":false}
+{"fn":"isTranslationKey","args":[{"a":{"b":"c"}}],"ok":false}
+{"fn":"isTranslationKey","args":[{"2":4,"10":3,"zebra":1,"apple":2,"é":5,"Apple":6}],"ok":false}
+{"fn":"isTranslationKey","args":[{"n":9007199254740992,"f":1e+21,"t":0.1,"neg":-7}],"ok":false}
+{"fn":"isTranslationKey","args":[[3,1,2]],"ok":false}
+{"fn":"translateFor","args":["hello world",true,{"nav":{"$num":"-0"},"😀":2147483648}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["😀",true,{}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["",[],{"a.b":"hello world"}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["ünïcödé",[],{"a":{"b":"c"}}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["日本語のテキスト",{"a":{"b":"c"}},{}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["é",{"a":"b"},{}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["",{},0],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["key_name-1",0],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["a😀b😀cİstanbul",true,{"b":"a😀b😀c","title":"  padded  "}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["line1\nline2a.b.c",null,{"b":-2.5,"ünï":42}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["ab😀",["a",1],{"a":2147483648,"a.b":"a:b:c"}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["line1\nline2",{"a":{"b":"c"}},{"ünï":{"$num":"NaN"},"a.b":"hello world"}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["  padded  ",{},{"😀":"日本語のテキスト","title":"hello worldtrailing."}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["éΣΊΣΥΦΟΣ",true,{}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["hello world",["a",1],{}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["ünïcödé",{"a":{"b":"c"}},{}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["  padded  ","x",{"😀":"a.b.c","ünï":1,"nav":42}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["line1\nline2",true,{"😀":"","a.b":"emoji 👍🏽 mix","ünï":"😀"}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["😀:",true,{}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["Hello World",["a",1],{}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["ns:key.pathabc","THAB",{"a":"b"}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["line1\nline2src/a/b.ts",[],{"2":100,"b":"Hello World./x/**/*.json"}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["straße",[],{"b":2147483648}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["Hello World",true,{"😀":100}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["hello worldHELLO",0,{"b":"😀"}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["line1\nline2abc",["a",1],{"$undefined":true}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["trailing.",["a",1],[]],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["a.b.c",[],{}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["日本語のテキスト",null,{}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["hello world",["a",1],{"home":"a:b:c","b":"a:b:c","a":-2.5}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["a😀b😀c",true,{}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["日本語のテキストé",0],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["Hello World","x",{}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["key_name-1line1\nline2",null,{"a.b":-2.5,"ünï":3,"😀":100}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["straße",true,{"b":2147483648,"home":":"}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["emoji 👍🏽 mix","x",{"$undefined":true}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["straße",[],{}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["line1\nline2",[],{"$undefined":true}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["straße","x",{"a":1000,"😀":"😀"}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["😀",[]],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["abc",null,{"$undefined":true}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["İstanbul","x",{"😀":2147483648,"a.b":"tab\tseparated"}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["ünïcödé",null,{"10":"straßeHello World","nav":"HELLO","ünï":-2.5}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["./x/**/*.json",null,{"nav":9007199254740992,"ünï":"a😀b😀c"}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["hello world",true,{"a.b":"key_name-1"}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["key_name-1",{"a":"b"},{"10":"Hello Worldemoji 👍🏽 mix","a":10}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":[":",{"a":{"b":"c"}},{"$undefined":true}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["Hello World",[],{"ünï":"src/a/b.ts","home":-2.5}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["abc",{},{}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["a..b",0,{}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["a😀b😀ckey_name-1",{"a":{"b":"c"}},{"😀":2147483648,"ünï":1000,"title":"a😀b😀c"}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["abc",{},{"10":"Hello World","home":"ünïcödé","😀":"HELLO"}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["abc",{},{"$undefined":true}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":[":.leading",{"a":{"b":"c"}},{"$undefined":true}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["Hello World",["a",1],{"$undefined":true}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["é",true,{}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["İstanbul",{"a":{"b":"c"}},{"10":"hello","b":1}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["ab",{"a":"b"},[]],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["abc",{},{"ünï":-1,"😀":1}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["a😀b😀chello",{},[]],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["😀",null,{"10":10}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["hello world",{"a":"b"},{"10":":"}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["a.b.c",null,{"b":"  padded  emoji 👍🏽 mix"}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["HELLO",true,{"a":"a..bé","b":3}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["trailing.key_name-1",{},{"title":9007199254740992,"b":"hello worldhello","😀":"./x/**/*.json"}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["İstanbulab",0,{}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["straße",[],{"a":9007199254740992}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["HELLOΣΊΣΥΦΟΣ",{},{}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["a",null,{"nav":"key_name-1"}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["İstanbul",{},{"nav":"日本語のテキスト"}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["😀",true,{"2":1000000}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["emoji 👍🏽 mixa.b.c",["a",1],[]],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["trailing.",true,{"10":"ns:key.pathünïcödé","a":3,"ünï":0.5}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["😀",["a",1]],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["trailing.",0,{"$undefined":true}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["a:b:c",true],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["ünïcödé",{},{"10":"HELLOtab\tseparated"}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["HELLO",0,{"title":"a.b.c","nav":2}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["﻿boma😀b😀c",null,{"title":"helloΣΊΣΥΦΟΣ"}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["Hello Worldünïcödé","x",{"2":"é","10":"HELLO"}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["abc",0,{"$undefined":true}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["line1\nline2",0,{"nav":"{name} has {count} items","😀":"helloé"}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["a:b:c",["a",1],{"home":"{name} has {count} itemsé","title":"{name} has {count} items"}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["a﻿bom",{"a":"b"},null],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["./x/**/*.json",{"a":"b"},{"😀":{"$num":"-0"},"a.b":"ns:key.path","ünï":"  padded  "}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["﻿bom",0,{}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["  padded    padded  ","x",{"10":"a😀b😀c","ünï":{"$num":"-Infinity"},"a":"{name} has {count} items"}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":[".leading",[],"x"],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["abc:",{"a":{"b":"c"}},[]],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["src/a/b.ts",{},{"b":{"$num":"NaN"},"😀":"tab\tseparated"}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["x","x",{"ünï":42}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["X","x",{}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["straße",{"a":{"b":"c"}}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["hello world",null,{"nav":"tab\tseparated﻿bom"}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["Hello World",[],{"2":":","b":"ünïcödé","home":"{name} has {count} items"}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["Hello World",0,{"b":"line1\nline2","ünï":{"$num":"NaN"},"title":"😀"}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["{name} has {count} itemsa",["a",1]],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["ΣΊΣΥΦΟΣ  padded  ",true,{"a.b":"hello  padded  ","b":"a.b.c","nav":":"}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["{name} has {count} items",{"a":"b"},["a",1]],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":[":","x",{"10":-2.5,"a":1}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["line1\nline2",{"a":{"b":"c"}},{}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["😀",{}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["hello world",true,{"10":10,"😀":"key_name-1","title":{"$num":"-Infinity"}}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["ünïcödé",{},{"2":2147483648,"title":100}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["a",0,{}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["helloa😀b😀c",{"a":"b"},{}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["emoji 👍🏽 mix",["a",1],{}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["ab",[],{}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["./x/**/*.json",{"a":"b"},{"2":"","10":{"$num":"Infinity"},"title":{"$num":"NaN"}}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["  padded  ab",{},{"nav":{"$num":"-0"}}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["ns:key.path",{"a":"b"},{"2":"trailing.:","b":-2.5}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":[".leading",[],{"ünï":{"$num":"-Infinity"}}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["helloé",{"a":{"b":"c"}},{"$undefined":true}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["a",{"a":{"b":"c"}}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["  padded  ",true,["a",1]],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["ns:key.path","x",null],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["a😀b😀c",0,{"😀":3,"nav":2}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["hellokey_name-1",true,{"10":"hello","title":-2.5}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["src/a/b.ts",0,{"$undefined":true}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["key_name-1",true,{"nav":"tab\tseparated","😀":-1}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["./x/**/*.json",["a",1],{"2":42,"b":-2.5,"title":{"$num":"-0"}}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["hello world",null,{}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["hello",{"a":{"b":"c"}},{}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["hello",true,{"a":{"b":"c"}}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["",{"a":"b"},{"a":"b"}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["emoji 👍🏽 mixstraße",0,{"2":"a","a":"é"}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["  padded  ",null,0],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":[":😀",{"a":"b"},{"$undefined":true}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["trailing.",{"a":"b"},{"2":{"$num":"Infinity"}}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["key_name-1","x",{"10":9007199254740992,"nav":":"}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["aba..b",{"a":"b"},{"$undefined":true}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":[".leading",null,{}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["ΣΊΣΥΦΟΣ","x",{}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":[":",{"a":{"b":"c"}},{}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":[".leading",{"a":{"b":"c"}},{"nav":"hello","home":1000000,"title":"﻿bom"}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["trailing.tab\tseparated",null,{"nav":"key_name-1","a":-1}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["Hello World",[],{"home":-1,"nav":"abc"}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["ünïcödé",true,{"b":2,"title":{"$num":"-Infinity"},"home":10}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["日本語のテキスト",0,{"2":0,"ünï":-1}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["./x/**/*.json:",["a",1],["a",1]],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["  padded  ",{"a":"b"}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["hello world",0,{"10":"İstanbul","a":".leading"}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["Hello World",["a",1],{"10":2147483648,"home":3,"title":"é"}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["é",true,{"ünï":{"$num":"Infinity"}}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["{name} has {count} items",{"a":{"b":"c"}},{"$undefined":true}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["a:b:c",[],{"😀":100,"b":{"$num":"Infinity"},"title":"emoji 👍🏽 mix"}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["abc",["a",1],{"10":"tab\tseparated","nav":"straße"}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["a..b",null,{"$undefined":true}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["a:b:ca.b.c",null],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["a..b",null,{"2":{"$num":"-0"},"😀":"a.b.c"}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["ünïcödé.leading",{"a":"b"},{"2":-1}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["./x/**/*.json",["a",1],{}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["HELLOa.b.c",{},{"$undefined":true}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["abc",{},{"10":2147483648}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["ΣΊΣΥΦΟΣ",true,{"$undefined":true}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["tab\tseparatedabc",null,{}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["  padded  ",[],{}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["ab",{"a":{"b":"c"}},{"a.b":"line1\nline2","home":":a..b","title":":"}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["emoji 👍🏽 mix",true,{}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["  padded  ΣΊΣΥΦΟΣ","x",{"nav":"tab\tseparated","a":100,"b":42}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["key_name-1😀",[],{"ünï":"İstanbulé"}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["hello world",{"a":"b"},{"a":42,"title":9007199254740992,"a.b":"é"}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["  padded  ",["a",1],{"$undefined":true}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["ΣΊΣΥΦΟΣ",["a",1],{"$undefined":true}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["ns:key.patha",null],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["日本語のテキスト",[],{"10":100,"ünï":1000,"a":"a"}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["{name} has {count} items",null],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["a:b:c",[],{"2":{"$num":"-0"}}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["hello",["a",1],{"b":3,"nav":0.5}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["日本語のテキスト","ス",{"$undefined":true}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["a:b:c",{"a":{"b":"c"}},{}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["./x/**/*.jsonΣΊΣΥΦΟΣ","x",{"a":"b"}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["ns:key.path  padded  ",{"a":{"b":"c"}},{"home":"emoji 👍🏽 mix"}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["ünïcödé",{},{"$undefined":true}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["a:b:c",["a",1],{"😀":"","a":1000}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["emoji 👍🏽 mix",["a",1],{"b":"a","home":0.5}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["ab",{"a":{"b":"c"}},{"a.b":2,"ünï":9007199254740992,"b":10}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["İstanbul","x",{"$undefined":true}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["hello",["a",1],{"$undefined":true}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["HELLO{name} has {count} items",["a",1],{"10":42,"a.b":""}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":[".leading",{"a":"b"},{"$undefined":true}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["  padded  ",{"a":{"b":"c"}},{"nav":1000000,"title":"src/a/b.ts","home":1}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["😀",[],{}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["abc",null,{"nav":0.5}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":[":a.b.c",0,{}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["é",{"a":"b"},{"$undefined":true}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["hello worldHello World",null],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":[".leading",0,{}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["ünïcödé","x",{"10":9007199254740992,"ünï":42}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["src/a/b.ts",{},{"ünï":"a😀b😀cemoji 👍🏽 mix","b":100,"home":1000000}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["日本語のテキスト",true,{"title":"a:b:ca.b.c"}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["😀","😀",{"a":"b"}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["﻿bom",{"a":{"b":"c"}},null],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["trailing.",{}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["  padded  ",["a",1],{"a":"src/a/b.ts","nav":{"$num":"-Infinity"}}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["a",null,{"b":1000000}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["😀",null,0],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["tab\tseparated",true,{"$undefined":true}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":[":","x",{"2":"ab"}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["emoji 👍🏽 mixline1\nline2","x",{}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["héllo wörld",true,{"nav":{"$num":"-0"},"😀":2147483648}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["👍🏽 thumbs",true,{"nav":{"$num":"-0"},"😀":2147483648}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["日本語",true,{"nav":{"$num":"-0"},"😀":2147483648}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["",true,{"nav":{"$num":"-0"},"😀":2147483648}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["é",true,{"nav":{"$num":"-0"},"😀":2147483648}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["İstanbul",true,{"nav":{"$num":"-0"},"😀":2147483648}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["straße",true,{"nav":{"$num":"-0"},"😀":2147483648}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["ılık ırmak",true,{"nav":{"$num":"-0"},"😀":2147483648}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["👨‍👩‍👧 family",true,{"nav":{"$num":"-0"},"😀":2147483648}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["a b",true,{"nav":{"$num":"-0"},"😀":2147483648}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["ΣΊΣΥΦΟΣ",true,{"nav":{"$num":"-0"},"😀":2147483648}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["a😀b",true,{"nav":{"$num":"-0"},"😀":2147483648}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["﻿bom",true,{"nav":{"$num":"-0"},"😀":2147483648}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["a²b x½ y①",true,{"nav":{"$num":"-0"},"😀":2147483648}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["aⅠb Ⅻ",true,{"nav":{"$num":"-0"},"😀":2147483648}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["a𐐀b 𝐀bc",true,{"nav":{"$num":"-0"},"😀":2147483648}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["कि ٣٤",true,{"nav":{"$num":"-0"},"😀":2147483648}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["Iı İi",true,{"nav":{"$num":"-0"},"😀":2147483648}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["K K k",true,{"nav":{"$num":"-0"},"😀":2147483648}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["ſ s S",true,{"nav":{"$num":"-0"},"😀":2147483648}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["x‍y 👨‍👩‍👧",true,{"nav":{"$num":"-0"},"😀":2147483648}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["a b c　d",true,{"nav":{"$num":"-0"},"😀":2147483648}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["١٢٣ ٤٥",true,{"nav":{"$num":"-0"},"😀":2147483648}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["𝟘𝟙 ²³",true,{"nav":{"$num":"-0"},"😀":2147483648}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["snake_case foo-bar o'neil",true,{"nav":{"$num":"-0"},"😀":2147483648}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["ǅungla Ǆ",true,{"nav":{"$num":"-0"},"😀":2147483648}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["one\r\ntwo threefour",true,{"nav":{"$num":"-0"},"😀":2147483648}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["café café",true,{"nav":{"$num":"-0"},"😀":2147483648}],"error":"translators[locale] is not a function"}
+{"fn":"translateFor","args":["ΣΑΣ σας ς",true,{"nav":{"$num":"-0"},"😀":2147483648}],"error":"translators[locale] is not a function"}
+{"fn":"isTranslationKey","args":["welcomeMessageChat250808"],"ok":true}
+{"fn":"isTranslationKey","args":["androidSelectedChats"],"ok":true}
+{"fn":"isTranslationKey","args":["nope"],"ok":false}
+{"fn":"isTranslationKey","args":[""],"ok":false}
+{"fn":"isTranslationKey","args":[5],"ok":false}
+{"fn":"isTranslationKey","args":[null],"ok":false}
+{"fn":"isTranslationKey","args":["toString"],"ok":false}
+{"fn":"translateFor","args":["zh-CN","androidSelectedChats",{"count":3}],"ok":"已选择 3 个对话"}
+{"fn":"translateFor","args":["en-US","androidSelectedChats",{"count":3}],"ok":"Selected conversations (3)"}
+{"fn":"translateFor","args":["zh-CN","androidSelectedChats"],"ok":"已选择 {count} 个对话"}
+{"fn":"translateFor","args":["en-US","androidSelectedChats",{"count":"7"}],"ok":"Selected conversations (7)"}
+{"fn":"translateFor","args":["zh-CN","androidSelectedChats",{"count":1.5}],"ok":"已选择 1.5 个对话"}
+{"fn":"translateFor","args":["zh-CN","androidSelectedChats",{"other":3}],"ok":"已选择 {count} 个对话"}
+{"fn":"translateFor","args":["zh-CN","welcomeMessageChat250808"],"ok":"今天有什么可以帮到你？"}
+{"fn":"translateFor","args":["en-US","welcomeMessageChat250808"],"ok":"How can I help you?"}
+{"fn":"translateFor","args":["zh-CN","androidGreetingMorning"],"ok":"早上好，我能帮什么忙吗？"}
+{"fn":"translateFor","args":["en-US","androidGreetingMorning"],"ok":"Good morning, what can I do for you?"}
+{"fn":"translateFor","args":["zh-CN","nope"],"error":"Cannot read properties of undefined (reading 'replace')"}
+{"fn":"translateFor","args":["xx-YY","welcomeMessageChat250808"],"error":"translators[locale] is not a function"}

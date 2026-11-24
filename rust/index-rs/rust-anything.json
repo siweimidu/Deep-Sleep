@@ -1,0 +1,73 @@
+{
+  "schema": "rust-anything/bridge@1",
+  "root": "D:\\Code\\重构\\deepseek",
+  "unit": "src/i18n/index.ts",
+  "language": "ts",
+  "kind": "wasm",
+  "crate_name": "index-rs",
+  "exports": [
+    {
+      "name": "isTranslationKey",
+      "file": "src/i18n/index.ts",
+      "line": 14,
+      "params": [
+        {
+          "name": "key",
+          "ts_type": "unknown",
+          "optional": false,
+          "rest": false
+        }
+      ],
+      "returns": "key is keyof typeof zh",
+      "is_async": false,
+      "is_generator": false,
+      "type_params": [],
+      "uses_instanceof": false
+    },
+    {
+      "name": "translateFor",
+      "file": "src/i18n/index.ts",
+      "line": 34,
+      "params": [
+        {
+          "name": "locale",
+          "ts_type": "'zh-CN' | 'en-US'",
+          "optional": false,
+          "rest": false
+        },
+        {
+          "name": "key",
+          "ts_type": "keyof typeof zh",
+          "optional": false,
+          "rest": false
+        },
+        {
+          "name": "params",
+          "ts_type": "(Record<string, string | number>)",
+          "optional": true,
+          "rest": false
+        }
+      ],
+      "returns": "string",
+      "is_async": false,
+      "is_generator": false,
+      "type_params": [],
+      "uses_instanceof": false
+    }
+  ],
+  "classes": [],
+  "js_only": [
+    {
+      "name": "useTranslate",
+      "file": "src/i18n/index.ts",
+      "line": 41,
+      "reason": "React hook, returns a translator bound to the settings store"
+    },
+    {
+      "name": "translate",
+      "file": "src/i18n/index.ts",
+      "line": 43,
+      "reason": "reads the settings store, so it is locale-dependent by construction"
+    }
+  ]
+}

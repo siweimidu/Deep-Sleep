@@ -7,9 +7,10 @@
 ## 一句话结论
 
 DeepSleep 的**逻辑层已经用 Rust 重写，并且逐单元用 record/diff 证明了行为等价**：
-**15 个 crate、9492 条记录用例全部通过 `rust-anything gate`**（fmt / clippy -D warnings /
+**16 个 crate、9752 条记录用例全部通过 `rust-anything gate`**（fmt / clippy -D warnings /
 cargo test / build / api / behavior 全绿）。React 前端与视觉一行未改；`src/` 只有一处**纯增量**
-改动（见下节 ZIP 接缝），`pnpm type` 与 `pnpm lint`（156 文件 / 100 规则）仍为 0 warning 0 error。
+改动（见下节 ZIP 接缝）+ i18n 的一个纯函数接缝，`pnpm type` 与 `pnpm lint`（100 规则）仍为
+0 warning 0 error。
 
 ## 已移植并通过 gate 的 13 个单元
 
@@ -30,8 +31,9 @@ cargo test / build / api / behavior 全绿）。React 前端与视觉一行未�
 | `reply-rs` | `services/chat/reply.ts` | 1533/1533 | 事件应用、结算、上下文轮次 |
 | `budget-rs` | `services/chat/context/budget.ts` | 527/527 | token 估算（按码点）+ 上下文裁剪 |
 | `zipreader-rs` | `services/chat/history/zipReader.ts`（经接缝） | 322/322 | ZIP32 中央目录、CRC32、路径校验 |
+| `index-rs` | `src/i18n/index.ts`（经接缝） | 260/260 | `translateFor` / `isTranslationKey`，263 条消息表由脚本从 zh/en 生成 |
 
-**合计 9492 条用例。** 复验一条命令：
+**合计 9752 条用例。** 复验一条命令：
 
 ```powershell
 Set-Location "D:\Code\重构\deepseek"
@@ -42,11 +44,11 @@ Get-ChildItem rust -Directory | Where-Object { Test-Path "$($_.FullName)\rust-an
 ### 额外的第二层验证：浏览器产物
 
 `gate` 验的是 **Node 胶水**；进 WebView 的是 `wasm-bindgen --target web` 的另一套胶水，两者调用约定
-**不等价**。`rust/web-parity.ps1` 把同一批录制语料回放到浏览器产物上，实测 **10626 次调用通过**，
+**不等价**。`rust/web-parity.ps1` 把同一批录制语料回放到浏览器产物上，实测 **10886 次调用通过**，
 **每个 crate 的数字与 Node 侧 gate 结论逐一对齐**：
 
-- **14 个 crate 浏览器产物全量通过**：attachments 1556、branches 1092、budget 527、
-  documenttext 544、location 364、parseevent 83、paths 956、reply 1533、schema 67、
+- **15 个 crate 浏览器产物全量通过**：attachments 1556、branches 1092、budget 527、
+  documenttext 544、index 260、location 364、parseevent 83、paths 956、reply 1533、schema 67、
   sse 1372、toarchive 228、view 1403、zipreader 322、zipwriter 270
 - `tolocal` 309/315 —— 差的 6 条已核对就是 `known-diffs.jsonl` 那 6 条（V8 legacy 日期解析 / 无时区）
 
@@ -149,7 +151,8 @@ export const parseArchiveBase64 = async (base64: string): Promise<ParsedArchive>
 
 ## 还没做的
 
-- **没有接入任何调用点**：`src/` 只加了 ZIP 那个接缝，业务代码没有一处改为调用 Rust，跑起来的仍
-  全是原 TS。接入是开关式的，步骤已在 ADOPTION.md 里验证过，浏览器产物的行为也已逐 crate 验过。
-- `src/i18n/**`：纯数据，但 `translate` 依赖 store，需要先改成显式 locale 参数。
+- **没有接入任何调用点**：业务代码只接了 `paths`、`attachments`、`location`、`zipReader` 四处，
+  其余仍走原 TS。接入模板与实测结论见 ADOPTION.md。
+- `src/i18n` 的 `translate` / `useTranslate` **故意留 TS**（读 settings store，locale 是运行时状态）；
+  纯函数 `translateFor` / `isTranslationKey` 已移植并可逐用例验证。
 - wasm 体积/首屏代价没在真机上测过。

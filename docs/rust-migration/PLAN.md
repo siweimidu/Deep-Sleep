@@ -12,10 +12,12 @@
 
 | 优先级 | 事项 | 阻塞点 / 说明 |
 | --- | --- | --- |
-| 中 | `src/i18n/**` | 纯数据可移植；但 `translate` 读 zustand store，得先改成显式 `locale` 参数 |
 | 中 | 只接「字节进」的其余单元 | `parseArchiveBase64` 已验证快 5.14 倍（1.1 MB / 41 条）。其余整对象变换**不接**：实测慢 30–91 倍 |
 | 低 | `zipReader.ts` 剩余 5 个导出 | 字节级核心已通过接缝移植并接入；剩下的是函数/生成器/Blob 边界，无法过桥 |
 | 低 | 出 APK | 本机无 Android SDK/NDK，物理上做不到，不是没做 |
+
+i18n 已处理：`translateFor` / `isTranslationKey` 移植为 `index-rs`（260/260）；
+`translate` / `useTranslate` 依赖 settings store，用 `bridge --keep` 留在 TS。
 
 ## 顺序理由（已完成部分当时为什么这么排）
 

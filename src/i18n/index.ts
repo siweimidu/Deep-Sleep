@@ -27,6 +27,16 @@ const translators = {
   'en-US': createTranslate(en),
 }
 
+/**
+ * 指定语言的翻译。存在的理由：`translate` 读运行时 store，没法被逐用例验证；把 locale 变成显式参数
+ * 之后，两种语言都能被录制下来逐一比对（Rust 侧 `i18n-rs` 就是这么验的）。
+ */
+export const translateFor = (
+  locale: 'zh-CN' | 'en-US',
+  key: TranslationKey,
+  params?: TranslationParams,
+): string => translators[locale](key, params)
+
 /** 组件订阅语言变化；普通函数在调用时读取当前语言。 */
 export const useTranslate = () => useSettings((state) => translators[state.locale])
 
