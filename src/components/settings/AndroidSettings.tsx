@@ -20,8 +20,10 @@ import {
   setAccountName,
   type LocalePreference,
   type ThemePreference,
+  setApiBaseUrl,
 } from '../../services/settings.js'
 import { AndroidSound } from '../base/AndroidIcons.js'
+import { API_ORIGIN } from '../../services/api/client.js'
 import {
   IconChevronRightOutline14,
   IconCloseOutline16,
@@ -48,6 +50,7 @@ type Page =
   | 'personalization'
   | 'agreements'
   | 'help'
+  | 'endpoint'
 type Popup = 'locale' | 'theme' | 'voice' | 'logout' | 'delete' | 'link' | 'avatar' | 'name' | 'update'
 
 const Profile = () => (
@@ -233,6 +236,9 @@ const Settings = ({ start }: { start: Page }) => {
   const tr = (chinese: string, english: string) => (locale === 'zh-CN' ? chinese : english)
   const [page, setPage] = useState<Page>(start)
   const [popup, setPopup] = useState<Popup | null>(null)
+  /** 自定义 API 地址的编辑草稿；保存时才校验并写入设置 */
+  const [endpointDraft, setEndpointDraft] = useState('')
+  const [endpointError, setEndpointError] = useState('')
   const [tone, setTone] = useState(ttsVoice)
   const [busy, setBusy] = useState(false)
   const [link, setLink] = useState('')
@@ -265,6 +271,7 @@ const Settings = ({ start }: { start: Page }) => {
     personalization: tr('个性化', 'Personalization'),
     agreements: tr('服务协议', 'Terms and policies'),
     help: tr('帮助与反馈', 'Help and feedback'),
+    endpoint: tr('API 地址', 'API endpoint'),
   }
   const language = tr('语言', 'Language')
   const appearance = tr('外观', 'Appearance')
@@ -393,6 +400,15 @@ const Settings = ({ start }: { start: Page }) => {
           <>
             <Group label={tr('账户', 'Account')}>
               <Row label={labels.account} icon={<Profile />} onClick={() => setPage('account')} />
+              <Row
+                label={tr('API 地址', 'API endpoint')}
+                icon={<Info glyph="@" />}
+                onClick={() => {
+                  setEndpointDraft(useSettings.getState().apiBaseUrl ?? '')
+                  setEndpointError('')
+                  setPage('endpoint')
+                }}
+              />
               <Row
                 label={labels.data}
                 icon={<IconDataOutline16 />}
@@ -532,6 +548,57 @@ const Settings = ({ start }: { start: Page }) => {
             </Group>
           </>
         ) : null}
+        {page === 'endpoint' ? (
+          <>
+            <Group label={tr('账户', 'Account')}>
+              <label className={styles.endpointField}>
+                <input
+                  type="url"
+                  inputMode="url"
+                  autoComplete="off"
+                  spellCheck={false}
+                  placeholder={API_ORIGIN}
+                  value={endpointDraft}
+                  onChange={(event) => {
+                    setEndpointDraft(event.target.value)
+                    setEndpointError('')
+                  }}
+                />
+              </label>
+            </Group>
+            <p className={styles.caption}>
+              {tr(
+                `留空使用内置地址 `,
+                `Leave empty to use `,
+              )}
+            </p>
+            {endpointError ? (
+              <p role="alert" className={styles.caption}>
+                {endpointError}
+              </p>
+            ) : null}
+            <button
+              type="button"
+              className={styles.primary}
+              onClick={() => {
+                if (!setApiBaseUrl(endpointDraft)) {
+                  setEndpointError(
+                    tr(
+                      '地址无效：需要以 http:// 或 https:// 开头',
+                      'Invalid address: must start with http:// or https://',
+                    ),
+                  )
+                  return
+                }
+                showToast(tr('已保存', 'Saved'))
+                setPage('root')
+              }}
+            >
+              {t('confirm')}
+            </button>
+          </>
+        ) : null}
+
         {page === 'data' ? (
           <>
             <p className={styles.caption}>

@@ -848,3 +848,26 @@ a.row:active,
   font-size: 13px;
   text-align: center;
 }
+
+/* 自定义 API 地址的输入框：与设置里其它行同样的内边距与圆角 */
+.endpointField {
+  display: block;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--settings-field, rgb(127 127 127 / 6%));
+
+  input {
+    width: 100%;
+    border: 0;
+    outline: none;
+    background: transparent;
+    color: inherit;
+    font: var(--dsw-font-markdown-small);
+    /* 地址很长，允许横向滚动而不是撑破布局 */
+    text-overflow: ellipsis;
+  }
+
+  input::placeholder {
+    color: var(--settings-muted);
+  }
+}

@@ -2,6 +2,8 @@ import { create } from 'zustand'
 import { android } from '../app/android.js'
 import type { TtsVoice } from './api/speech.js'
 import { normalizeLocation, type UserLocation } from './location.js'
+import { setOriginOverride } from './api/originStore.js'
+import { normalizeOrigin } from './api/endpoint.js'
 
 export type Locale = 'zh-CN' | 'en-US'
 export type LocalePreference = Locale | 'system'
@@ -28,6 +30,8 @@ type Settings = {
   avatar: string | null
   /** 自定义账户名称；null 表示用默认的 API Key */
   accountName: string | null
+  /** 自定义 API 地址（只存 origin）；null 表示用内置地址 */
+  apiBaseUrl: string | null
 }
 
 const KEYS = {
@@ -45,6 +49,7 @@ const KEYS = {
   pinnedSessions: 'replica:pinned-sessions',
   avatar: 'deepsleep:avatar',
   accountName: 'deepsleep:account-name',
+  apiBaseUrl: 'replica:api-base-url',
 } as const
 
 const read = (key: string) => {
@@ -124,6 +129,8 @@ const initialThemePreference = (): ThemePreference => {
 /** 未保存过时使用服务端默认音色 stella（海星） */
 const initialTtsVoice = (): TtsVoice => (read(KEYS.ttsVoice) === 'tide' ? 'tide' : 'stella')
 
+const initialApiBaseUrl = (): string | null => normalizeOrigin(read(KEYS.apiBaseUrl))
+
 export const useSettings = create<Settings>(() => ({
   apiKey: android ? android.readApiKey() : read(KEYS.apiKey),
   locale: resolveLocale(initialLocalePreference()),
@@ -140,7 +147,11 @@ export const useSettings = create<Settings>(() => ({
   pinnedSessions: initialPinnedSessions(),
   avatar: read(KEYS.avatar),
   accountName: read(KEYS.accountName),
+  apiBaseUrl: initialApiBaseUrl(),
 }))
+
+// 启动时把已保存的自定义地址同步给客户端：store 初始化后立刻生效，避免第一次请求走错地址
+setOriginOverride(useSettings.getState().apiBaseUrl)
 
 export const setAccountName = (accountName: string | null) => {
   const value = accountName?.trim() ? accountName.trim().slice(0, 20) : null
@@ -218,4 +229,19 @@ export const setSearch = (search: boolean) => {
 export const setSiderCollapsed = (siderCollapsed: boolean) => {
   write(KEYS.siderCollapsed, String(siderCollapsed))
   useSettings.setState({ siderCollapsed })
+}
+
+/**
+ * 设置自定义 API 地址。空字符串表示恢复内置地址。
+ * 非法地址直接拒绝（返回 false），避免存进去一个永远请求不通的值。
+ */
+export const setApiBaseUrl = (value: string | null): boolean => {
+  const origin = normalizeOrigin(value)
+  if ((value ?? '').trim() && !origin) {
+    return false
+  }
+  write(KEYS.apiBaseUrl, origin)
+  useSettings.setState({ apiBaseUrl: origin })
+  setOriginOverride(origin)
+  return true
 }
