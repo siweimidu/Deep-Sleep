@@ -204,6 +204,7 @@ export const en = {
   sessionDetailUpdatedAt: 'Last updated',
   sessionDetailCacheHit: 'Cache hit rate',
   sessionDetailModel: 'Model',
+  sessionDetailUnknown: 'Unknown',
   sessionDetailMessages: 'Messages',
   sessionDetailContext: 'Context',
   sessionDetailId: 'Session ID',

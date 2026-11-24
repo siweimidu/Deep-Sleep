@@ -66,7 +66,8 @@ export const SessionDetailSheet = ({
   // 挂载后下一帧再切换，保证 transition 从收起状态开始播。
   const [shown, setShown] = useState(false)
   // 缓存命中率：命中的缓存 token 占本轮输入侧总量的比例（只在详情里展示）
-  // 会话本身不存模型，取最后一条助手消息的模型；没有就按默认
+  // 会话本身不存模型，只能取最后一条助手消息上记录的 model。查不到就是"不知道"——
+  // 不要用默认模型顶替，那是在详情里编造事实。
   const activeModel =
     (() => {
       const messages = loaded?.messages ?? []
@@ -77,7 +78,8 @@ export const SessionDetailSheet = ({
         }
       }
       return null
-    })() ?? 'deepseek-flash'
+    })() ?? null
+  const contextWindow = activeModel ? MODEL_WINDOWS[activeModel] : undefined
 
   const cache = (() => {
     const usage = loaded?.contextUsage
@@ -143,13 +145,11 @@ export const SessionDetailSheet = ({
             label={t('sessionDetailMessages')}
             value={loaded ? loaded.messages.length : '—'}
           />
-          {activeModel ? (
-            <Row
-              icon={<IconInfoOutline20 />}
-              label={t('sessionDetailModel')}
-              value={MODEL_LABELS[activeModel] ?? activeModel}
-            />
-          ) : null}
+          <Row
+            icon={<IconInfoOutline20 />}
+            label={t('sessionDetailModel')}
+            value={activeModel ? (MODEL_LABELS[activeModel] ?? activeModel) : t('sessionDetailUnknown')}
+          />
           {cache ? (
             <Row
               icon={<IconCopyOutline20 />}
@@ -162,9 +162,9 @@ export const SessionDetailSheet = ({
               icon={<IconInfoOutline20 />}
               label={t('sessionDetailContext')}
               value={[
-                `${formatTokens(loaded.contextUsage.inputTokens)} / ${formatWindow(
-                  MODEL_WINDOWS[activeModel] ?? MODEL_WINDOWS['deepseek-flash']
-                )}`,
+                `${formatTokens(loaded.contextUsage.inputTokens)} / ${
+                  contextWindow ? formatWindow(contextWindow) : t('sessionDetailUnknown')
+                }`,
                 loaded.anchor ? '已存档开头' : '',
               ]
                 .filter(Boolean)
