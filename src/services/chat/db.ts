@@ -1,5 +1,11 @@
 import { openDB, type DBSchema, type IDBPDatabase } from 'idb'
 import { toSessionSummary, type Session, type SessionSummary } from './types.js'
+import {
+  forgetMirroredSession,
+  mirrorSession,
+  readMirroredSessions,
+  withMirrorMuted,
+} from './nativeMirror.js'
 
 /** IndexedDB 存储结构版本；新增或调整存储、索引时递增。 */
 const DB_VERSION = 11
@@ -75,11 +81,37 @@ const getDB = () =>
     throw error
   }))
 
-export const loadSessionSummaries = async (): Promise<SessionSummary[]> =>
-  (await (await getDB()).getAll('sessionSummaries')).map(toSessionSummary)
+export const loadSessionSummaries = async (): Promise<SessionSummary[]> => {
+  const summaries = (await (await getDB()).getAll('sessionSummaries')).map(toSessionSummary)
+  if (summaries.length > 0) {
+    return summaries
+  }
+  // IndexedDB 空了（清站点数据 / 换内核 / 系统回收）：用原生镜像整体恢复。
+  const mirrored = readMirroredSessions()
+  if (mirrored.length === 0) {
+    return summaries
+  }
+  await withMirrorMuted(async () => {
+    for (const session of mirrored) {
+      await saveSession(session)
+    }
+  })
+  return (await (await getDB()).getAll('sessionSummaries')).map(toSessionSummary)
+}
 
-export const loadSession = async (id: string): Promise<Session | undefined> =>
-  (await getDB()).get('sessions', id)
+export const loadSession = async (id: string): Promise<Session | undefined> => {
+  const stored = await (await getDB()).get('sessions', id)
+  if (stored) {
+    return stored
+  }
+  // 单个会话丢了也补回来，不必等整表为空
+  const mirrored = readMirroredSessions().find((session) => session.id === id)
+  if (!mirrored) {
+    return undefined
+  }
+  await withMirrorMuted(() => saveSession(mirrored))
+  return mirrored
+}
 
 export const saveSession = async (session: Session, files: StoredFile[] = []): Promise<void> => {
   const summary = storedSummary(session)
@@ -99,10 +131,10 @@ export const saveSession = async (session: Session, files: StoredFile[] = []): P
     })(),
     tx.done,
   ])
+  mirrorSession(session)
 }
-
-/** 未打开的会话也可重命名，只读取该会话，原子更新详情和列表。 */
 export const renameSession = async (id: string, title: string): Promise<void> => {
+  let renamed: Session | undefined
   const tx = (await getDB()).transaction(['sessions', 'sessionSummaries'], 'readwrite')
   await Promise.all([
     (async () => {
@@ -111,6 +143,7 @@ export const renameSession = async (id: string, title: string): Promise<void> =>
         const session = await sessions.get(id)
         if (session) {
           session.title = title
+          renamed = session
           await sessions.put(session)
           await tx.objectStore('sessionSummaries').put(storedSummary(session))
         }
@@ -121,6 +154,9 @@ export const renameSession = async (id: string, title: string): Promise<void> =>
     })(),
     tx.done,
   ])
+  if (renamed) {
+    mirrorSession(renamed)
+  }
 }
 
 /** 删除会话，仅清理已无会话引用的本地原件；远端文件不删。 */
@@ -145,6 +181,7 @@ export const deleteSession = async (sessionId: string): Promise<void> => {
     })(),
     tx.done,
   ])
+  forgetMirroredSession(sessionId)
 }
 
 const putFiles = async (store: 'files' | 'filesStaging', files: StoredFile[]) => {

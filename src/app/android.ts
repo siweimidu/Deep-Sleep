@@ -6,6 +6,10 @@ type AndroidBridge = {
   readApiKey: () => string | null
   writeApiKey: (value: string | null) => boolean
   setDarkBars: (dark: boolean) => void
+  /** 聊天记录原生镜像（SQLite）：IndexedDB 被清空时用它恢复 */
+  mirrorPut?: (id: string, body: string) => void
+  mirrorRemove?: (id: string) => void
+  mirrorDump?: () => string
   requestRecentPhotos: () => void
   prefetchRecentPhotos: () => void
   requestHistoryExport: (name: string) => void

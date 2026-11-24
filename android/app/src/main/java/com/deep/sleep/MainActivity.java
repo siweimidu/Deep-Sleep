@@ -92,6 +92,8 @@ public final class MainActivity extends Activity {
     /** 导出包下载缓存：令牌 -> 文件，导入结束后由前端调用释放。 */
     private final Map<String, File> downloads = new ConcurrentHashMap<>();
     private final ExecutorService downloadExecutor = Executors.newSingleThreadExecutor();
+    /** 聊天记录的原生镜像：IndexedDB 被清空时用它恢复 */
+    private ChatStorage chatStorage;
 
     @Override
     public boolean dispatchTouchEvent(MotionEvent event) {
@@ -147,6 +149,7 @@ public final class MainActivity extends Activity {
     public void onCreate(Bundle state) {
         super.onCreate(state);
         keys = new ApiKeyStore(this);
+        chatStorage = new ChatStorage(this);
         recentPhotos = new RecentPhotos(getContentResolver());
         historyExport = new FileExport(getContentResolver());
         imageSave = new ImageSave(getContentResolver());
@@ -737,6 +740,28 @@ public final class MainActivity extends Activity {
 
         @JavascriptInterface
         public void setDarkBars(boolean dark) { runOnUiThread(() -> setBars(dark)); }
+
+        /** 写入/覆盖一个会话的原生镜像（前端已序列化成 JSON）。 */
+        @JavascriptInterface
+        public void mirrorPut(String id, String body) {
+            if (chatStorage != null) {
+                chatStorage.put(id, body);
+            }
+        }
+
+        /** 会话被删除时清掉镜像。 */
+        @JavascriptInterface
+        public void mirrorRemove(String id) {
+            if (chatStorage != null) {
+                chatStorage.remove(id);
+            }
+        }
+
+        /** 全量导出镜像，供前端在 IndexedDB 为空时恢复；格式 [[id, body], ...]。 */
+        @JavascriptInterface
+        public String mirrorDump() {
+            return chatStorage == null ? "[]" : chatStorage.dump();
+        }
 
         @JavascriptInterface
         public void requestRecentPhotos() { runOnUiThread(() -> showRecentPhotos()); }
