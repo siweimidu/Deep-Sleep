@@ -1,5 +1,6 @@
 import { openDB, type DBSchema, type IDBPDatabase } from 'idb'
 import { toSessionSummary, type Session, type SessionSummary } from './types.js'
+import { mergeSessionDeep } from './mergeSessions.js'
 import {
   forgetMirroredSession,
   mirrorSession,
@@ -225,15 +226,8 @@ export type CommitMode = 'replace' | 'merge'
 export type CommitResult = { summaries: SessionSummary[]; added: number; updated: number }
 
 /** 同一次导入重复执行时，用导出包的标题与时间补齐，消息取并集，不新建会话。 */
-const mergeSession = (local: Session, incoming: Session): Session => {
-  const known = new Set(local.messages.map((message) => message.id))
-  const extra = incoming.messages.filter((message) => !known.has(message.id))
-  return {
-    ...local,
-    ...incoming,
-    messages: [...local.messages, ...extra].sort((left, right) => left.createdAt - right.createdAt),
-  }
-}
+const mergeSession = (local: Session, incoming: Session): Session =>
+  mergeSessionDeep(local, incoming).session
 
 // 分块读取暂存：块内请求不 await，只 await 读取本身，事务因此不会提前提交。
 const STAGING_CHUNK = 200
