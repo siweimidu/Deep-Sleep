@@ -52,3 +52,12 @@
 APK 里因此只带这两个 wasm：`zipreader_rs_bg` 299,960 B + `budget_rs_bg` 246,019 B。
 其余三个（paths / attachments / location）已按同一判据**回退**，源文件用
 `git checkout` 还原到接线前的版本。
+
+## 设备上复核过：数字是真的，但差点不成立
+
+在 Android 14 模拟器（WebView 113）里装上 release APK 复核，发现 **CSP 拦掉了 WebAssembly 编译**，
+适配层按设计静默回退到 TS —— 也就是说这 5.14 倍在设备上**根本没有生效**，而应用看起来毫无异常。
+加上 `'wasm-unsafe-eval'` 之后 `window.__deepseekRust.budget === true`，收益才真正落地。
+细节与完整报错见 [ADOPTION.md](./ADOPTION.md) §2.5。
+
+结论：**wasm 的性能结论必须在真机/模拟器上复核一次**，"能在 Node 里跑"不等于"在 WebView 里会跑"。

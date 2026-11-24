@@ -128,6 +128,11 @@ public final class MainActivity extends Activity {
         imageSave = new ImageSave(getContentResolver());
         recorder = new NativeRecorder();
         frame = new FrameLayout(this);
+        // 仅 debug 包：允许 adb forward + CDP 检查真实 WebView，这是设备上验证 Rust wasm 是否真的
+        // 初始化成功的唯一途径。release 包不开启，避免把调试端口暴露出去。
+        if ((getApplicationInfo().flags & android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) != 0) {
+            WebView.setWebContentsDebuggingEnabled(true);
+        }
         webView = new WebView(this);
         frame.addView(webView, new FrameLayout.LayoutParams(-1, -1));
         frame.setOnApplyWindowInsetsListener((view, insets) -> {
@@ -408,7 +413,10 @@ public final class MainActivity extends Activity {
                 String type = "js".equals(extension) ? "text/javascript"
                     : MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
                 Map<String, String> headers = Map.of("Content-Security-Policy",
-                    "default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; "
+                    // `'wasm-unsafe-eval'` 是编译 WebAssembly 的最小授权项（Chromium 97+）。没有它，
+                    // instantiateStreaming 直接被 CSP 拒绝，Rust 加速会静默回退到 TS。
+                    "default-src 'none'; script-src 'self' 'wasm-unsafe-eval'; "
+                    + "style-src 'self' 'unsafe-inline'; "
                     + "img-src 'self' https: data: blob:; font-src 'self' data:; "
                     + "media-src 'self' blob:; connect-src 'self' https://api.deepseek.com "
                     + "https://*.myhuaweicloud.com; worker-src 'self' blob:; "

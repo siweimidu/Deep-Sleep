@@ -12,12 +12,27 @@ import init, { estimateTokens as rustEstimateTokens } from './pkg/budget_rs.js'
 
 let ready = false
 
+/** 诊断用，见 zipReader.ts 里同名函数。 */
+const publish = (value: boolean, error?: string): void => {
+  if (typeof window === 'undefined') {
+    return
+  }
+  const scope = window as unknown as { __deepseekRust?: Record<string, unknown> }
+  scope.__deepseekRust = {
+    ...scope.__deepseekRust,
+    budget: value,
+    ...(error === undefined ? {} : { budgetError: error }),
+  }
+}
+
 const load = async (): Promise<void> => {
   try {
     await init({ module_or_path: new URL('./pkg/budget_rs_bg.wasm', import.meta.url) })
     ready = true
-  } catch {
+    publish(true)
+  } catch (error) {
     // Rust 是加速路径，不是依赖：加载失败就永远走原 TS 实现。
+    publish(false, String(error))
   }
 }
 

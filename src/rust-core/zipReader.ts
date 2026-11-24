@@ -25,12 +25,26 @@ export type RustParsedArchive = { offset: number; entries: RustParsedArchiveEntr
 
 let ready = false
 
+/**
+ * 诊断用：真机/模拟器上用 CDP 读 `window.__deepseekRust.zipReader` 就能确认 wasm 是否真的初始化成功。
+ * 这是设备验证唯一可靠的信号（Node 环境没有 window，直接跳过）。
+ */
+const publish = (value: boolean): void => {
+  if (typeof window === 'undefined') {
+    return
+  }
+  const scope = window as unknown as { __deepseekRust?: Record<string, boolean> }
+  scope.__deepseekRust = { ...scope.__deepseekRust, zipReader: value }
+}
+
 const load = async (): Promise<void> => {
   try {
     await init({ module_or_path: new URL('./pkg/zipreader_rs_bg.wasm', import.meta.url) })
     ready = true
+    publish(true)
   } catch {
     // Rust 是加速路径，不是依赖：加载失败就永远走原 TS 实现。
+    publish(false)
   }
 }
 

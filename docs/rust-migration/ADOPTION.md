@@ -38,13 +38,39 @@ powershell -NoProfile -ExecutionPolicy Bypass -File rust\build-web-core.ps1 -Cra
 `https://appassets.androidplatform.net/` 提供（`MainActivity.java:51`），所以 `fetch()` 取 wasm
 在生产环境可用 —— **不能** 把 wasm 放在 `file://` 下，那样 fetch 读不到。
 
-## 3. TS 适配层：已接的三个单元
+## 2.5 CSP 必须放行 wasm，否则一切都是静默回退
 
-| 源文件 | 适配层 | 接入的函数 |
-| --- | --- | --- |
-| `services/chat/history/paths.ts` | `src/rust-core/paths.ts` | `sessionPath`、`sessionFilesDir`、`parseSessionPath`、`imagePath` |
-| `services/attachments.ts` | `src/rust-core/attachments.ts` | `getFileExt`、`isAcceptedExt`、`getUploadPurpose`、`isImage`、`getExtension`、`formatSize` |
-| `services/location.ts` | `src/rust-core/location.ts` | `getRegionName`、`normalizeLocation` |
+**这是设备验证才发现的真 bug，不接就等于没接。** 应用给 WebView 设了 CSP（`MainActivity.java`
+的 `shouldInterceptRequest`），原来的 `script-src 'self'` **不允许编译 WebAssembly**，于是：
+
+```
+CompileError: WebAssembly.instantiateStreaming(): Refused to compile or instantiate
+WebAssembly module because 'unsafe-eval' is not an allowed source of script in the following
+Content Security Policy directive: "script-src 'self'"
+```
+
+症状极具欺骗性：`WebAssembly.validate(bytes)` 返回 `true`（校验不过 CSP），把 wasm 字节取下来也一切
+正常，只有真正 `instantiate` 时才被拒。适配层按设计吞掉异常并回退——于是**应用照常运行、看起来毫无
+问题，但 Rust 从来没跑过**，那个 5.14 倍收益等于不存在。
+
+修法是加**最小授权项** `'wasm-unsafe-eval'`（Chromium 97+ 专为此设计，不要图省事写成 `'unsafe-eval'`）：
+
+```java
+"default-src 'none'; script-src 'self' 'wasm-unsafe-eval'; " + ...
+```
+
+改完后在 Android 14 / WebView 113 上实测 `window.__deepseekRust.budget === true`，即 wasm 初始化成功。
+适配层里的 `publish()` 就是为这件事留的诊断信号（`window.__deepseekRust`），生产环境只读、无副作用。
+
+## 3. TS 适配层：已接的两个单元
+
+| 源文件 | 适配层 | 接入的函数 | 实测 |
+| --- | --- | --- | --- |
+| `services/chat/history/zipReader.ts` | `src/rust-core/zipReader.ts` | `parseArchiveBase64` | **5.14×** |
+| `services/chat/context/budget.ts` | `src/rust-core/budget.ts` | `estimateTokens`（≥128 单元） | **1.2–1.8×** |
+
+`paths` / `attachments` / `location` 曾接过，但实测约 0.11×，已回退并移除适配层（判据见
+[PERFORMANCE.md](./PERFORMANCE.md)）。
 
 模式（照抄即可接下一个）：
 
@@ -152,11 +178,10 @@ wire 标记一共五种，还原函数必须全支持：
 - 整对象进出（消息树、reply view、budget）→ **不要接**，慢 30–91 倍；
 - 小函数（`getFileExt` 之类）→ 每次约 1 µs 固定边界成本，比操作本身贵一个数量级，别提速。
 
-所以已接的三个单元定位是**正确性试点**，不是性能优化：验证了「Rust 能在生产链路跑起来」这件事，
-而不是「跑得更快」。
-
-已接的三个单元**是正确的，但不是提速**：调用频率低，每次 ~1 µs 可忽略；它们的价值是「Rust 真的在
-线上跑」这条链路已经打通并验证。
+所以「接线本身」是可行的，但**只有实测更快的单元才值得留在线上**。当前只留两个：
+`zipReader.parseArchiveBase64`（5.14×）与 `budget.estimateTokens`（1.2–1.8×，≥128 单元）。
+`paths` / `attachments` / `location` 实测约 0.11×，已回退——保持 TypeScript 反而更快，且零边界风险。
+完整数字见 [PERFORMANCE.md](./PERFORMANCE.md)。
 
 ## 6. 随时复验
 
