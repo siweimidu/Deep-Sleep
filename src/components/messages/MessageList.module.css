@@ -6,6 +6,8 @@
   overflow-y: auto;
   scrollbar-gutter: stable both-edges;
   scrollbar-color: var(--scroll-color) transparent;
+  /* "回到底部"按钮的定位上下文（移动端外层不滚动，滚动在内层 .scroll） */
+  position: relative;
 }
 
 .scroll {

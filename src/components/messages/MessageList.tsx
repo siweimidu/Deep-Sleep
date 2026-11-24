@@ -11,6 +11,7 @@ import type { Session } from '../../services/chat/types.js'
 import { closeSearchPanel } from '../search/searchPanelState.js'
 import { AssistantMessage } from './AssistantMessage.js'
 import { ScrollToBottomContext } from './scrollContext.js'
+import { JumpToBottomButton } from './JumpToBottomButton.js'
 import { UserMessage } from './UserMessage.js'
 import type { Message } from '../../services/chat/types.js'
 
@@ -75,6 +76,16 @@ export const MessageList = ({
     () => ({ scrollToBottom, stopFollowing }),
     [scrollToBottom, stopFollowing]
   )
+  const [showJump, setShowJump] = useState(false)
+  /** 手动回到底部：强制恢复跟随，并平滑滚过去 */
+  const jumpToBottom = useCallback(() => {
+    const el = scrollRef.current
+    if (!el) {
+      return
+    }
+    stickyRef.current = true
+    el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' })
+  }, [])
 
   // 内容、键盘和输入框高度变化时，继续遵循当前跟随状态。
   useLayoutEffect(() => {
@@ -257,6 +268,23 @@ export const MessageList = ({
     return () => el.removeEventListener('scroll', onScroll)
   }, [isMobile, scrollToBottom])
 
+  // 离底部超过约一屏的三分之一时才浮出"回到底部"，避免贴着底也一直挡着内容
+  useEffect(() => {
+    const el = scrollRef.current
+    if (!el) {
+      return
+    }
+    const measure = () => setShowJump(el.scrollHeight - el.scrollTop - el.clientHeight > 320)
+    measure()
+    el.addEventListener('scroll', measure, { passive: true })
+    const observer = new ResizeObserver(measure)
+    observer.observe(el)
+    return () => {
+      el.removeEventListener('scroll', measure)
+      observer.disconnect()
+    }
+  }, [isMobile, lastMessageId])
+
   const lastIndex = messages.length - 1
   const uploadRetryId = getUploadRetryId(messages, streaming)
   return (
@@ -293,6 +321,8 @@ export const MessageList = ({
           </div>
         </div>
         {footer}
+        {/* 桌面端 .container 本身就是滚动容器，绝对定位会跟着内容滚走，所以只在移动端显示 */}
+        {isMobile ? <JumpToBottomButton visible={showJump} onClick={jumpToBottom} /> : null}
       </div>
     </ScrollToBottomContext.Provider>
   )
