@@ -44,3 +44,10 @@ export const isRustBudgetReady = (): boolean => ready
 export const rustBudget = {
   estimateTokens: (text: string): number | undefined => (ready ? rustEstimateTokens(text) : undefined),
 }
+
+// 诊断：把 Rust 侧的 estimateTokens 挂出来，设备上用 CDP 与 TS 实现对比（rust/cdp-budget.mjs）。
+// 只挂一个纯函数，不发起请求；`publish` 会保留这个键。
+if (typeof window !== 'undefined') {
+  const scope = window as unknown as { __deepseekRust?: Record<string, unknown> }
+  scope.__deepseekRust = { ...scope.__deepseekRust, estimateTokensRust: rustBudget.estimateTokens }
+}

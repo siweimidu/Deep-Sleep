@@ -102,6 +102,11 @@ APK：`gradlew assembleRelease` → `app-release.apk` 4,723,511 B，两个 wasm 
 
   也就是说 `zipReader` 的收益不是"Node 里好看"，在 Android WebView 113 上是真的。
 
+- ✅ **`estimateTokens` 也在设备上做了 A/B**（`rust/cdp-budget.mjs`）：8 种长度输出全部一致；
+  加速比 16→0.82、64→0.66、128→1.08、256→0.85、512→1.50、1 KB→1.56、4 KB→1.64、100 KB→2.14。
+  **交叉点在 512，不在 Node 上看到的 128**，所以门槛按设备数据从 128 调成 512（低于 512 走 TS，
+  任何长度都不会亏）。
+
 **这一步抓到一个会让整个优化白做的 bug**：原 CSP 是 `script-src 'self'`，不允许编译 WebAssembly，
 `instantiateStreaming` 被拒 → 适配层静默回退 TS → 应用看起来完全正常，但那 5.14 倍从没生效。
 修法是最小授权 `'wasm-unsafe-eval'`（详见 ADOPTION.md §2.5）。

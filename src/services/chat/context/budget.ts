@@ -39,9 +39,10 @@ export const estimateTokens = (text: string): number => {
   if (!text) {
     return 0
   }
-  // 实测（rust/bench/budget.mjs）：≥128 个 UTF-16 单元时 Rust 快 1.2–1.8 倍；更短时边界成本反而
-  // 超过这段循环本身（16 单元时只有 0.64×），所以短文本直接用下面的原实现。
-  const rust = text.length >= 128 ? rustBudget.estimateTokens(text) : undefined
+  // 阈值来自设备实测（rust/cdp-budget.mjs，Android WebView 113，ratio = ts/rust，>1 表示 Rust 更快）：
+  //   16 → 0.82、64 → 0.66、128 → 1.08、256 → 0.85、512 → 1.50、1 KB → 1.56、4 KB → 1.64、100 KB → 2.14
+  // 交叉点在 512 附近，256 反而更慢，所以门槛取 512：低于它用下面的原实现，永远不会亏。
+  const rust = text.length >= 512 ? rustBudget.estimateTokens(text) : undefined
   if (rust !== undefined) {
     return rust
   }
