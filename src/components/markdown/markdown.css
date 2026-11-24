@@ -190,15 +190,20 @@
 }
 
 .ds-markdown code {
-  display: inline-flex;
-  align-items: center;
+  /* 原来这里是 inline-flex：flex 盒只有自身 22px 高，跟 28px 的行框对不齐，
+     灰底看起来偏下；普通 inline 才会跟随行框，再由 padding 把灰底撑开。 */
+  display: inline;
   box-sizing: border-box;
   font: var(--dsw-font-markdown-code);
   font-family: var(--ds-font-family-code);
   font-size: 0.875em !important;
   background-color: var(--dsw-alias-markdown-inline-code);
   border-radius: 6px;
-  padding: 0 5px;
+  /* 竖向 padding 不会改变行框高度，只会让灰底稍微溢出，正好用来包住文字 */
+  padding: 2px 5px;
+  /* 折行时每一行两端都保留圆角，否则中间断开处是直角 */
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
 }
 .ds-markdown {
   h1,
