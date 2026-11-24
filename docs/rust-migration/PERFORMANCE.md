@@ -61,3 +61,12 @@ APK 里因此只带这两个 wasm：`zipreader_rs_bg` 299,960 B + `budget_rs_bg`
 细节与完整报错见 [ADOPTION.md](./ADOPTION.md) §2.5。
 
 结论：**wasm 的性能结论必须在真机/模拟器上复核一次**，"能在 Node 里跑"不等于"在 WebView 里会跑"。
+
+复核之后，`zipReader` 在设备上的 A/B（同一份 1.1 MB 归档、同一个 WebView，`rust/cdp-archive.mjs`）：
+
+| | TypeScript | Rust | 加速比 |
+| --- | --- | --- | --- |
+| Node（本机） | 99.59 ms | 19.35 ms | 5.15× |
+| Android WebView 113 | 104.23 ms | 21.37 ms | **4.88×** |
+
+两边的输出逐字节一致（41 个条目、offset 1094830）。

@@ -15,4 +15,11 @@ if (android) {
 }
 setupTheme()
 
+// 诊断入口：设备侧用 CDP 验证归档解析的两条路径（rust/cdp-archive.mjs）。
+// 归档模块是按需加载的 chunk，这里给一个显式入口；不被调用就什么都不会拉取。
+if (typeof window !== 'undefined') {
+  const scope = window as unknown as { __deepseekLoadArchive?: () => Promise<unknown> }
+  scope.__deepseekLoadArchive = () => import('./services/chat/history/zipReader.js')
+}
+
 createRoot(document.getElementById('root') as HTMLElement).render(<App />)

@@ -91,6 +91,16 @@ APK：`gradlew assembleRelease` → `app-release.apk` 4,723,511 B，两个 wasm 
 - ✅ 应用的网络与 API 客户端正常（提交假 Key 时真实返回了 400 错误提示，说明确实连到了
   `api.deepseek.com`）
 - ✅ **实测 `window.__deepseekRust.budget === true`** —— 修完 CSP 之后 wasm 在真设备上初始化成功
+- ✅ **归档解析在设备上做了 A/B**（`rust/cdp-archive.mjs`，同一份 1.1 MB 归档、同一个 WebView）：
+
+  | | 设备上实测 |
+  | --- | --- |
+  | 输出是否一致 | **一致**（41 个条目，offset 1094830，与 Node 侧完全相同） |
+  | TypeScript | 104.23 ms |
+  | **Rust** | **21.37 ms** |
+  | **加速比** | **4.88×**（Node 上测到的是 5.14×） |
+
+  也就是说 `zipReader` 的收益不是"Node 里好看"，在 Android WebView 113 上是真的。
 
 **这一步抓到一个会让整个优化白做的 bug**：原 CSP 是 `script-src 'self'`，不允许编译 WebAssembly，
 `instantiateStreaming` 被拒 → 适配层静默回退 TS → 应用看起来完全正常，但那 5.14 倍从没生效。
@@ -100,8 +110,8 @@ APK：`gradlew assembleRelease` → `app-release.apk` 4,723,511 B，两个 wasm 
 
 - **物理设备**：没有插手机，`adb devices` 一直为空（模拟器不算真机）。
 - **导入归档的完整 UI 流程**：入口在 API Key 校验之后，需要一个**真实有效的 DeepSeek API Key** 才能
-  过去；假 Key 会被服务端拒绝。所以 `parseArchiveBase64` 在设备上还没被 UI 真正触发过——
-  它的 `budget` 兄弟已经证明「wasm 在这个 WebView 里能初始化」这条机制通了。
+  过去（假 Key 会被服务端拒绝）。所以「点按钮 → 选文件 → 导入」这条交互链还没在设备上走过；
+  被它包住的解析函数本身已经按上表在设备上 A/B 验过了。
 
 `attachments.ts` 里的 `validateFiles` / `resolveMimeType` 从未接（入参是 `File`，需要先做
 `File → {name,size,type}` 映射）。

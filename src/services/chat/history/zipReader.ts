@@ -420,3 +420,18 @@ export const parseArchiveBase64InTypeScript = async (base64: string): Promise<Pa
  */
 export const parseArchiveBase64 = async (base64: string): Promise<ParsedArchive> =>
   (await rustZipReader.parseArchiveBase64(base64)) ?? parseArchiveBase64InTypeScript(base64)
+
+// 诊断钩子：设备上用 CDP 对同一份归档对比 Rust 与 TS 两条路径（见 rust/cdp-archive.mjs）。
+// 只挂两个纯函数，不发起任何网络请求；模块本身是按需加载的，页面不会因此多拉任何东西。
+if (typeof window !== 'undefined') {
+  const scope = window as unknown as {
+    __deepseekArchive?: {
+      viaRust: (base64: string) => Promise<ParsedArchive | undefined>
+      inTypeScript: (base64: string) => Promise<ParsedArchive>
+    }
+  }
+  scope.__deepseekArchive = {
+    viaRust: rustZipReader.parseArchiveBase64,
+    inTypeScript: parseArchiveBase64InTypeScript,
+  }
+}
