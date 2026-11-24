@@ -76,7 +76,19 @@ export const sessionPath = (sessionId: string) =>
 （我就是在 `bench-archive.mjs` 里踩了这个坑）。
 
 实测：`node rust/adapter-check.mjs` → **30/30**（走应用真正 import 的模块）；`pnpm type` 干净；
-`pnpm lint` 0 warning 0 error；`pnpm build` 成功且三个 wasm 都被产出并被 bundle 引用。
+`pnpm lint` 0 warning 0 error；`pnpm build` 成功，四个 wasm 都被产出并被 bundle 引用。
+
+### 接线之后必须**重新录制**
+
+`gate` 除了 fmt/clippy/test/behavior，还有一个 `recording` 检查：单元源码一旦在录制之后改动，就报
+`src/… changed since it was recorded`。把函数体换成「委托给 Rust」正好会触发它——这不是 bug，是工具
+在提醒"录的和现在的原版不是同一份"。
+
+处理办法就是它说的：接线完成后重新 `record`。**这不会变成自证循环**：录制环境里适配层初始化必然
+失败（Node 没有 `file://` 的 fetch），于是回退到 TS 实现，录下来的仍是原版行为。有直接证据：
+`zipreader-rs` 重录后的 300 条错误里有一条是
+`The encoded data was not valid for encoding utf-8` —— 这是 `TextDecoder` 的报错，Rust 侧不可能产生
+（它把 utf8 错误映射成 `Invalid or unsupported history archive`）。
 
 ## 4. 两个胶水**不等价**（务必先读）
 
@@ -148,12 +160,22 @@ wire 标记一共五种，还原函数必须全支持：
 
 ## 6. 随时复验
 
+一条命令跑完四层：
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File rust\verify-all.ps1
+# 期望最后一行：ALL GREEN: 16 crates gated, browser artifact + adapters verified.
+```
+
+单跑某一层：
+
 ```powershell
 rust-anything diff rust\<crate>       # Node 胶水：必须 N/N
-rust-anything gate rust\<crate>       # 必须 Gate passed
+rust-anything gate rust\<crate>       # 必须 Gate passed（接线后记得先重录）
 powershell -NoProfile -ExecutionPolicy Bypass -File rust\web-parity.ps1   # 浏览器产物：必须 exit 0
 node rust\adapter-check.mjs           # 适配层：必须全过
 node rust\bench-boundary.mjs          # 边界成本，决定要不要接
+node --import ./rust/record-shim.mjs --import ./rust/register-ts.mjs rust\bench-archive.mjs
 node rust\tolocal-rs\fix-glue.mjs     # 只在跑过 refresh 之后需要
 ```
 

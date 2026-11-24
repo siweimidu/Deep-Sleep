@@ -33,13 +33,16 @@ cargo test / build / api / behavior 全绿）。React 前端与视觉一行未�
 | `zipreader-rs` | `services/chat/history/zipReader.ts`（经接缝） | 322/322 | ZIP32 中央目录、CRC32、路径校验 |
 | `index-rs` | `src/i18n/index.ts`（经接缝） | 260/260 | `translateFor` / `isTranslationKey`，263 条消息表由脚本从 zh/en 生成 |
 
-**合计 9752 条用例。** 复验一条命令：
+**合计 9752 条用例。** 一条命令跑完全部证明：
 
 ```powershell
-Set-Location "D:\Code\重构\deepseek"
-Get-ChildItem rust -Directory | Where-Object { Test-Path "$($_.FullName)\rust-anything.json" } |
-  ForEach-Object { rust-anything gate "rust\$($_.Name)" }
+powershell -NoProfile -ExecutionPolicy Bypass -File rust\verify-all.ps1
+# 期望：ALL GREEN: 16 crates gated, browser artifact + adapters verified.
 ```
+
+注意：把某个单元接进应用（函数体改成委托给 Rust）会让 `gate` 的 `recording` 检查失败，因为源码变了。
+接完要重新 `record`——录制时适配层初始化不了，于是录的仍是 TS 原版行为，不是自证循环（见
+ADOPTION.md 有直接证据）。
 
 ### 额外的第二层验证：浏览器产物
 

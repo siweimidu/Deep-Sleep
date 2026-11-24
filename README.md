@@ -105,7 +105,10 @@ pnpm install
 - 接入 WebView：[docs/rust-migration/ADOPTION.md](docs/rust-migration/ADOPTION.md)
 
 ```bash
-# 复验某个单元与原版行为一致
+# 一条命令跑完全部证明（16 个 crate 的 gate + 浏览器产物一致性 + 应用适配层）
+powershell -NoProfile -ExecutionPolicy Bypass -File rust/verify-all.ps1
+
+# 单跑某个单元
 rust-anything diff rust/<crate>
 rust-anything gate rust/<crate>
 ```
