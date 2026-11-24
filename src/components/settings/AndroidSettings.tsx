@@ -286,13 +286,14 @@ const Settings = ({ start }: { start: Page }) => {
   const tones: { id: TtsVoice; label: string; description: string }[] = [
     {
       id: 'stella',
-      label: t('settingsTtsVoiceStella'),
-      description: tr('俏皮甜美', 'Playful and sweet'),
+      // 设置页只写「海星」，不带性别后缀（通话页那边才写「海星（女声）」）
+      label: tr('海星', 'Stella'),
+      description: t('callVoiceSweet'),
     },
     {
       id: 'tide',
-      label: t('settingsTtsVoiceTide'),
-      description: tr('沉稳自然', 'Calm and natural'),
+      label: tr('暗潮', 'Tide'),
+      description: t('callVoiceDeep'),
     },
   ]
   const currentTone = tones.find((item) => item.id === tone) ?? tones[0]

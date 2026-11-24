@@ -66,6 +66,8 @@
   transform: translateX(calc(var(--drawer-width, var(--drawer-edge)) * var(--drawer-progress)));
   border-radius: 0;
   transition: transform var(--card-transition, var(--motion-card));
+  /* 抽屉拖动时这一层每帧都在位移：提前提升为独立合成层，避免每帧重绘整页 */
+  will-change: transform;
 }
 
 

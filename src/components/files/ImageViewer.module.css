@@ -22,7 +22,7 @@
   user-select: none;
   -webkit-user-drag: none;
   will-change: transform;
-  animation: image-in 220ms cubic-bezier(0.22, 1, 0.36, 1);
+  animation: image-in var(--motion-card);
 }
 
 .crop,

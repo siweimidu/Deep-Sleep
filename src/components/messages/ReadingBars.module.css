@@ -305,7 +305,7 @@
 }
 
 .playing {
-  animation: tts-settle 0.15s cubic-bezier(0.22, 1, 0.36, 1);
+  animation: tts-settle var(--motion-press-fast);
 }
 
 .playing .bar {

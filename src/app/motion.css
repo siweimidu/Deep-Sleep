@@ -36,3 +36,23 @@
 
   --motion-sheet: 300ms linear(0, 0.26 8%, 0.66 20%, 0.9 34%, 1.015 50%, 1.006 68%, 1);
 }
+
+/* 无障碍与省电：系统开启「减少动态效果」时，所有动效压成瞬时完成。
+   这里的 token 都是 linear() 弹簧采样，直接给 1ms 的同形曲线即可，不必逐个组件改。 */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --spring-soft: 1ms;
+    --spring-default: 1ms;
+    --spring-pop: 1ms;
+    --spring-snap: 1ms;
+    --spring-back: 1ms;
+    --motion-drawer: 1ms;
+    --motion-card: 1ms;
+    --motion-press: 1ms;
+    --motion-press-fast: 1ms;
+    --motion-sheet: 1ms;
+    --motion-reveal: 1ms;
+    --motion-gesture: 1ms;
+    --motion-metric: 1ms;
+  }
+}

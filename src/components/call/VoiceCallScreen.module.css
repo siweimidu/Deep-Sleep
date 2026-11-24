@@ -515,7 +515,7 @@
   touch-action: pan-y;
   user-select: none;
   /* 松手后回到中位：拖拽期间由下面的 data-dragging 关掉，保证严格跟手 */
-  transition: transform 300ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition: transform var(--motion-sheet);
 }
 
 .voiceStage[data-dragging] {
@@ -533,12 +533,12 @@
   will-change: transform, opacity;
   /* 换音色时做一次"翻过去"的换面：渐变色无法插值，用透明度 + 轻微模糊代替。
      两个音色用两条同名关键帧，否则属性变化不会重启动画。 */
-  animation: voice-swap-a 280ms cubic-bezier(0.22, 1, 0.36, 1);
+  animation: voice-swap-a var(--motion-card);
 }
 
 .voicePreview[data-voice='tide'] {
   background: radial-gradient(120% 140% at 26% 22%, #dfe9f2 0%, #b9cfe0 40%, #7f9bb2 74%, #56707f 100%);
-  animation: voice-swap-b 280ms cubic-bezier(0.22, 1, 0.36, 1);
+  animation: voice-swap-b var(--motion-card);
 }
 
 @keyframes voice-swap-a {
