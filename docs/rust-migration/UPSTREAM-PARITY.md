@@ -60,6 +60,22 @@ cd android; gradlew.bat assembleDebug
 设置字号图标换行、行内代码对齐 + 列表内公式渲染、APK 更新改用标准隐式 intent。
 
 最后：**性能优化轮** → 全部完成后**关闭电脑**（用户明确要求）。
+## 在没有真机的情况下怎么做界面验证（重要）
+
+模拟器上可以通过**原生镜像**造出真实会话，从而看到消息列表、公式、代码块的渲染：
+
+1. 
+ode scripts/seed-emulator-session.mjs —— 往 SQLite 镜像里写一条 10 条消息的会话
+   （**必须**构成 parentId 链并设置 selectedChildId，否则会被当成同一节点的多个版本，界面显示 "1 / 10" 翻页）
+2. 用 CDP 清空 IndexedDB 的五个 store（sessions/sessionSummaries/files/sessionsStaging/filesStaging）
+3. force-stop + 重启 —— 触发镜像恢复，会话出现在抽屉里
+4. 门禁页可以用 DeepSeekAndroid.writeApiKey('sk-emulator-ui-probe') 绕过（只影响 UI，API 调用会失败）
+
+本轮据此**真实验证**并通过：
+- 镜像恢复：清空 IndexedDB 后重启，抽屉里出现注入的会话（"存储被清后恢复"端到端成立）
+- 回到底部按钮：滚到顶出现（data-visible / opacity 1 / pointer-events auto），点击后 scrollTop 1426 = max 1425
+- 公式复制：真实 KaTeX 渲染后复制含公式选区 → 行内公式 $E = mc^2$ 应该和文字在同一基线上。
+
 ## 已确认的技术事实（不要重新推导）
 
 - 构建 CSS 用 lightningcss，targets 降到 `chrome 66` **并不会**降级 `color-mix`/`dvh`/`toSorted`，
