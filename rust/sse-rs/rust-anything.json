@@ -1,0 +1,57 @@
+{
+  "schema": "rust-anything/bridge@1",
+  "root": "D:\\Code\\重构\\deepseek",
+  "unit": "src/services/api/sse.ts",
+  "language": "ts",
+  "kind": "wasm",
+  "crate_name": "sse-rs",
+  "exports": [],
+  "classes": [
+    {
+      "name": "ServerSentEventDecoder",
+      "file": "src/services/api/sse.ts",
+      "line": 20,
+      "constructor": [],
+      "methods": [
+        {
+          "name": "push",
+          "file": "src/services/api/sse.ts",
+          "line": 28,
+          "params": [
+            {
+              "name": "text",
+              "ts_type": "string",
+              "optional": false,
+              "rest": false
+            }
+          ],
+          "returns": "{\n  /** `event` 字段，缺省为 `message` */\n  event: string\n  /** 多行 `data` 以 `\\n` 连接 */\n  data: string\n  /** 最近一次 `id` 字段 */\n  lastEventId: string\n}[]",
+          "is_async": false,
+          "is_generator": false,
+          "type_params": [],
+          "uses_instanceof": false
+        },
+        {
+          "name": "end",
+          "file": "src/services/api/sse.ts",
+          "line": 49,
+          "params": [],
+          "returns": "{\n  /** `event` 字段，缺省为 `message` */\n  event: string\n  /** 多行 `data` 以 `\\n` 连接 */\n  data: string\n  /** 最近一次 `id` 字段 */\n  lastEventId: string\n}[]",
+          "is_async": false,
+          "is_generator": false,
+          "type_params": [],
+          "uses_instanceof": false
+        }
+      ],
+      "blocker": null
+    }
+  ],
+  "js_only": [
+    {
+      "name": "readServerSentEvents",
+      "file": "src/services/api/sse.ts",
+      "line": 105,
+      "reason": "generator: returns a lazy iterator"
+    }
+  ]
+}
