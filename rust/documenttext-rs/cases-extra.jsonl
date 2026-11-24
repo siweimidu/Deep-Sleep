@@ -1,0 +1,98 @@
+{"fn":"extensionOf","args":[""]}
+{"fn":"extensionOf","args":["docx"]}
+{"fn":"extensionOf","args":[".docx"]}
+{"fn":"extensionOf","args":["a.docx"]}
+{"fn":"extensionOf","args":["a.DOCX"]}
+{"fn":"extensionOf","args":["a.Docx"]}
+{"fn":"extensionOf","args":["a.docx.txt"]}
+{"fn":"extensionOf","args":["a."]}
+{"fn":"extensionOf","args":["."]}
+{"fn":"extensionOf","args":[".."]}
+{"fn":"extensionOf","args":["a..docx"]}
+{"fn":"extensionOf","args":["report.docx "]}
+{"fn":"extensionOf","args":[" report.docx"]}
+{"fn":"extensionOf","args":["a.pdf"]}
+{"fn":"extensionOf","args":["a.xlsx"]}
+{"fn":"extensionOf","args":["a.pptx"]}
+{"fn":"extensionOf","args":["a.doc"]}
+{"fn":"extensionOf","args":["a.txt"]}
+{"fn":"extensionOf","args":["a.docx.pdf"]}
+{"fn":"extensionOf","args":["档案.docx"]}
+{"fn":"extensionOf","args":["ﬁle.DOCX"]}
+{"fn":"extensionOf","args":["ÄÖÜ.DOCX"]}
+{"fn":"extensionOf","args":["a.ÄÖÜ"]}
+{"fn":"extensionOf","args":["a.ΑΣ"]}
+{"fn":"extensionOf","args":["a.ΣΣ"]}
+{"fn":"extensionOf","args":["a.İ"]}
+{"fn":"extensionOf","args":["a.ẞ"]}
+{"fn":"extensionOf","args":["a.ǅ"]}
+{"fn":"extensionOf","args":["名前.TXT"]}
+{"fn":"extensionOf","args":["a.pdf.pdf"]}
+{"fn":"extensionOf","args":["...pdf"]}
+{"fn":"extensionOf","args":["a\t.pdf"]}
+{"fn":"extensionOf","args":["a\n.pdf"]}
+{"fn":"extensionOf","args":[" DOCX"]}
+{"fn":"extensionOf","args":["docx."]}
+{"fn":"extensionOf","args":["PDF"]}
+{"fn":"extensionOf","args":["pdf"]}
+{"fn":"extensionOf","args":["ＡＰＤＦ.pdf"]}
+{"fn":"extensionOf","args":["😀.pdf"]}
+{"fn":"extensionOf","args":["\"quote\".pdf"]}
+{"fn":"extensionOf","args":["a.b.c.d.e.docx"]}
+{"fn":"extensionOf","args":["archive.tar.gz"]}
+{"fn":"extensionOf","args":["a.K"]}
+{"fn":"extensionOf","args":["a.Å"]}
+{"fn":"extensionOf","args":["a.ı"]}
+{"fn":"extensionOf","args":["a.ǰ"]}
+{"fn":"extensionOf","args":["2024/报告.PDF"]}
+{"fn":"extensionOf","args":["a.docx\n"]}
+{"fn":"extensionOf","args":["x.xlsx"]}
+{"fn":"extensionOf","args":["a.Ꭰ"]}
+{"fn":"extensionOf","args":["合同 最终版（修订）.docx"]}
+{"fn":"extensionOf","args":["a.Ǆ"]}
+{"fn":"extensionOf","args":["a.ΐ"]}
+{"fn":"extensionOf","args":["\u0000.pdf"]}
+{"fn":"canExtractText","args":[""]}
+{"fn":"canExtractText","args":["docx"]}
+{"fn":"canExtractText","args":["DOCX"]}
+{"fn":"canExtractText","args":["a.docx"]}
+{"fn":"canExtractText","args":["a.DOCX"]}
+{"fn":"canExtractText","args":["a.docx.txt"]}
+{"fn":"canExtractText","args":["a.pdf"]}
+{"fn":"canExtractText","args":["a.PDF"]}
+{"fn":"canExtractText","args":["a.xlsx"]}
+{"fn":"canExtractText","args":["a.XLSX"]}
+{"fn":"canExtractText","args":["a.pptx"]}
+{"fn":"canExtractText","args":["a.PPTX"]}
+{"fn":"canExtractText","args":["a.doc"]}
+{"fn":"canExtractText","args":["a.xls"]}
+{"fn":"canExtractText","args":["a.ppt"]}
+{"fn":"canExtractText","args":["a.ttf"]}
+{"fn":"canExtractText","args":["a.txt"]}
+{"fn":"canExtractText","args":[".docx"]}
+{"fn":"canExtractText","args":["..docx"]}
+{"fn":"canExtractText","args":["档案.xlsx"]}
+{"fn":"canExtractText","args":["a.pdf "]}
+{"fn":"canExtractText","args":["a. pdf"]}
+{"fn":"canExtractText","args":["a.pdfx"]}
+{"fn":"canExtractText","args":["a.xdocx"]}
+{"fn":"canExtractText","args":["a.docx.pdf"]}
+{"fn":"canExtractText","args":["a.pdf.docx"]}
+{"fn":"canExtractText","args":["😀.docx"]}
+{"fn":"canExtractText","args":["a.İ"]}
+{"fn":"canExtractText","args":["a.Σ"]}
+{"fn":"canExtractText","args":["a.K"]}
+{"fn":"canExtractText","args":["ＡＰＤＦ.pdf"]}
+{"fn":"canExtractText","args":["a.PdF"]}
+{"fn":"canExtractText","args":["report.pdf\n"]}
+{"fn":"canExtractText","args":["report.pdf\t"]}
+{"fn":"canExtractText","args":["a.σ"]}
+{"fn":"canExtractText","args":["no extension at all"]}
+{"fn":"canExtractText","args":["a.docx "]}
+{"fn":"canExtractText","args":[" a.docx"]}
+{"fn":"canExtractText","args":["a..pdf"]}
+{"fn":"canExtractText","args":["a."]}
+{"fn":"canExtractText","args":["合同 最终版（修订）.docx"]}
+{"fn":"canExtractText","args":["a.Ǆ"]}
+{"fn":"canExtractText","args":["a.ẞ"]}
+{"fn":"canExtractText","args":["a.\u0000"]}

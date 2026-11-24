@@ -1,0 +1,37 @@
+{
+  "schema": "rust-anything/bridge@1",
+  "root": "D:\\Code\\重构\\deepseek",
+  "unit": "src/services/chat/history/zipWriter.ts",
+  "language": "ts",
+  "kind": "wasm",
+  "crate_name": "zipwriter-rs",
+  "exports": [
+    {
+      "name": "writeArchive",
+      "file": "src/services/chat/history/zipWriter.ts",
+      "line": 42,
+      "params": [
+        {
+          "name": "entries",
+          "ts_type": "{ name: string; blob: Blob }[]",
+          "optional": false,
+          "rest": false
+        }
+      ],
+      "returns": "Promise<Blob>",
+      "is_async": true,
+      "is_generator": false,
+      "type_params": [],
+      "uses_instanceof": false
+    }
+  ],
+  "classes": [],
+  "js_only": [
+    {
+      "name": "ArchiveLimitError",
+      "file": "src/services/chat/history/zipWriter.ts",
+      "line": 7,
+      "reason": "class: extends another class"
+    }
+  ]
+}

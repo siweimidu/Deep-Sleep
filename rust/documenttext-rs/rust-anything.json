@@ -1,0 +1,55 @@
+{
+  "schema": "rust-anything/bridge@1",
+  "root": "D:\\Code\\重构\\deepseek",
+  "unit": "src/services/documentText.ts",
+  "language": "ts",
+  "kind": "wasm",
+  "crate_name": "documenttext-rs",
+  "exports": [
+    {
+      "name": "extensionOf",
+      "file": "src/services/documentText.ts",
+      "line": 12,
+      "params": [
+        {
+          "name": "name",
+          "ts_type": "string",
+          "optional": false,
+          "rest": false
+        }
+      ],
+      "returns": "unknown",
+      "is_async": false,
+      "is_generator": false,
+      "type_params": [],
+      "uses_instanceof": false
+    },
+    {
+      "name": "canExtractText",
+      "file": "src/services/documentText.ts",
+      "line": 14,
+      "params": [
+        {
+          "name": "name",
+          "ts_type": "string",
+          "optional": false,
+          "rest": false
+        }
+      ],
+      "returns": "unknown",
+      "is_async": false,
+      "is_generator": false,
+      "type_params": [],
+      "uses_instanceof": false
+    }
+  ],
+  "classes": [],
+  "js_only": [
+    {
+      "name": "extractDocumentText",
+      "file": "src/services/documentText.ts",
+      "line": 122,
+      "reason": "takes a browser File (Blob.arrayBuffer) and needs fflate unzip + TextDecoder; the bytes never cross the JSON wire, so its body cannot be machine-verified"
+    }
+  ]
+}
