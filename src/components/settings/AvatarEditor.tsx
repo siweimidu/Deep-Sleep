@@ -101,6 +101,8 @@ export const AvatarEditor = ({
       <div
         ref={stage}
         className={styles.stage}
+        // 裁剪区自己处理双指缩放与拖动，抽屉手势必须让路（JS 与 Java 两层都认这个属性）
+        data-drawer-gesture-ignore=""
         onPointerDown={(event) => {
           event.currentTarget.setPointerCapture(event.pointerId)
           pointers.current.set(event.pointerId, { x: event.clientX, y: event.clientY })

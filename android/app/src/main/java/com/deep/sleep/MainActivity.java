@@ -102,6 +102,10 @@ public final class MainActivity extends Activity {
                 swipeTracking = true;
 
                 break;
+            case MotionEvent.ACTION_POINTER_DOWN:
+                // 第二根手指落下 = 双指缩放（头像裁剪、图片查看），不是抽屉手势
+                swipeTracking = false;
+                break;
             case MotionEvent.ACTION_UP:
                 if (swipeTracking) {
                     swipeTracking = false;

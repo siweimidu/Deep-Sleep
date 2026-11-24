@@ -93,6 +93,8 @@ body[data-ds-dark-theme] .header {
   object-fit: cover;
   user-select: none;
   -webkit-user-drag: none;
+  /* 指针事件统一交给舞台：图片自己不接事件，双指缩放就不会因为拖到图上而中断 */
+  pointer-events: none;
 }
 
 .hint {

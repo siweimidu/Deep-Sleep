@@ -294,6 +294,13 @@ export const useDrawerSwipe = (frameRef: { current: HTMLElement | null }) => {
       if (event.pointerType === 'mouse') {
         return
       }
+      // 第二根手指按下 = 双指缩放（头像裁剪、图片查看），不是开抽屉：
+      // 立刻放弃这次拖拽，否则后面 move 里的 setPointerCapture 会把指针从页面手里抢走，
+      // 页面只会收到 pointercancel，缩放就永远失效。
+      if (!event.isPrimary) {
+        restore()
+        return
+      }
       const ignored = isIgnoredTarget(event.target)
       setNativeSwipeBlocked(ignored)
       if (ignored) {
@@ -304,7 +311,7 @@ export const useDrawerSwipe = (frameRef: { current: HTMLElement | null }) => {
       }
     }
     const onPointerMove = (event: PointerEvent) => {
-      if (event.pointerType === 'mouse') {
+      if (event.pointerType === 'mouse' || !event.isPrimary) {
         return
       }
       if (move(event.clientX, event.clientY)) {
