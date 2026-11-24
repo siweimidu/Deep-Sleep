@@ -12,6 +12,7 @@ import {
   IconSwitchOutline20,
 } from '../base/appIcons.js'
 import styles from './VoiceCallScreen.module.css'
+import { blockDrawerSwipe } from '../../app/android.js'
 
 const MicrophoneIcon = ({ muted }: { muted: boolean }) => (
   <svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true">
@@ -45,7 +46,11 @@ const CallSettingsSheet = ({ onClose }: { onClose: () => void }) => {
   ]
   const active = tones.findIndex((tone) => tone.id === ttsVoice)
   const [dragX, setDragX] = useState(0)
+  const [dragging, setDragging] = useState(false)
   const startX = useRef<number | null>(null)
+
+  /** 跟手位移：系数 0.55 让卡片贴着手指走，两端再收一点，避免拖出边界 */
+  const follow = (value: number) => Math.max(-120, Math.min(120, value * 0.55))
 
   const switchTo = (step: number) => {
     const next = (Math.max(0, active) + step + tones.length) % tones.length
@@ -59,9 +64,15 @@ const CallSettingsSheet = ({ onClose }: { onClose: () => void }) => {
         <div
           className={styles.voiceStage}
           role="presentation"
-          style={{ transform: `translateX(${dragX * 0.4}px)` }}
+          // 横滑切换音色由弹层自己处理：声明后抽屉手势必须让路（JS 与 Java 两层都认这个属性），
+          // 否则抽屉会把 pointer 抢走，拖拽直接收到 pointercancel。
+          data-drawer-gesture-ignore=""
+          data-dragging={dragging ? '' : undefined}
+          style={{ transform: `translateX(${follow(dragX)}px)` }}
           onPointerDown={(event) => {
             startX.current = event.clientX
+            setDragging(true)
+            blockDrawerSwipe(true)
             event.currentTarget.setPointerCapture(event.pointerId)
           }}
           onPointerMove={(event) => {
@@ -73,14 +84,18 @@ const CallSettingsSheet = ({ onClose }: { onClose: () => void }) => {
           onPointerUp={(event) => {
             const moved = startX.current === null ? 0 : event.clientX - startX.current
             startX.current = null
+            setDragging(false)
             setDragX(0)
-            if (Math.abs(moved) > 32) {
+            blockDrawerSwipe(false)
+            if (Math.abs(moved) > 36) {
               switchTo(moved < 0 ? 1 : -1)
             }
           }}
           onPointerCancel={() => {
             startX.current = null
+            setDragging(false)
             setDragX(0)
+            blockDrawerSwipe(false)
           }}
         >
           <div className={styles.voicePreview} data-voice={ttsVoice} aria-hidden="true" />

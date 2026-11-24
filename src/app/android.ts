@@ -175,3 +175,15 @@ export const downloadAndroidHistory = (
   })
   return download
 }
+
+/**
+ * 告诉原生层"这次横滑由页面自己处理，别开抽屉"。
+ *
+ * 必须由真正要接管手势的组件直接调用：Java 的 dispatchTouchEvent 在 ACTION_UP 时读这个标记，
+ * 只靠 document 上的监听去同步会受事件顺序影响（React 处理器可能先跑，标记就晚了）。
+ */
+export const blockDrawerSwipe = (blocked: boolean): void => {
+  const bridge = (window as unknown as { DshGesture?: { setSwipeBlocked?: (v: boolean) => void } })
+    .DshGesture
+  bridge?.setSwipeBlocked?.(blocked)
+}

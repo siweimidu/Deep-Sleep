@@ -37,6 +37,7 @@ import { closeSettings, useSettingsDialog } from './settingsDialogState.js'
 import defaultAvatar from '../../assets/deepsleep-avatar.jpg'
 import { AvatarEditor } from './AvatarEditor.js'
 import styles from './AndroidSettings.module.css'
+import { blockDrawerSwipe } from '../../app/android.js'
 
 type Page =
   | 'root'
@@ -235,6 +236,10 @@ const Settings = ({ start }: { start: Page }) => {
   const [tone, setTone] = useState(ttsVoice)
   const [busy, setBusy] = useState(false)
   const [link, setLink] = useState('')
+  // 音色轮播的拖拽状态：跟手位移 + 是否正在拖（拖拽期间关掉过渡曲线）
+  const [dragX, setDragX] = useState(0)
+  const [dragging, setDragging] = useState(false)
+  const dragStart = useRef(0)
   const [archive, setArchive] = useState<Awaited<ReturnType<typeof exportHistory>> | null>(null)
   const importInput = useRef<HTMLInputElement>(null)
   const linkInput = useRef<HTMLTextAreaElement>(null)
@@ -282,7 +287,7 @@ const Settings = ({ start }: { start: Page }) => {
     {
       id: 'stella',
       label: t('settingsTtsVoiceStella'),
-      description: tr('清晰明亮', 'Clear and bright'),
+      description: tr('俏皮甜美', 'Playful and sweet'),
     },
     {
       id: 'tide',
@@ -291,6 +296,7 @@ const Settings = ({ start }: { start: Page }) => {
     },
   ]
   const currentTone = tones.find((item) => item.id === tone) ?? tones[0]
+  const toneIndex = Math.max(0, tones.findIndex((item) => item.id === tone))
   const languageLabel = languages.find((item) => item.id === locale)?.label
   const themeLabel = themes.find((item) => item.id === themePreference)?.label
   const policyBase = 'https://cdn.deepseek.com/policies/zh-CN/'
@@ -781,18 +787,50 @@ const Settings = ({ start }: { start: Page }) => {
             </header>
             <div
               className={styles.voiceBody}
+              // 横滑切换音色由本组件自己处理：声明后抽屉手势必须让路（JS 与 Java 两层都认这个属性）
+              data-drawer-gesture-ignore=""
               onTouchStart={(event) => {
-                event.currentTarget.dataset.swipeX = String(event.touches[0].clientX)
+                dragStart.current = event.touches[0].clientX
+                setDragging(true)
+                // 直接告诉原生层让路：只靠 document 上的监听会受事件顺序影响，Java 可能已经记了旧状态
+                blockDrawerSwipe(true)
+              }}
+              onTouchMove={(event) => {
+                const offset = event.touches[0].clientX - dragStart.current
+                // 已经到头了再拉就给阻尼，手感更像原生翻页
+                const atEdge =
+                  (toneIndex === 0 && offset > 0) ||
+                  (toneIndex === tones.length - 1 && offset < 0)
+                setDragX(atEdge ? offset * 0.3 : offset)
               }}
               onTouchEnd={(event) => {
-                const dx =
-                  event.changedTouches[0].clientX - Number(event.currentTarget.dataset.swipeX)
-                if (Math.abs(dx) > 32) {
-                  setTone(dx > 0 ? 'stella' : 'tide')
+                const offset = event.changedTouches[0].clientX - dragStart.current
+                setDragging(false)
+                setDragX(0)
+                blockDrawerSwipe(false)
+                if (Math.abs(offset) < 44) {
+                  return
+                }
+                const nextIndex = offset > 0 ? toneIndex - 1 : toneIndex + 1
+                if (nextIndex >= 0 && nextIndex < tones.length) {
+                  setTone(tones[nextIndex].id)
                 }
               }}
+              onTouchCancel={() => {
+                setDragging(false)
+                setDragX(0)
+                blockDrawerSwipe(false)
+              }}
             >
-              <div className={styles.voiceArt} data-tone={tone} aria-hidden="true" />
+              <div
+                className={styles.voiceArt}
+                data-tone={tone}
+                data-dragging={dragging ? '' : undefined}
+                style={{
+                  transform: `translateX(${dragX}px) scale(${1 - Math.min(Math.abs(dragX), 160) / 1000})`,
+                }}
+                aria-hidden="true"
+              />
               <div>{currentTone.label}</div>
               <small>{currentTone.description}</small>
               <div className={styles.dots} role="radiogroup" aria-label={voice}>

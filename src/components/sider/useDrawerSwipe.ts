@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { create } from 'zustand'
-import { android } from '../../app/android.js'
+import { android, blockDrawerSwipe } from '../../app/android.js'
 import { closeMobileSider, openMobileSider, useMobileSider } from './mobileSiderState.js'
 
 /**
@@ -144,13 +144,18 @@ export const useDrawerSwipe = (frameRef: { current: HTMLElement | null }) => {
       return false
     }
 
+    /** 把"这次手势要不要让路"同步给原生层；Java 的 dispatchTouchEvent 靠它判断。 */
+    const setNativeSwipeBlocked = blockDrawerSwipe
+
+    /** 输入框、以及主动声明了 data-drawer-gesture-ignore 的区域（例如音色轮播）由页面自己处理横滑。 */
+    const isIgnoredTarget = (target: EventTarget | null): boolean =>
+      target instanceof Element &&
+      target.closest('input, textarea, [data-drawer-gesture-ignore]') !== null
+
     const begin = (x: number, y: number, target: EventTarget | null) => {
       const opened = useMobileSider.getState().open
       const blocked = inHorizontalScroller(target)
-      // 同步告诉原生层同一个判断：否则 Java 的 dispatchTouchEvent 仍会把这次横滑当成开抽屉。
-      const bridge = (window as unknown as { DshGesture?: { setSwipeBlocked?: (v: boolean) => void } })
-        .DshGesture
-      bridge?.setSwipeBlocked?.(blocked)
+      setNativeSwipeBlocked(blocked)
       drag.current = {
         x,
         y,
@@ -259,10 +264,10 @@ export const useDrawerSwipe = (frameRef: { current: HTMLElement | null }) => {
         return
       }
       const touch = event.touches[0]
-      if (
-        event.target instanceof Element &&
-        event.target.closest('input, textarea, [data-drawer-gesture-ignore]')
-      ) {
+      const ignored = isIgnoredTarget(event.target)
+      // 即便这里让路，也要先同步给原生层：否则 Java 仍会把这次横滑当成开抽屉。
+      setNativeSwipeBlocked(ignored)
+      if (ignored) {
         return
       }
       begin(touch.clientX, touch.clientY, event.target)
@@ -289,10 +294,9 @@ export const useDrawerSwipe = (frameRef: { current: HTMLElement | null }) => {
       if (event.pointerType === 'mouse') {
         return
       }
-      if (
-        event.target instanceof Element &&
-        event.target.closest('input, textarea, [data-drawer-gesture-ignore]')
-      ) {
+      const ignored = isIgnoredTarget(event.target)
+      setNativeSwipeBlocked(ignored)
+      if (ignored) {
         return
       }
       if (!drag.current) {
