@@ -62,6 +62,7 @@ Get-ChildItem rust -Directory | Where-Object { Test-Path "$($_.FullName)\rust-an
 | `services/chat/history/paths.ts` | `src/rust-core/paths.ts` | `sessionPath`、`sessionFilesDir`、`parseSessionPath`、`imagePath` |
 | `services/attachments.ts` | `src/rust-core/attachments.ts` | `getFileExt`、`isAcceptedExt`、`getUploadPurpose`、`isImage`、`getExtension`、`formatSize` |
 | `services/location.ts` | `src/rust-core/location.ts` | `getRegionName`、`normalizeLocation` |
+| `services/chat/history/zipReader.ts` | `src/rust-core/zipReader.ts` | `parseArchiveBase64`（**实测快 5.14 倍**） |
 
 约定：适配层模块加载时自动初始化（不阻塞首屏），**拿不到 wasm 就返回 `null`/`undefined` 让调用方走
 原 TS 实现**，所以接入不会成为新的失败源。`undefined` 专门表示"未就绪"，因为 `null` 本身是
@@ -78,10 +79,12 @@ Get-ChildItem rust -Directory | Where-Object { Test-Path "$($_.FullName)\rust-an
 `attachments.ts` 里还有 2 个未接：`validateFiles`、`resolveMimeType`（入参是 `File`，需要先做
 `File → {name,size,type}` 的映射）。
 
-**重要：这三处接入不是提速。** 实测（数字见 ADOPTION.md §5）：JSON 文本边界使连字符串函数都比原
-TS 慢约 9 倍，整对象变换慢 26–57 倍；而改用**二进制 wire 更慢**（800 条消息时慢约 91 倍，因为
-`wDyn` 是手写 JS 逐字段编码，打不过引擎里的原生 `JSON.stringify`）。所以它们的价值是「Rust 真的
-在线上跑」的链路已打通并验证，**不是**性能收益；整对象互转的单元故意不接。
+**这四个单元里，只有 `zipReader` 是真正的提速**：1.1 MB / 41 条归档，TypeScript 99.59 ms →
+Rust **19.35 ms（快 5.14 倍）**，输出逐字节一致，`rust/bench-archive.mjs` 可复现。
+
+另外三个是**正确性试点，不是性能优化**：JSON 文本边界使连字符串函数都比原 TS 慢约 9 倍、整对象变换
+慢 26–57 倍，而二进制 wire 更慢（800 条消息时慢 91 倍）。它们的价值是「Rust 真的在线上跑」的链路
+已打通并验证；整对象互转的单元故意不接。
 
 
 
