@@ -97,8 +97,10 @@ export const inflateInWorker = async (chunks: Uint8Array[]): Promise<Uint8Array>
         reject(error)
       },
     })
-    const transfer = chunks.map((chunk) => chunk.buffer as ArrayBuffer)
-    instance.postMessage({ id, chunks }, transfer)
+    // 不要用 transfer：条目名等结构是同一块 ArrayBuffer 上的视图，转移所有权会把它们全部 detach
+    // （表现为 entry.name.length 变成 0，归档被判成"无效"）。结构化克隆多拷一次压缩数据，
+    // 相比解压本身的成本可以忽略，换来的是不可能再出现 detach。
+    instance.postMessage({ id, chunks })
   })
 }
 

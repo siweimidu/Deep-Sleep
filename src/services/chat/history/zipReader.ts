@@ -17,6 +17,12 @@ export class ArchiveError extends Error {
 }
 
 const invalid = (): never => {
+  // 诊断：只在出错时写一次调用点，设备上可用 CDP 读 window.__lastArchiveInvalid 定位是哪个校验拦下的。
+  if (typeof window !== 'undefined') {
+    ;(window as unknown as { __lastArchiveInvalid?: string }).__lastArchiveInvalid = String(
+      new Error().stack,
+    )
+  }
   throw new ArchiveError()
 }
 
@@ -224,6 +230,12 @@ const readEntryOffset = async (readBytes: ReadBytes, entry: Entry, boundary: num
   const extraLength = view.getUint16(28, true)
   const start = entry.offset + 30 + nameLength + extraLength
   const end = start + entry.compressedSize
+  const debugAt = (tag: string, data: Record<string, number>): never => {
+    if (typeof window !== 'undefined') {
+      ;(window as unknown as { __zipDebug?: unknown }).__zipDebug = { tag, ...data }
+    }
+    return invalid()
+  }
   if (
     view.getUint32(0, true) !== 0x04034b50 ||
     view.getUint16(6, true) !== entry.flags ||
@@ -231,7 +243,17 @@ const readEntryOffset = async (readBytes: ReadBytes, entry: Entry, boundary: num
     nameLength !== entry.name.length ||
     end > boundary
   ) {
-    invalid()
+    debugAt('header', {
+      sig: view.getUint32(0, true),
+      localFlags: view.getUint16(6, true),
+      centralFlags: entry.flags,
+      localMethod: view.getUint16(8, true),
+      centralMethod: entry.method,
+      nameLenLocal: nameLength,
+      nameLenCentral: entry.name.length,
+      end,
+      boundary,
+    })
   }
   for (const [position, expected] of [
     [14, entry.crc],
@@ -240,17 +262,17 @@ const readEntryOffset = async (readBytes: ReadBytes, entry: Entry, boundary: num
   ]) {
     const actual = view.getUint32(position, true)
     if (actual !== expected && (!(entry.flags & 8) || actual !== 0)) {
-      invalid()
+      debugAt('sizes', { position, actual, expected, flags: entry.flags })
     }
   }
   const metadata = await readBytes(entry.offset + 30, nameLength + extraLength)
   if (entry.name.some((byte, index) => byte !== metadata[index])) {
-    invalid()
+    debugAt('name', { firstExpected: entry.name[0] ?? -1, firstActual: metadata[0] ?? -1 })
   }
   checkExtra(metadata.subarray(nameLength))
   if (entry.flags & 8) {
     if (end + 12 > boundary) {
-      invalid()
+      debugAt('descriptorBoundary', { end, boundary })
     }
     const descriptor = viewOf(await readBytes(end, Math.min(16, boundary - end)))
     const shift = descriptor.getUint32(0, true) === 0x08074b50 ? 4 : 0
@@ -260,7 +282,16 @@ const readEntryOffset = async (readBytes: ReadBytes, entry: Entry, boundary: num
       descriptor.getUint32(shift + 4, true) !== entry.compressedSize ||
       descriptor.getUint32(shift + 8, true) !== entry.size
     ) {
-      invalid()
+      debugAt('descriptor', {
+        shift,
+        byteLength: descriptor.byteLength,
+        crc: descriptor.getUint32(shift, true),
+        expectedCrc: entry.crc,
+        csize: descriptor.getUint32(shift + 4, true),
+        expectedCsize: entry.compressedSize,
+        usize: descriptor.getUint32(shift + 8, true),
+        expectedUsize: entry.size,
+      })
     }
   }
   return start
