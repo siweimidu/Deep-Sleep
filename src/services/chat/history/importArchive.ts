@@ -3,8 +3,8 @@ import type { Session } from '../types.js'
 import { BackupError, fail } from './errors.js'
 import type { SessionIndexEntry } from './format.js'
 import { INDEX_PATH, MANIFEST_PATH, USER_PATH, parseSessionPath, sessionFilesDir } from './paths.js'
-import { checkManifest, readSessionFile, readSessionIndex } from './schema.js'
-import { toLocalSession } from './toLocal.js'
+import { checkManifest, readSessionIndex } from './schema.js'
+import { parseSessionText } from './parseWorker.js'
 import {
   ArchiveError,
   isZipFile,
@@ -154,7 +154,9 @@ export const importArchive = async (
       } else if (path === USER_PATH && !index && sessions.size === 0) {
         // 账号信息（已脱敏）不导入；文件可能缺失。
       } else if (sessionId !== null && !index) {
-        const local = toLocalSession(readSessionFile(await readJson(entry)))
+        // 大会话的 JSON.parse + 校验 + 映射放到 worker：导入长归档时主线程不再卡住。
+        // 小会话仍就地解析（见 parseWorker 的 8KB 阈值），避免为几 KB 付一次往返。
+        const local = await parseSessionText(await (await readEntry(entry)).text())
         if (local.session.id !== sessionId || sessions.has(sessionId)) {
           fail('backupIncomplete')
         }

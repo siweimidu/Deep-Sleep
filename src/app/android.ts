@@ -35,7 +35,14 @@ type AndroidBridge = {
   openInstallPermission?: () => void
 }
 
-export const android = (window as Window & { DeepSeekAndroid?: AndroidBridge }).DeepSeekAndroid
+/**
+ * 原生桥。**必须容忍没有 window 的环境**：worker 里也会间接 import 到这个模块
+ * （会话解析链：toLocal → errors → i18n → settings → 这里），直接读 window 会让 worker 一加载就崩。
+ */
+export const android =
+  typeof window === 'undefined'
+    ? undefined
+    : (window as Window & { DeepSeekAndroid?: AndroidBridge }).DeepSeekAndroid
 
 const writeAndroidBlob = async (blob: Blob, append: (base64: string) => boolean) => {
   const reader = blob.stream().getReader()

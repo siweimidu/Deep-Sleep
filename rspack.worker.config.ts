@@ -25,6 +25,8 @@ export default defineConfig({
     // 解压 worker 也必须单独打出来：主配置里的 new Worker(new URL(...)) 在本项目不产出脚本，
     // 页面拿到的是 404，于是任何 DEFLATE 归档（含官方导出的 zip）都会导入失败。
     'inflate-worker': './src/services/chat/history/inflate.worker.ts',
+    // 会话解析（JSON.parse + 校验 + 映射）下沉到后台线程，导入时不阻塞界面
+    'chat-parse-worker': './src/services/chat/history/parse.worker.ts',
   },
   output: {
     // 不能 clean：主配置刚把整个 dist 产出来
