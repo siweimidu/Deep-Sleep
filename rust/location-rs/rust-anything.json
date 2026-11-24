@@ -1,0 +1,54 @@
+{
+  "schema": "rust-anything/bridge@1",
+  "root": "D:\\Code\\重构\\deepseek",
+  "unit": "src/services/location.ts",
+  "language": "ts",
+  "kind": "wasm",
+  "crate_name": "location-rs",
+  "exports": [
+    {
+      "name": "getRegionName",
+      "file": "src/services/location.ts",
+      "line": 25,
+      "params": [
+        {
+          "name": "code",
+          "ts_type": "string",
+          "optional": false,
+          "rest": false
+        },
+        {
+          "name": "locale",
+          "ts_type": "'zh-CN' | 'en-US'",
+          "optional": false,
+          "rest": false
+        }
+      ],
+      "returns": "string",
+      "is_async": false,
+      "is_generator": false,
+      "type_params": [],
+      "uses_instanceof": false
+    },
+    {
+      "name": "normalizeLocation",
+      "file": "src/services/location.ts",
+      "line": 30,
+      "params": [
+        {
+          "name": "value",
+          "ts_type": "unknown",
+          "optional": false,
+          "rest": false
+        }
+      ],
+      "returns": "{\n  region: string\n  province?: string\n  city?: string\n} | null",
+      "is_async": false,
+      "is_generator": false,
+      "type_params": [],
+      "uses_instanceof": false
+    }
+  ],
+  "classes": [],
+  "js_only": []
+}

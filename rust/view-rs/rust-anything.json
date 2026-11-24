@@ -1,0 +1,150 @@
+{
+  "schema": "rust-anything/bridge@1",
+  "root": "D:\\Code\\重构\\deepseek",
+  "unit": "src/services/chat/view.ts",
+  "language": "ts",
+  "kind": "wasm",
+  "crate_name": "view-rs",
+  "exports": [
+    {
+      "name": "isDeepSearchKind",
+      "file": "src/services/chat/view.ts",
+      "line": 32,
+      "params": [
+        {
+          "name": "kind",
+          "ts_type": "(| 'search'\n  | 'deep_search'\n  | 'read_link'\n  | 'image_search'\n  | 'deep_image_search')",
+          "optional": false,
+          "rest": false
+        }
+      ],
+      "returns": "unknown",
+      "is_async": false,
+      "is_generator": false,
+      "type_params": [],
+      "uses_instanceof": false
+    },
+    {
+      "name": "isImageSearchKind",
+      "file": "src/services/chat/view.ts",
+      "line": 35,
+      "params": [
+        {
+          "name": "kind",
+          "ts_type": "(| 'search'\n  | 'deep_search'\n  | 'read_link'\n  | 'image_search'\n  | 'deep_image_search')",
+          "optional": false,
+          "rest": false
+        }
+      ],
+      "returns": "unknown",
+      "is_async": false,
+      "is_generator": false,
+      "type_params": [],
+      "uses_instanceof": false
+    },
+    {
+      "name": "getSiteName",
+      "file": "src/services/chat/view.ts",
+      "line": 81,
+      "params": [
+        {
+          "name": "url",
+          "ts_type": "string",
+          "optional": false,
+          "rest": false
+        }
+      ],
+      "returns": "unknown",
+      "is_async": false,
+      "is_generator": false,
+      "type_params": [],
+      "uses_instanceof": false
+    },
+    {
+      "name": "buildReplyView",
+      "file": "src/services/chat/view.ts",
+      "line": 176,
+      "params": [
+        {
+          "name": "reply",
+          "ts_type": "(({\n  parentId?: string | null\n  /** 当前选中的下一条消息；切换版本时保留每条分支原有的选择。 */\n  selectedChildId?: string\n}) & {\n  id: string\n  role: 'assistant'\n  createdAt: number\n  /** 未记录模型时为 null，续写使用当前默认模型。 */\n  model: ('deepseek-flash' | 'deepseek-v4-pro') | null\n  /** 请求时是否开启深度思考 */\n  thinking?: boolean\n  /** 请求时是否声明 deepseek_web_search；关闭时仍声明 deepseek_read_url */\n  search?: boolean\n  /** 本轮请求的系统信息快照；各回答版本独立保存，续写沿用。历史消息中缺省的快照保持为空。 */\n  latestReminder?: string\n  /** 是否允许作为续写前缀；仍需满足回复状态与内容限制。 */\n  prefix: boolean\n  status: ('pending' | 'streaming' | 'done' | 'stopped' | 'error')\n  /** 可识别的内容块按接收顺序排列；续写产生的块追加在已有块之后 */\n  blocks: ({\n  type: 'thinking'\n  thinking: string\n  signature?: string\n  /** content_block_start 的时间；没有事件时间的历史块缺省 */\n  startedAt?: number\n  /** content_block_stop（或回复结束）的时间 */\n  endedAt?: number\n  /** 仅有耗时、没有事件时间时保存秒数。 */\n  elapsedSeconds?: number\n} | {\n  type: 'text'\n  text: string\n  citations?: ({\n  type: 'web_search_result_location'\n  url: string\n  /** 查不到标题时为 null */\n  title: string | null\n  /** 当前文本块截至该引用处的全部正文（去除首尾空白） */\n  cited_text: string\n  /** 恒为空串 */\n  encrypted_index: string\n})[]\n  /** 服务端提示文案，仅用于展示，不作为模型回答参与上下文或续写。 */\n  isTemplate?: boolean\n} | (| ({\n  type: 'server_tool_use'\n  /** srvtoolu_{s|ds|rl|is|dis}_{序号}_{32 位 hex} */\n  id: string\n  /** 文字搜索与图搜均为 deepseek_web_search；read_link 为 deepseek_read_url */\n  name: 'deepseek_web_search' | 'deepseek_read_url'\n  input: ServerToolInput\n  caller: { type: 'direct' }\n  kind: ServerToolKind\n})\n  | ({\n  type: 'web_search_tool_result'\n  tool_use_id: string\n  /** 成功且无可见结果时为 []；失败时为只含一个错误项的数组 */\n  content: (WebSearchResult | WebSearchToolResultError)[]\n  kind: 'search' | 'deep_search' | 'image_search' | 'deep_image_search'\n})\n  | ({\n  type: 'web_fetch_tool_result'\n  tool_use_id: string\n  content: WebFetchResult | WebFetchToolResultError\n  kind: 'read_link' | 'deep_search'\n  /** 仅 read_link 成功时返回的加密页面，多轮请求原样回传；失败及 deep_search 不返回 */\n  signature?: string\n})))[]\n  stopReason?: ('end_turn' | 'max_tokens' | 'tool_use' | 'refusal')\n  stopDetails?: { type: 'refusal'; category: null; explanation: null }\n  /** 最近一次请求的用量，续写后更新 */\n  usage?: {\n  /** 未命中缓存的输入 Token */\n  input_tokens: number\n  cache_creation_input_tokens: number\n  cache_read_input_tokens: number\n  /** message_start 中为 0，message_delta 中为全轮累计值 */\n  output_tokens: number\n  /** 仅当 message_delta 中有对外输出的搜索结果块时出现 */\n  server_tool_use?: { web_search_requests: number; tool_search: number }\n}\n  error?: {\n    /** upload：发送前补传附件失败，请求没有发出 */\n    kind: (| 'http'\n  /** 流中返回的错误帧（如等待生成超时），随后连接关闭 */\n  | 'stream'\n  /** 请求没有到达服务端（断网、跨域被拦截等） */\n  | 'network'\n  /** 流在 message_stop 之前结束 */\n  | 'interrupted'\n  /** 响应不符合协议（如非 SSE 响应） */\n  | 'protocol') | 'upload'\n    message: string\n    status?: number\n    localMessage?: { key: keyof typeof zh; params?: (Record<string, string | number>) }\n    /** 仅 upload：重新上传是否可能成功（网络、限流、服务端繁忙）；过大、格式不支持为 false */\n    retryable?: boolean\n  }\n})",
+          "optional": false,
+          "rest": false
+        },
+        {
+          "name": "streaming",
+          "ts_type": "boolean",
+          "optional": false,
+          "rest": false
+        }
+      ],
+      "returns": "({\n  steps: ({\n  type: 'search'\n  /** 该步骤首次调用的 ID，空查询的图搜也有稳定标识 */\n  key: string\n  kind: (| 'search'\n  | 'deep_search'\n  | 'read_link'\n  | 'image_search'\n  | 'deep_image_search')\n  queries: string[]\n  results: ({\n  url: string\n  title: string\n  /** 优先使用服务端站点名，没有时使用域名（去掉 www.） */\n  siteName: string\n  /** 搜索结果为 RFC 3339，阅读链接为爬虫提取的原始日期 */\n  publishedAt: string | null\n  /** 明文摘要与站点图标；缺少元数据时为 null */\n  snippet: string | null\n  siteIcon: string | null\n  /** 引用角标与搜索结果列表上的编号，从 1 开始 */\n  index: number\n})[]\n  status: ('wip' | 'done' | 'failed')\n} | { type: 'open'; pages: {\n  id: string\n  url: string\n  title: string\n  status: ToolStatus\n}[] } | {\n  type: 'find'\n  patterns: { id: string; pattern: string; status: ('wip' | 'done' | 'failed') }[]\n} | { type: 'read_link'; links: {\n  id: string\n  url: string\n  title: string\n  status: ToolStatus\n}[] } | { type: 'thinking'; key: string; blocks: {\n  type: 'thinking'\n  thinking: string\n  signature?: string\n  /** content_block_start 的时间；没有事件时间的历史块缺省 */\n  startedAt?: number\n  /** content_block_stop（或回复结束）的时间 */\n  endedAt?: number\n  /** 仅有耗时、没有事件时间时保存秒数。 */\n  elapsedSeconds?: number\n}[] } | { type: 'text'; key: string; markdown: string })[]\n  /** 最后一个思考或工具块之后的正文；markdown 里在引用处插入了 [citation:N] */\n  answer: { markdown: string; text: string } | null\n  /** 正文引用可指向的全部来源，按编号排列 */\n  sources: ({\n  url: string\n  title: string\n  /** 优先使用服务端站点名，没有时使用域名（去掉 www.） */\n  siteName: string\n  /** 搜索结果为 RFC 3339，阅读链接为爬虫提取的原始日期 */\n  publishedAt: string | null\n  /** 明文摘要与站点图标；缺少元数据时为 null */\n  snippet: string | null\n  siteIcon: string | null\n  /** 引用角标与搜索结果列表上的编号，从 1 开始 */\n  index: number\n})[]\n  /** 搜索到的网页（去重），用于底部汇总与搜索结果列表 */\n  searchResults: ({\n  url: string\n  title: string\n  /** 优先使用服务端站点名，没有时使用域名（去掉 www.） */\n  siteName: string\n  /** 搜索结果为 RFC 3339，阅读链接为爬虫提取的原始日期 */\n  publishedAt: string | null\n  /** 明文摘要与站点图标；缺少元数据时为 null */\n  snippet: string | null\n  siteIcon: string | null\n  /** 引用角标与搜索结果列表上的编号，从 1 开始 */\n  index: number\n})[]\n})",
+      "is_async": false,
+      "is_generator": false,
+      "type_params": [],
+      "uses_instanceof": false
+    },
+    {
+      "name": "getTotalThinkingSeconds",
+      "file": "src/services/chat/view.ts",
+      "line": 350,
+      "params": [
+        {
+          "name": "steps",
+          "ts_type": "({\n  type: 'search'\n  /** 该步骤首次调用的 ID，空查询的图搜也有稳定标识 */\n  key: string\n  kind: (| 'search'\n  | 'deep_search'\n  | 'read_link'\n  | 'image_search'\n  | 'deep_image_search')\n  queries: string[]\n  results: ({\n  url: string\n  title: string\n  /** 优先使用服务端站点名，没有时使用域名（去掉 www.） */\n  siteName: string\n  /** 搜索结果为 RFC 3339，阅读链接为爬虫提取的原始日期 */\n  publishedAt: string | null\n  /** 明文摘要与站点图标；缺少元数据时为 null */\n  snippet: string | null\n  siteIcon: string | null\n  /** 引用角标与搜索结果列表上的编号，从 1 开始 */\n  index: number\n})[]\n  status: ('wip' | 'done' | 'failed')\n} | { type: 'open'; pages: {\n  id: string\n  url: string\n  title: string\n  status: ('wip' | 'done' | 'failed')\n}[] } | {\n  type: 'find'\n  patterns: { id: string; pattern: string; status: ('wip' | 'done' | 'failed') }[]\n} | { type: 'read_link'; links: {\n  id: string\n  url: string\n  title: string\n  status: ('wip' | 'done' | 'failed')\n}[] } | { type: 'thinking'; key: string; blocks: {\n  type: 'thinking'\n  thinking: string\n  signature?: string\n  /** content_block_start 的时间；没有事件时间的历史块缺省 */\n  startedAt?: number\n  /** content_block_stop（或回复结束）的时间 */\n  endedAt?: number\n  /** 仅有耗时、没有事件时间时保存秒数。 */\n  elapsedSeconds?: number\n}[] } | { type: 'text'; key: string; markdown: string })[]",
+          "optional": false,
+          "rest": false
+        },
+        {
+          "name": "now",
+          "ts_type": "number",
+          "optional": false,
+          "rest": false
+        }
+      ],
+      "returns": "unknown",
+      "is_async": false,
+      "is_generator": false,
+      "type_params": [],
+      "uses_instanceof": false
+    },
+    {
+      "name": "getAreaTitle",
+      "file": "src/services/chat/view.ts",
+      "line": 370,
+      "params": [
+        {
+          "name": "view",
+          "ts_type": "({\n  steps: ({\n  type: 'search'\n  /** 该步骤首次调用的 ID，空查询的图搜也有稳定标识 */\n  key: string\n  kind: (| 'search'\n  | 'deep_search'\n  | 'read_link'\n  | 'image_search'\n  | 'deep_image_search')\n  queries: string[]\n  results: ({\n  url: string\n  title: string\n  /** 优先使用服务端站点名，没有时使用域名（去掉 www.） */\n  siteName: string\n  /** 搜索结果为 RFC 3339，阅读链接为爬虫提取的原始日期 */\n  publishedAt: string | null\n  /** 明文摘要与站点图标；缺少元数据时为 null */\n  snippet: string | null\n  siteIcon: string | null\n  /** 引用角标与搜索结果列表上的编号，从 1 开始 */\n  index: number\n})[]\n  status: ('wip' | 'done' | 'failed')\n} | { type: 'open'; pages: {\n  id: string\n  url: string\n  title: string\n  status: ToolStatus\n}[] } | {\n  type: 'find'\n  patterns: { id: string; pattern: string; status: ('wip' | 'done' | 'failed') }[]\n} | { type: 'read_link'; links: {\n  id: string\n  url: string\n  title: string\n  status: ToolStatus\n}[] } | { type: 'thinking'; key: string; blocks: {\n  type: 'thinking'\n  thinking: string\n  signature?: string\n  /** content_block_start 的时间；没有事件时间的历史块缺省 */\n  startedAt?: number\n  /** content_block_stop（或回复结束）的时间 */\n  endedAt?: number\n  /** 仅有耗时、没有事件时间时保存秒数。 */\n  elapsedSeconds?: number\n}[] } | { type: 'text'; key: string; markdown: string })[]\n  /** 最后一个思考或工具块之后的正文；markdown 里在引用处插入了 [citation:N] */\n  answer: { markdown: string; text: string } | null\n  /** 正文引用可指向的全部来源，按编号排列 */\n  sources: ({\n  url: string\n  title: string\n  /** 优先使用服务端站点名，没有时使用域名（去掉 www.） */\n  siteName: string\n  /** 搜索结果为 RFC 3339，阅读链接为爬虫提取的原始日期 */\n  publishedAt: string | null\n  /** 明文摘要与站点图标；缺少元数据时为 null */\n  snippet: string | null\n  siteIcon: string | null\n  /** 引用角标与搜索结果列表上的编号，从 1 开始 */\n  index: number\n})[]\n  /** 搜索到的网页（去重），用于底部汇总与搜索结果列表 */\n  searchResults: ({\n  url: string\n  title: string\n  /** 优先使用服务端站点名，没有时使用域名（去掉 www.） */\n  siteName: string\n  /** 搜索结果为 RFC 3339，阅读链接为爬虫提取的原始日期 */\n  publishedAt: string | null\n  /** 明文摘要与站点图标；缺少元数据时为 null */\n  snippet: string | null\n  siteIcon: string | null\n  /** 引用角标与搜索结果列表上的编号，从 1 开始 */\n  index: number\n})[]\n})",
+          "optional": false,
+          "rest": false
+        },
+        {
+          "name": "streaming",
+          "ts_type": "boolean",
+          "optional": false,
+          "rest": false
+        },
+        {
+          "name": "now",
+          "ts_type": "number",
+          "optional": false,
+          "rest": false
+        },
+        {
+          "name": "hasResponse",
+          "ts_type": "unknown",
+          "optional": true,
+          "rest": false
+        }
+      ],
+      "returns": "unknown",
+      "is_async": false,
+      "is_generator": false,
+      "type_params": [],
+      "uses_instanceof": false
+    }
+  ],
+  "classes": [],
+  "js_only": []
+}

@@ -1,0 +1,364 @@
+{"fn":"getRegionName","args":["key_name-1","a"],"ok":""}
+{"fn":"getRegionName","args":["a:b:c","abc"],"ok":""}
+{"fn":"getRegionName","args":["emoji 👍🏽 mixns:key.path","key_name-1"],"ok":""}
+{"fn":"getRegionName","args":["hello","hello"],"ok":""}
+{"fn":"getRegionName","args":["tab\tseparated","key_name-1"],"ok":""}
+{"fn":"getRegionName","args":["straße","Hello World"],"ok":""}
+{"fn":"getRegionName","args":["😀","ab"],"ok":""}
+{"fn":"getRegionName","args":["HELLO","a:b:c"],"ok":""}
+{"fn":"getRegionName","args":["ΣΊΣΥΦΟΣ","ΣΊΣΥΦΟΣ"],"ok":""}
+{"fn":"getRegionName","args":["a.b.c","a..b"],"ok":""}
+{"fn":"getRegionName","args":["HELLO","O"],"ok":""}
+{"fn":"getRegionName","args":["a😀b😀c","a"],"ok":""}
+{"fn":"getRegionName","args":["日本語のテキスト","ns:key.path"],"ok":""}
+{"fn":"getRegionName","args":["hello worldHELLO","日本語のテキストline1\nline2"],"ok":""}
+{"fn":"getRegionName","args":["日本語のテキスト","ns:key.pathstraße"],"ok":""}
+{"fn":"getRegionName","args":["emoji 👍🏽 mix./x/**/*.json","./x/**/*.json"],"ok":""}
+{"fn":"getRegionName","args":["a😀b😀c","hello"],"ok":""}
+{"fn":"getRegionName","args":["ne1","line1\nline2"],"ok":""}
+{"fn":"getRegionName","args":["﻿bom","İstanbul{name} has {count} items"],"ok":""}
+{"fn":"getRegionName","args":["é:","ns:key.path"],"ok":""}
+{"fn":"getRegionName","args":["emoji 👍🏽 mix","src/a/b.ts"],"ok":""}
+{"fn":"getRegionName","args":["é","😀line1\nline2"],"ok":""}
+{"fn":"getRegionName","args":["ns:key.path","a..b"],"ok":""}
+{"fn":"getRegionName","args":["😀","﻿bom"],"ok":""}
+{"fn":"getRegionName","args":[".leading","key_name-1"],"ok":""}
+{"fn":"getRegionName","args":["a:","a.b.c"],"ok":""}
+{"fn":"getRegionName","args":["Hello World","ünïcödé"],"ok":""}
+{"fn":"getRegionName","args":["é",":"],"ok":""}
+{"fn":"getRegionName","args":["L","HELLO"],"ok":""}
+{"fn":"getRegionName","args":["  padded  src/a/b.ts","İstanbul"],"ok":""}
+{"fn":"getRegionName","args":["straße","é"],"ok":""}
+{"fn":"getRegionName","args":[" WO","Hello World"],"ok":""}
+{"fn":"getRegionName","args":["abca","é"],"ok":""}
+{"fn":"getRegionName","args":["trailing.a😀b😀c","ab"],"ok":""}
+{"fn":"getRegionName","args":["","İstanbulline1\nline2"],"ok":""}
+{"fn":"getRegionName","args":["ab","a:b:c"],"ok":""}
+{"fn":"getRegionName","args":["tab\tseparated","parat"],"ok":""}
+{"fn":"getRegionName","args":["hello","abc"],"ok":""}
+{"fn":"getRegionName","args":["a..b","./x/**/*.json"],"ok":""}
+{"fn":"getRegionName","args":["","emoji 👍🏽 mix"],"ok":""}
+{"fn":"getRegionName","args":["emoji 👍🏽 mix","oji 👍🏽 m"],"ok":""}
+{"fn":"getRegionName","args":["straße","src/a/b.ts"],"ok":""}
+{"fn":"getRegionName","args":["😀","😀"],"ok":""}
+{"fn":"getRegionName","args":["a:b:c","{name} has {count} items"],"ok":""}
+{"fn":"getRegionName","args":["straße","trailing."],"ok":""}
+{"fn":"getRegionName","args":["abstraße","a..b"],"ok":""}
+{"fn":"getRegionName","args":["straße","a..ba:b:c"],"ok":""}
+{"fn":"getRegionName","args":["hello","日本語のテキスト"],"ok":""}
+{"fn":"getRegionName","args":[".leading","Hello World"],"ok":""}
+{"fn":"getRegionName","args":["emoji 👍🏽 mix","{name} has {count} items"],"ok":""}
+{"fn":"getRegionName","args":["Hello World","İstanbul"],"ok":""}
+{"fn":"getRegionName","args":["ns:key.path","é"],"ok":""}
+{"fn":"getRegionName","args":["ra","straße"],"ok":""}
+{"fn":"getRegionName","args":["","{name} has {count} items{name} has {count} items"],"ok":""}
+{"fn":"getRegionName","args":["Hello World","ns:key.path"],"ok":""}
+{"fn":"getRegionName","args":["日本語のテキスト","日本語のテキスト"],"ok":""}
+{"fn":"getRegionName","args":["straße","straß"],"ok":""}
+{"fn":"getRegionName","args":["a..b","abcHello World"],"ok":""}
+{"fn":"getRegionName","args":[".leading","tab\tseparated"],"ok":""}
+{"fn":"getRegionName","args":["a😀b😀c","日本語のテキスト"],"ok":""}
+{"fn":"getRegionName","args":["日本語のテキスト","語のテ"],"ok":""}
+{"fn":"getRegionName","args":["ΣΊ","ΣΊΣΥΦΟΣ"],"ok":""}
+{"fn":"getRegionName","args":["ed ","  padded  "],"ok":""}
+{"fn":"getRegionName","args":["src/a/b.ts","tab\tseparated"],"ok":""}
+{"fn":"getRegionName","args":["key_name-1İstanbul","key_name-1"],"ok":""}
+{"fn":"getRegionName","args":["{name} has {count} items","İstanbul"],"ok":""}
+{"fn":"getRegionName","args":["tab\tseparated","emoji 👍🏽 mix"],"ok":""}
+{"fn":"getRegionName","args":["﻿bom","m"],"ok":""}
+{"fn":"getRegionName","args":["a..bline1\nline2","E1"],"ok":""}
+{"fn":"getRegionName","args":["HELLO",""],"ok":""}
+{"fn":"getRegionName","args":["a..b日本語のテキスト","日本語のテキスト"],"ok":""}
+{"fn":"getRegionName","args":["straßeline1\nline2","  padded  "],"ok":""}
+{"fn":"getRegionName","args":["  padded  ","İstanbul"],"ok":""}
+{"fn":"getRegionName","args":["a.b.c","日本語のテキスト"],"ok":""}
+{"fn":"getRegionName","args":["ab","ab"],"ok":""}
+{"fn":"getRegionName","args":["D","hello world"],"ok":""}
+{"fn":"getRegionName","args":["aa","ünïcödé"],"ok":""}
+{"fn":"getRegionName","args":["ld","hello world"],"ok":""}
+{"fn":"getRegionName","args":[".b.c","a.b.ca"],"ok":""}
+{"fn":"getRegionName","args":["HELLO","  padded  "],"ok":""}
+{"fn":"getRegionName","args":["{name} has {count} items",":"],"ok":""}
+{"fn":"getRegionName","args":["﻿bom","ünïcödé"],"ok":""}
+{"fn":"getRegionName","args":["😀","straße"],"ok":""}
+{"fn":"getRegionName","args":["hello","😀"],"ok":""}
+{"fn":"getRegionName","args":["a..b","a.b.c"],"ok":""}
+{"fn":"getRegionName","args":["ünïcödé","trailing.  padded  "],"ok":""}
+{"fn":"getRegionName","args":["src/a/b.tsΣΊΣΥΦΟΣ","a😀b😀c"],"ok":""}
+{"fn":"getRegionName","args":["ünïcödé{name} has {count} items",""],"ok":""}
+{"fn":"getRegionName","args":["./x/**/*.jsonsrc/a/b.ts","a.b.cHELLO"],"ok":""}
+{"fn":"getRegionName","args":[":","straße"],"ok":""}
+{"fn":"getRegionName","args":["./x/**/*.json","*.json"],"ok":""}
+{"fn":"getRegionName","args":["bc",".leadingabc"],"ok":""}
+{"fn":"getRegionName","args":["a.b.c","src/a/b.ts"],"ok":""}
+{"fn":"getRegionName","args":["ΣΊΣΥΦΟΣ","hello"],"ok":""}
+{"fn":"getRegionName","args":["ünïcödé","日本語のテキスト"],"ok":""}
+{"fn":"getRegionName","args":["éhello","ns:key.path"],"ok":""}
+{"fn":"getRegionName","args":["line1\nline2","ab"],"ok":""}
+{"fn":"getRegionName","args":[".leading","ünïcödé"],"ok":""}
+{"fn":"getRegionName","args":["c","ΣΊΣΥΦΟΣa.b.c"],"ok":""}
+{"fn":"getRegionName","args":["ns:key.path.leading",":KEY.PATH"],"ok":""}
+{"fn":"getRegionName","args":["straße","straße"],"ok":""}
+{"fn":"getRegionName","args":["ΣΊΣΥΦΟΣkey_name-1","Hello Worldline1\nline2"],"ok":""}
+{"fn":"getRegionName","args":["﻿bom","日本語のテキスト"],"ok":""}
+{"fn":"getRegionName","args":["Hello World","日本語のテキストünïcödé"],"ok":""}
+{"fn":"getRegionName","args":["A","a"],"ok":""}
+{"fn":"getRegionName","args":["a:b:c","Hello Worldemoji 👍🏽 mix"],"ok":""}
+{"fn":"getRegionName","args":["b","ab"],"ok":""}
+{"fn":"getRegionName","args":["a","tab\tseparated"],"ok":""}
+{"fn":"getRegionName","args":["NG","trailing.é"],"error":"Cannot read properties of undefined (reading 'NG')"}
+{"fn":"getRegionName","args":["ns:key.path","trailing."],"ok":""}
+{"fn":"getRegionName","args":["abc","a"],"ok":""}
+{"fn":"getRegionName","args":["{name} has {count} items","﻿bom"],"ok":""}
+{"fn":"getRegionName","args":["a😀b😀c","./x/**/*.json"],"ok":""}
+{"fn":"getRegionName","args":[".leading","Hello Worldab"],"ok":""}
+{"fn":"getRegionName","args":["  padded  ","a😀b😀c"],"ok":""}
+{"fn":"getRegionName","args":["a","{name} has {count} items"],"ok":""}
+{"fn":"getRegionName","args":["日本語のテキスト","İstanbul"],"ok":""}
+{"fn":"getRegionName","args":["a","a"],"ok":""}
+{"fn":"getRegionName","args":["abc","src/a/b.ts"],"ok":""}
+{"fn":"getRegionName","args":["ns:key.path","t"],"ok":""}
+{"fn":"getRegionName","args":["key_name-1","ns:key.path"],"ok":""}
+{"fn":"getRegionName","args":["emoji 👍🏽 mix","ΣΊΣΥΦΟΣ"],"ok":""}
+{"fn":"getRegionName","args":["  padded  a😀b😀c","a..b"],"ok":""}
+{"fn":"getRegionName","args":["HELLO","ns:key.pathtab\tseparated"],"ok":""}
+{"fn":"getRegionName","args":["ünïcödé","ΣΊΣΥΦΟΣ"],"ok":""}
+{"fn":"getRegionName","args":["ab",".leadinghello world"],"ok":""}
+{"fn":"getRegionName","args":["ili","trailing."],"ok":""}
+{"fn":"getRegionName","args":["ΣΊΣΥΦΟΣ","ünïcödéHello World"],"ok":""}
+{"fn":"getRegionName","args":["ünïcödé","tab\tseparated"],"ok":""}
+{"fn":"getRegionName","args":["{name} has {count} items","日本語のテキスト"],"ok":""}
+{"fn":"getRegionName","args":["trailing.","😀"],"ok":""}
+{"fn":"getRegionName","args":["ΣΊΣΥΦΟΣ","a:b:chello world"],"ok":""}
+{"fn":"getRegionName","args":["é","a.b.c"],"ok":""}
+{"fn":"getRegionName","args":["  padded  ","tab\tseparated"],"ok":""}
+{"fn":"getRegionName","args":["a.b.c","İstanbul"],"ok":""}
+{"fn":"getRegionName","args":["abHELLO","ns:key.path"],"ok":""}
+{"fn":"getRegionName","args":["./x/**/*.json","trailing."],"ok":""}
+{"fn":"getRegionName","args":["HELLO","abc"],"ok":""}
+{"fn":"getRegionName","args":["tab\tseparated","ab"],"ok":""}
+{"fn":"getRegionName","args":["hello world","abc"],"ok":""}
+{"fn":"getRegionName","args":["emoji 👍🏽 mix","./x/**/*.json"],"ok":""}
+{"fn":"getRegionName","args":["ns:key.path.leading",""],"ok":""}
+{"fn":"getRegionName","args":["*/*.jso","./x/**/*.json"],"ok":""}
+{"fn":"getRegionName","args":["ΣΊΣΥΦΟΣünïcödé","ab"],"ok":""}
+{"fn":"getRegionName","args":["﻿bom",".leadinga:b:c"],"ok":""}
+{"fn":"getRegionName","args":["",":a:b:c"],"ok":""}
+{"fn":"getRegionName","args":["","Hello World"],"ok":""}
+{"fn":"getRegionName","args":["abc","İstanbulkey_name-1"],"ok":""}
+{"fn":"getRegionName","args":["hello world","ns:key.path:"],"ok":""}
+{"fn":"getRegionName","args":["llo wo","hello world"],"ok":""}
+{"fn":"getRegionName","args":["straße","./x/**/*.json"],"ok":""}
+{"fn":"getRegionName","args":["a..bé",""],"ok":""}
+{"fn":"getRegionName","args":[".path","ns:key.path"],"ok":""}
+{"fn":"getRegionName","args":["{name} has {count} items","é"],"ok":""}
+{"fn":"getRegionName","args":["emoji 👍🏽 mix","😀"],"ok":""}
+{"fn":"getRegionName","args":["  padded  src/a/b.ts","aΣΊΣΥΦΟΣ"],"ok":""}
+{"fn":"getRegionName","args":["ab","src/a/b.ts"],"ok":""}
+{"fn":"getRegionName","args":["hello world","a"],"ok":""}
+{"fn":"getRegionName","args":["line1\nline2","HELLOsrc/a/b.ts"],"ok":""}
+{"fn":"getRegionName","args":["Hello World","a..b"],"ok":""}
+{"fn":"getRegionName","args":["src/a/b.tshello world","helloline1\nline2"],"ok":""}
+{"fn":"getRegionName","args":["ab","a.b.c﻿bom"],"ok":""}
+{"fn":"getRegionName","args":["abé","a..b"],"ok":""}
+{"fn":"getRegionName","args":["ΣΊΣΥΦΟΣ","ΣΊΣΥΦ"],"ok":""}
+{"fn":"getRegionName","args":["hello world","line1\nline2key_name-1"],"ok":""}
+{"fn":"getRegionName","args":["a😀b😀c","abc"],"ok":""}
+{"fn":"getRegionName","args":["a.b.c","emoji 👍🏽 mix😀"],"ok":""}
+{"fn":"getRegionName","args":["a..b﻿bom","😀"],"ok":""}
+{"fn":"getRegionName","args":["b.t","src/a/b.ts"],"ok":""}
+{"fn":"getRegionName","args":["a..bab","hello"],"ok":""}
+{"fn":"getRegionName","args":["abc",":İstanbul"],"ok":""}
+{"fn":"getRegionName","args":["E-1TAB\tSEPARA","key_name-1tab\tseparated"],"ok":""}
+{"fn":"getRegionName","args":["tab\tseparated","HELLO"],"ok":""}
+{"fn":"getRegionName","args":["./x/**/*.","./x/**/*.json"],"ok":""}
+{"fn":"getRegionName","args":["IN",".leading"],"error":"Cannot read properties of undefined (reading 'IN')"}
+{"fn":"getRegionName","args":["ab","b"],"ok":""}
+{"fn":"getRegionName","args":["é","key_name-1"],"ok":""}
+{"fn":"getRegionName","args":["llo","hello"],"ok":""}
+{"fn":"getRegionName","args":["hello world","trailing."],"ok":""}
+{"fn":"getRegionName","args":["Hello World","a.b.c"],"ok":""}
+{"fn":"getRegionName","args":["src/a/b.ts",".leading"],"ok":""}
+{"fn":"getRegionName","args":["{name} has {count} items","key_name-1"],"ok":""}
+{"fn":"getRegionName","args":["ünïcödé","éa😀b😀c"],"ok":""}
+{"fn":"getRegionName","args":["aba.b.c","a.b.c"],"ok":""}
+{"fn":"getRegionName","args":["s:key.","ns:key.path"],"ok":""}
+{"fn":"getRegionName","args":["abc","abca😀b😀c"],"ok":""}
+{"fn":"getRegionName","args":["ΥΦΟΣ","Hello WorldΣΊΣΥΦΟΣ"],"ok":""}
+{"fn":"getRegionName","args":["a.b.c","ünïcödéΣΊΣΥΦΟΣ"],"ok":""}
+{"fn":"getRegionName","args":["a😀b😀c",""],"ok":""}
+{"fn":"getRegionName","args":["key_name-1","e-1"],"ok":""}
+{"fn":"getRegionName","args":["line1\nline2","İstanbul"],"ok":""}
+{"fn":"getRegionName","args":["ödé","ünïcödé"],"ok":""}
+{"fn":"getRegionName","args":["trailing.","  padded  "],"ok":""}
+{"fn":"getRegionName","args":["a","line1\nline2"],"ok":""}
+{"fn":"getRegionName","args":["a.b.c","ab"],"ok":""}
+{"fn":"getRegionName","args":["a.b.c","line1\nline2"],"ok":""}
+{"fn":"getRegionName","args":["key_name-1",".leading"],"ok":""}
+{"fn":"getRegionName","args":["hello","LL"],"ok":""}
+{"fn":"getRegionName","args":["HELLO","﻿bom"],"ok":""}
+{"fn":"getRegionName","args":["tr","trailing."],"ok":""}
+{"fn":"getRegionName","args":["héllo wörld","a"],"ok":""}
+{"fn":"getRegionName","args":["👍🏽 thumbs","a"],"ok":""}
+{"fn":"getRegionName","args":["日本語","a"],"ok":""}
+{"fn":"getRegionName","args":["","a"],"ok":""}
+{"fn":"getRegionName","args":["é","a"],"ok":""}
+{"fn":"getRegionName","args":["İstanbul","a"],"ok":""}
+{"fn":"getRegionName","args":["straße","a"],"ok":""}
+{"fn":"getRegionName","args":["ılık ırmak","a"],"ok":""}
+{"fn":"getRegionName","args":["👨‍👩‍👧 family","a"],"ok":""}
+{"fn":"getRegionName","args":["a b","a"],"ok":""}
+{"fn":"getRegionName","args":["ΣΊΣΥΦΟΣ","a"],"ok":""}
+{"fn":"getRegionName","args":["a😀b","a"],"ok":""}
+{"fn":"getRegionName","args":["﻿bom","a"],"ok":""}
+{"fn":"getRegionName","args":["a²b x½ y①","a"],"ok":""}
+{"fn":"getRegionName","args":["aⅠb Ⅻ","a"],"ok":""}
+{"fn":"getRegionName","args":["a𐐀b 𝐀bc","a"],"ok":""}
+{"fn":"getRegionName","args":["कि ٣٤","a"],"ok":""}
+{"fn":"getRegionName","args":["key_name-1","héllo wörld"],"ok":""}
+{"fn":"getRegionName","args":["key_name-1","👍🏽 thumbs"],"ok":""}
+{"fn":"getRegionName","args":["key_name-1","日本語"],"ok":""}
+{"fn":"getRegionName","args":["key_name-1",""],"ok":""}
+{"fn":"getRegionName","args":["key_name-1","é"],"ok":""}
+{"fn":"getRegionName","args":["key_name-1","İstanbul"],"ok":""}
+{"fn":"getRegionName","args":["key_name-1","straße"],"ok":""}
+{"fn":"getRegionName","args":["key_name-1","ılık ırmak"],"ok":""}
+{"fn":"getRegionName","args":["key_name-1","👨‍👩‍👧 family"],"ok":""}
+{"fn":"getRegionName","args":["key_name-1","a b"],"ok":""}
+{"fn":"getRegionName","args":["key_name-1","ΣΊΣΥΦΟΣ"],"ok":""}
+{"fn":"getRegionName","args":["key_name-1","a😀b"],"ok":""}
+{"fn":"getRegionName","args":["key_name-1","﻿bom"],"ok":""}
+{"fn":"getRegionName","args":["key_name-1","a²b x½ y①"],"ok":""}
+{"fn":"getRegionName","args":["key_name-1","aⅠb Ⅻ"],"ok":""}
+{"fn":"getRegionName","args":["key_name-1","a𐐀b 𝐀bc"],"ok":""}
+{"fn":"getRegionName","args":["key_name-1","कि ٣٤"],"ok":""}
+{"fn":"normalizeLocation","args":[{}],"ok":null}
+{"fn":"normalizeLocation","args":[0],"ok":null}
+{"fn":"normalizeLocation","args":[true],"ok":null}
+{"fn":"normalizeLocation","args":[["a",1]],"ok":null}
+{"fn":"normalizeLocation","args":["x"],"ok":null}
+{"fn":"normalizeLocation","args":[{"a":{"b":"c"}}],"ok":null}
+{"fn":"normalizeLocation","args":[{"a":"b"}],"ok":null}
+{"fn":"normalizeLocation","args":[[]],"ok":null}
+{"fn":"normalizeLocation","args":[null],"ok":null}
+{"fn":"normalizeLocation","args":[{"2":4,"10":3,"zebra":1,"apple":2,"é":5,"Apple":6}],"ok":null}
+{"fn":"normalizeLocation","args":[{"n":9007199254740992,"f":1e+21,"t":0.1,"neg":-7}],"ok":null}
+{"fn":"normalizeLocation","args":[[3,1,2]],"ok":null}
+{"fn":"getRegionName","args":["CN","zh-CN"],"ok":"中国"}
+{"fn":"getRegionName","args":["CN","en-US"],"ok":"China"}
+{"fn":"getRegionName","args":["TW","zh-CN"],"ok":"中国台湾"}
+{"fn":"getRegionName","args":["TW","en-US"],"ok":"Taiwan, China"}
+{"fn":"getRegionName","args":["HK","zh-CN"],"ok":"中国香港"}
+{"fn":"getRegionName","args":["HK","en-US"],"ok":"Hong Kong, China"}
+{"fn":"getRegionName","args":["MO","zh-CN"],"ok":"中国澳门"}
+{"fn":"getRegionName","args":["MO","en-US"],"ok":"Macao, China"}
+{"fn":"getRegionName","args":["US","zh-CN"],"ok":"美国"}
+{"fn":"getRegionName","args":["US","en-US"],"ok":"United States"}
+{"fn":"getRegionName","args":["GB","zh-CN"],"ok":"英国"}
+{"fn":"getRegionName","args":["GB","en-US"],"ok":"United Kingdom"}
+{"fn":"getRegionName","args":["JP","zh-CN"],"ok":"日本"}
+{"fn":"getRegionName","args":["JP","en-US"],"ok":"Japan"}
+{"fn":"getRegionName","args":["DE","zh-CN"],"ok":"德国"}
+{"fn":"getRegionName","args":["FR","en-US"],"ok":"France"}
+{"fn":"getRegionName","args":["SG","zh-CN"],"ok":"新加坡"}
+{"fn":"getRegionName","args":["IN","en-US"],"ok":"India"}
+{"fn":"getRegionName","args":["AD","zh-CN"],"ok":"安道尔"}
+{"fn":"getRegionName","args":["ZW","en-US"],"ok":"Zimbabwe"}
+{"fn":"getRegionName","args":["RU","zh-CN"],"ok":"俄罗斯"}
+{"fn":"getRegionName","args":["KP","zh-CN"],"ok":"朝鲜"}
+{"fn":"getRegionName","args":["cn","zh-CN"],"ok":""}
+{"fn":"getRegionName","args":["Cn","zh-CN"],"ok":""}
+{"fn":"getRegionName","args":["cN","en-US"],"ok":""}
+{"fn":"getRegionName","args":[" CN","zh-CN"],"ok":""}
+{"fn":"getRegionName","args":["CN ","zh-CN"],"ok":""}
+{"fn":"getRegionName","args":["tw","en-US"],"ok":""}
+{"fn":"getRegionName","args":["us","zh-CN"],"ok":""}
+{"fn":"getRegionName","args":["hk","zh-CN"],"ok":""}
+{"fn":"getRegionName","args":["us","en-US"],"ok":""}
+{"fn":"getRegionName","args":["C","zh-CN"],"ok":""}
+{"fn":"getRegionName","args":["CHN","zh-CN"],"ok":""}
+{"fn":"getRegionName","args":["I","zh-CN"],"ok":""}
+{"fn":"getRegionName","args":["IND","zh-CN"],"ok":""}
+{"fn":"getRegionName","args":["USA","en-US"],"ok":""}
+{"fn":"getRegionName","args":["HKG","en-US"],"ok":""}
+{"fn":"getRegionName","args":["TWN","zh-CN"],"ok":""}
+{"fn":"getRegionName","args":["U","en-US"],"ok":""}
+{"fn":"getRegionName","args":["ZZ","zh-CN"],"ok":""}
+{"fn":"getRegionName","args":["ZZ","en-US"],"ok":""}
+{"fn":"getRegionName","args":["XX","en-US"],"ok":""}
+{"fn":"getRegionName","args":["UK","en-US"],"ok":""}
+{"fn":"getRegionName","args":["AA","zh-CN"],"ok":""}
+{"fn":"getRegionName","args":["","zh-CN"],"ok":""}
+{"fn":"getRegionName","args":["","en-US"],"ok":""}
+{"fn":"getRegionName","args":["110000","zh-CN"],"ok":""}
+{"fn":"getRegionName","args":["310000","en-US"],"ok":""}
+{"fn":"getRegionName","args":["110100","zh-CN"],"ok":""}
+{"fn":"getRegionName","args":["中国","zh-CN"],"ok":""}
+{"fn":"getRegionName","args":["北京市","zh-CN"],"ok":""}
+{"fn":"getRegionName","args":["台湾","zh-CN"],"ok":""}
+{"fn":"getRegionName","args":["中国台湾","zh-CN"],"ok":""}
+{"fn":"getRegionName","args":["香港","en-US"],"ok":""}
+{"fn":"getRegionName","args":["China","en-US"],"ok":""}
+{"fn":"getRegionName","args":["china","zh-CN"],"ok":""}
+{"fn":"getRegionName","args":["United States","en-US"],"ok":""}
+{"fn":"getRegionName","args":["Taiwan, China","en-US"],"ok":""}
+{"fn":"getRegionName","args":["Hong Kong","zh-CN"],"ok":""}
+{"fn":"getRegionName","args":["CN","zh-cn"],"error":"Cannot read properties of undefined (reading 'CN')"}
+{"fn":"getRegionName","args":["CN","en"],"error":"Cannot read properties of undefined (reading 'CN')"}
+{"fn":"getRegionName","args":["CN",""],"error":"Cannot read properties of undefined (reading 'CN')"}
+{"fn":"getRegionName","args":["TW","zh"],"error":"Cannot read properties of undefined (reading 'TW')"}
+{"fn":"getRegionName","args":["US","EN-US"],"error":"Cannot read properties of undefined (reading 'US')"}
+{"fn":"normalizeLocation","args":[{}],"ok":null}
+{"fn":"normalizeLocation","args":[{"region":"US"}],"ok":{"region":"US"}}
+{"fn":"normalizeLocation","args":[{"region":"CN"}],"ok":{"region":"CN"}}
+{"fn":"normalizeLocation","args":[{"region":"cn"}],"ok":null}
+{"fn":"normalizeLocation","args":[{"region":"Cn"}],"ok":null}
+{"fn":"normalizeLocation","args":[{"region":" CN"}],"ok":null}
+{"fn":"normalizeLocation","args":[{"region":"CN "}],"ok":null}
+{"fn":"normalizeLocation","args":[{"region":"中国"}],"ok":null}
+{"fn":"normalizeLocation","args":[{"region":"China"}],"ok":null}
+{"fn":"normalizeLocation","args":[{"region":"北京市"}],"ok":null}
+{"fn":"normalizeLocation","args":[{"region":110000}],"ok":null}
+{"fn":"normalizeLocation","args":[{"region":null}],"ok":null}
+{"fn":"normalizeLocation","args":[{"region":true}],"ok":null}
+{"fn":"normalizeLocation","args":[{"region":""}],"ok":null}
+{"fn":"normalizeLocation","args":[{"province":"110000"}],"ok":null}
+{"fn":"normalizeLocation","args":[{"city":"110100"}],"ok":null}
+{"fn":"normalizeLocation","args":[{"REGION":"CN"}],"ok":null}
+{"fn":"normalizeLocation","args":[{"region":"US","province":"110000"}],"ok":{"region":"US"}}
+{"fn":"normalizeLocation","args":[{"region":"US","province":"110000","city":"110100"}],"ok":{"region":"US"}}
+{"fn":"normalizeLocation","args":[{"region":"CN","province":"110000"}],"ok":{"region":"CN","province":"110000"}}
+{"fn":"normalizeLocation","args":[{"region":"CN","province":"110000","city":"110100"}],"ok":{"region":"CN","province":"110000","city":"110100"}}
+{"fn":"normalizeLocation","args":[{"region":"CN","province":"110000","city":"110101"}],"ok":null}
+{"fn":"normalizeLocation","args":[{"region":"CN","province":"110000","city":"310100"}],"ok":null}
+{"fn":"normalizeLocation","args":[{"region":"CN","province":"310000","city":"310100"}],"ok":{"region":"CN","province":"310000","city":"310100"}}
+{"fn":"normalizeLocation","args":[{"region":"CN","province":"310000","city":"310000"}],"ok":null}
+{"fn":"normalizeLocation","args":[{"region":"CN","province":"110100"}],"ok":null}
+{"fn":"normalizeLocation","args":[{"region":"CN","province":"110000","city":null}],"ok":null}
+{"fn":"normalizeLocation","args":[{"region":"CN","province":null}],"ok":null}
+{"fn":"normalizeLocation","args":[{"region":"CN","city":"110100"}],"ok":null}
+{"fn":"normalizeLocation","args":[{"region":"CN","province":"北京市"}],"ok":null}
+{"fn":"normalizeLocation","args":[{"region":"CN","province":" 110000"}],"ok":null}
+{"fn":"normalizeLocation","args":[{"region":"CN","province":"110000","city":"北京市"}],"ok":null}
+{"fn":"normalizeLocation","args":[{"region":"CN","Province":"110000"}],"ok":{"region":"CN"}}
+{"fn":"normalizeLocation","args":[{"region":"CN","province":"650000","city":"650100"}],"ok":{"region":"CN","province":"650000","city":"650100"}}
+{"fn":"normalizeLocation","args":[{"region":"CN","province":"650000","city":"659013"}],"ok":{"region":"CN","province":"650000","city":"659013"}}
+{"fn":"normalizeLocation","args":[{"region":"CN","province":"650000","city":"650300"}],"ok":null}
+{"fn":"normalizeLocation","args":[{"region":"CN","province":"650000","city":"659014"}],"ok":null}
+{"fn":"normalizeLocation","args":[{"region":"CN","province":"420000","city":"420100"}],"ok":{"region":"CN","province":"420000","city":"420100"}}
+{"fn":"normalizeLocation","args":[{"region":"CN","province":"440000","city":"440300"}],"ok":{"region":"CN","province":"440000","city":"440300"}}
+{"fn":"normalizeLocation","args":[{"region":"CN","province":"440000","city":"440100"}],"ok":{"region":"CN","province":"440000","city":"440100"}}
+{"fn":"normalizeLocation","args":[{"region":"CN","province":"110000","city":"110100","extra":"x"}],"ok":{"region":"CN","province":"110000","city":"110100"}}
+{"fn":"normalizeLocation","args":[{"region":"CN","province":{"code":"110000"},"city":"110100"}],"ok":null}
+{"fn":"normalizeLocation","args":[{"region":"CN","province":["110000"]}],"ok":null}
+{"fn":"normalizeLocation","args":[{"region":["CN"]}],"ok":null}
+{"fn":"normalizeLocation","args":[{"region":"CN","province":{"$undefined":true}}],"ok":{"region":"CN"}}
+{"fn":"normalizeLocation","args":[{"region":"CN","province":"110000","city":{"$undefined":true}}],"ok":{"region":"CN","province":"110000"}}
+{"fn":"normalizeLocation","args":[null],"ok":null}
+{"fn":"normalizeLocation","args":[0],"ok":null}
+{"fn":"normalizeLocation","args":[false],"ok":null}
+{"fn":"normalizeLocation","args":[""],"ok":null}
+{"fn":"normalizeLocation","args":["CN"],"ok":null}
+{"fn":"normalizeLocation","args":[[]],"ok":null}
+{"fn":"normalizeLocation","args":[["CN"]],"ok":null}
+{"fn":"normalizeLocation","args":[true],"ok":null}
