@@ -32,24 +32,32 @@ cd android; gradlew.bat assembleDebug
 
 ## 未完成（按建议顺序）
 
-1. **token 估算改进**：现有 `context/budget.ts` 是「宽字符 + 窄字符/3.6」的粗略公式。改为按码位区间分档
-   的表驱动估算（CJK/标点/emoji/拉丁各有权重），并用录制语料与真实 `inputTokens` 校准。
-   注意：`estimateTokens` 已接 Rust（阈值 512），改公式要同步 `rust/budget-rs` 并重新录制。
-2. **上下文摘要**（`contextSummary`）：长会话的可见摘要卡片，配合已有的锚点卡 + 事实账本。
-3. **内容搜索**：跨会话全文搜索页（现有 `SessionSearchPage` 只搜标题/会话内），需要索引与高亮。
-4. **导入走 worker**：导入目前在主线程解压+解析，长归档会卡 UI；深度合并已完成（批次 5）。
-   （现有合并在导入路径里按会话 ID 覆盖）。
-5. **消息编辑页**：编辑已发送的用户消息并重发，含版本切换。
-6. **自由文本选择 + LaTeX 复制格式**：Android WebView 上的长按选择、公式按 LaTeX/纯文本复制。
-7. **图片查看器**（缩放/滑动关闭）。
-8. **高级 API 设置 / 自定义 endpoint**（OpenAI 兼容转发）。
-9. **Office / PDF 文本提取**。
-10. **个人资料编辑 / 会话操作对话框 / 深色状态栏**。
-11. **剩余 UI 修复**：抽屉惯性吞点击、输入区开关溢出可滚动、宽屏布局、设置字号图标换行、
-    行内代码对齐 + 列表内公式渲染、APK 更新改用标准隐式 intent。
-12. **性能优化轮**：见下。
-13. **全部完成后关闭电脑**（用户明确要求）。
+> **更正（2026-11-25）**：早期凭文件名对比上游得出的"缺失清单"有 6 项是**误报**，本仓库已有等价实现，
+> 不要重写 —— 核对方式必须是按符号 grep `src/`，不是按文件名对比上游：
+>
+> | 项 | 本仓库已有 |
+> | --- | --- |
+> | Office/PDF 文本提取 | `services/documentText.ts`（docx/xlsx/pptx/pdf，含 FlateDecode + Tj/TJ） |
+> | 消息编辑 | `components/messages/UserMessage.tsx` 编辑态 |
+> | 图片查看器 | `components/files/ImageViewer.tsx` + `imageViewerState.ts` |
+> | 个人资料编辑 | `components/settings/AvatarEditor.tsx` |
+> | 深色状态栏 | `setDarkBars` / `app/theme.ts` |
+> | 会话操作 | 长按菜单：重命名 / 详情 / 置顶 / 多选 / 删除 |
 
+真正还缺的 6 项，按建议顺序：
+
+1. **内容搜索**：跨会话全文搜索。现有 `SessionSearchPage` 只搜标题与会话内；需要匹配、摘要、高亮与跳转。
+2. **上下文摘要**（`contextSummary`）：长会话的可见摘要卡片，配合已有的锚点卡 + 事实账本。
+3. **自由文本选择 + LaTeX 复制格式**：Android WebView 长按选择，公式按 LaTeX / 纯文本复制。
+4. **高级 API 设置 / 自定义 endpoint**（OpenAI 兼容转发）。
+5. **导入走 worker**：导入目前在主线程解压 + 解析，长归档会卡 UI。
+6. **token 估算分档**：现在是「宽字符 + 窄字符/3.6」；改为按码位区间分档。
+   ⚠ `estimateTokens` 已录制进 Rust 单元，改公式必须同步 `rust/budget-rs` 并重新录制。
+
+另有一组小修（价值低但上游有）：抽屉惯性吞点击、输入区开关溢出可滚动、宽屏布局、
+设置字号图标换行、行内代码对齐 + 列表内公式渲染、APK 更新改用标准隐式 intent。
+
+最后：**性能优化轮** → 全部完成后**关闭电脑**（用户明确要求）。
 ## 已确认的技术事实（不要重新推导）
 
 - 构建 CSS 用 lightningcss，targets 降到 `chrome 66` **并不会**降级 `color-mix`/`dvh`/`toSorted`，
