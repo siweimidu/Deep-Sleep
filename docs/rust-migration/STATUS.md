@@ -118,6 +118,18 @@ APK：`gradlew assembleRelease` → `app-release.apk` 4,723,511 B，两个 wasm 
   过去（假 Key 会被服务端拒绝）。所以「点按钮 → 选文件 → 导入」这条交互链还没在设备上走过；
   被它包住的解析函数本身已经按上表在设备上 A/B 验过了。
 
+## 真机验证（PJE110 / Android 15 / WebView 157）
+
+上面两条"还没验证到"后来都补上了：用户提供了真实的 DeepSeek 导出链接，并插上了手机。
+
+- ✅ **官方导出归档完整导入成功**：数据管理 → 从链接导入 → 自动下载解压 → 抽屉里出现 7 个真实会话
+  （"给用户的温暖寄语""扮演Claude""人类最想认真活一次"…），与归档里的 7 个 `chat_sessions/*.json` 一致。
+- ✅ 真机上的 A/B：`zipReader` **3.39×**（输出与 TS 逐字节一致）、`estimateTokens` 1.5–2.2×（全部长度一致）。
+
+这条路上修掉了**三个真 bug**，详见 [ADOPTION.md](./ADOPTION.md) 与对应 commit：
+解压 worker 从未被打包（404）→ 页面侧任何 DEFLATE 归档必然失败；seam 归还共享视图；
+以及 `inflateInWorker` 用 transfer 把条目名的底层 buffer 一并 detach。
+
 `attachments.ts` 里的 `validateFiles` / `resolveMimeType` 从未接（入参是 `File`，需要先做
 `File → {name,size,type}` 映射）。
 
