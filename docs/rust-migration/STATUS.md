@@ -55,14 +55,27 @@ Get-ChildItem rust -Directory | Where-Object { Test-Path "$($_.FullName)\rust-an
 详见 ADOPTION.md。
 
 
-## 已经开始接入：`paths.ts`
+## 已经接入的两个单元
 
-`src/services/chat/history/paths.ts` 现在走 Rust（`src/rust-core/paths.ts` 适配层），是接入其余
-crate 的模板。适配层模块加载时自动初始化，**拿不到 wasm 就返回 `null` 让调用方走原 TS 实现**，
-所以接入不会成为新的失败源。
+| 源文件 | 适配层 | 接入的函数 |
+| --- | --- | --- |
+| `services/chat/history/paths.ts` | `src/rust-core/paths.ts` | `sessionPath`、`sessionFilesDir`、`parseSessionPath`、`imagePath` |
+| `services/attachments.ts` | `src/rust-core/attachments.ts` | `getFileExt`、`isAcceptedExt`、`getUploadPurpose`、`isImage`、`getExtension`、`formatSize` |
 
-实测：`pnpm type` 干净、`pnpm lint` 0 error、`pnpm build` 成功，且
-`dist/static/media/paths_rs_bg.<hash>.wasm`（233,503 B）确实被产出并被主 bundle 引用。
+约定：适配层模块加载时自动初始化（不阻塞首屏），**拿不到 wasm 就返回 `null`/`undefined` 让调用方走
+原 TS 实现**，所以接入不会成为新的失败源。`undefined` 专门表示"未就绪"，因为 `null` 本身是
+`parseSessionPath` 与 `getUploadPurpose` 的合法返回值。
+
+实测证据：
+
+- `node rust/adapter-check.mjs` → **24/24**（走的是应用真正 import 的那个模块，含 `JSON.parse`、
+  `null` 返回、NFC 归一化）；
+- `pnpm type` 干净、`pnpm lint` 0 warning 0 error、`pnpm build` 两次 `Rspack compiled successfully`；
+- `dist/static/media/` 下真实产出 `paths_rs_bg.*.wasm`（233,503 B）与
+  `attachments_rs_bg.*.wasm`（331,679 B），并被 bundle 引用。
+
+`attachments.ts` 里还有 2 个未接：`validateFiles`、`resolveMimeType`（入参是 `File`，需要先做
+`File → {name,size,type}` 的映射）。
 
 
 

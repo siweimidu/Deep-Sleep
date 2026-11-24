@@ -4,6 +4,7 @@ import { uploadFile } from './api/client.js'
 import { classifyApiError, getUploadErrorInfo, isRetryableApiError } from './api/errors.js'
 import type { FilePurpose } from './api/types.js'
 import { ACCEPT_FILE_EXTS } from './uploadExts.js'
+import { rustAttachments } from '../rust-core/attachments.js'
 
 /** 允许上传的扩展名，按扩展名白名单过滤，清单见 uploadExts.ts */
 export const ACCEPTED_EXTS = ACCEPT_FILE_EXTS
@@ -19,17 +20,26 @@ const MAX_CONCURRENT = 3
 
 /** 文件扩展名（小写，不含点）；没有扩展名时为空 */
 export const getFileExt = (name: string) => {
+  const rust = rustAttachments.getFileExt(name)
+  if (rust !== undefined) {
+    return rust
+  }
   const dot = name.lastIndexOf('.')
   return dot > 0 ? name.slice(dot + 1).toLowerCase() : ''
 }
 
-export const isAcceptedExt = (name: string) => ACCEPTED_EXTS.includes(getFileExt(name))
+export const isAcceptedExt = (name: string) =>
+  rustAttachments.isAcceptedExt(name) ?? ACCEPTED_EXTS.includes(getFileExt(name))
 
 /** 需要服务端做版面解析的文档；其余非图片文件（纯文本、代码、表格、电子书）无需解析 */
 const LAYOUT_RECOGNITION_EXTS = new Set(['pdf', 'doc', 'docx', 'ppt', 'pptx'])
 
 /** 上传时的 purpose：图片不传，PDF 与 Word、PPT 做版面解析，其余按 user_data 上传 */
 export const getUploadPurpose = (name: string, isImage: boolean): FilePurpose | null => {
+  const rust = rustAttachments.getUploadPurpose(name, isImage)
+  if (rust !== undefined) {
+    return rust as FilePurpose | null
+  }
   if (isImage) {
     return null
   }
@@ -222,15 +232,24 @@ const MIME_BY_EXT: Record<string, string> = {
 /** 取文件的 MIME：优先用浏览器给出的类型，缺失时按扩展名推断 */
 export const resolveMimeType = (file: File) => file.type || MIME_BY_EXT[getFileExt(file.name)] || ''
 
-export const isImage = (mimeType: string) => mimeType.startsWith('image/')
+export const isImage = (mimeType: string) =>
+  rustAttachments.isImage(mimeType) ?? mimeType.startsWith('image/')
 
 /** 文件扩展名（大写），用于卡片元信息 */
 export const getExtension = (name: string) => {
+  const rust = rustAttachments.getExtension(name)
+  if (rust !== undefined) {
+    return rust
+  }
   const dot = name.lastIndexOf('.')
   return dot > 0 ? name.slice(dot + 1).toUpperCase() : ''
 }
 
 export const formatSize = (bytes: number) => {
+  const rust = rustAttachments.formatSize(bytes)
+  if (rust !== undefined) {
+    return rust
+  }
   if (bytes < 1024) {
     return `${bytes} B`
   }
