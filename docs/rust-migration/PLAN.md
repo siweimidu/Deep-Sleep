@@ -12,8 +12,8 @@
 
 | 优先级 | 事项 | 阻塞点 / 说明 |
 | --- | --- | --- |
-| 高 | **浏览器侧的二进制 wire 适配层** | 实测 JSON 文本边界比原 TS 慢 9–49 倍（ADOPTION §5）。`index.cjs` 里那套 `wDyn`/`rDyn`/`wStr` 是**通用的、带 tag 的真二进制**编解码（不是 JSON 塞内存），可以整体搬进浏览器适配层复用；每个函数只需一小段生成的 `encode`。**尚未在浏览器产物上验证** |
-| 中 | 继续接「大输入、小输出」的单元 | 已接 3 个（paths / attachments / location）。消息树、reply、view **故意不接**，除非先有二进制 wire |
+| 高 | **用真实大归档实测 `parseArchiveBase64`** | 唯一还可能划算的形状（字节进 / 计算密集 / 输出小）。JSON 与二进制两条边界都已证明会拖慢整对象变换（ADOPTION §5），所以只剩这一类值得量 |
+| 中 | 其余单元**不接** | 消息树、reply、view、budget 等整对象进出：实测慢 30–90 倍，接了是负优化 |
 | 中 | `src/i18n/**` | 纯数据可移植；但 `translate` 读 zustand store，得先改成显式 `locale` 参数 |
 | 低 | `zipReader.ts` 剩余 5 个导出 | 字节级核心已通过接缝移植（322/322）；剩下的是函数/生成器/Blob 边界 |
 | 低 | 出 APK | 本机无 Android SDK/NDK，物理上做不到，不是没做 |
