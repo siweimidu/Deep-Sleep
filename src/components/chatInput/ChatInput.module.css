@@ -254,6 +254,14 @@
   align-items: center;
   gap: 10px;
   min-width: 0;
+  /* 开关变多/字号变大时会溢出：允许横向滑动，而不是把每个开关压扁到看不清 */
+  overflow-x: auto;
+  scrollbar-width: none;
+  white-space: nowrap;
+}
+
+.toggles::-webkit-scrollbar {
+  display: none;
 }
 
 .collapsedToggles .toggleLabel {

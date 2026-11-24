@@ -151,6 +151,9 @@ a.row:active,
 .fontIcon {
   font-size: 17px;
   font-weight: 500;
+  /* "ᴀA" 是两个字符，行宽紧张时会被拆成两行：禁止换行且不参与收缩 */
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .info {
