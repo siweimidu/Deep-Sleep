@@ -1,5 +1,4 @@
 import { cityNames, regionCodes, regionNameOverrides, provinceNames } from './locationData.js'
-import { rustLocation } from '../rust-core/location.js'
 
 export { regionCodes } from './locationData.js'
 
@@ -24,16 +23,11 @@ const regionNames = {
 }
 
 export const getRegionName = (code: string, locale: 'zh-CN' | 'en-US'): string =>
-  rustLocation.getRegionName(code, locale) ??
-  (regions.has(code)
+  regions.has(code)
     ? (regionNameOverrides[locale][code] ?? regionNames[locale].of(code) ?? code)
-    : '')
+    : ''
 
 export const normalizeLocation = (value: unknown): UserLocation | null => {
-  const rust = rustLocation.normalizeLocation(value)
-  if (rust !== undefined) {
-    return rust
-  }
   if (!value || typeof value !== 'object' || Array.isArray(value)) {
     return null
   }

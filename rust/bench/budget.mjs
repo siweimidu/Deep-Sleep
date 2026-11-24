@@ -37,7 +37,18 @@ const makeText = (codeUnits) => {
 
 // Built ONCE. Rebuilding inside the timing loop would charge both sides for string assembly and
 // hide the only difference that matters (the scan plus the boundary copy).
-const TEXTS = { '1KB': makeText(1_000), '100KB': makeText(100_000), '1MB': makeText(1_000_000) }
+// The small sizes locate the crossover; 1 KB / 100 KB / 1 MB are the regimes the task asks about.
+const SIZES = [
+  ['16', 16],
+  ['64', 64],
+  ['128', 128],
+  ['256', 256],
+  ['512', 512],
+  ['1KB', 1_000],
+  ['100KB', 100_000],
+  ['1MB', 1_000_000],
+]
+const TEXTS = Object.fromEntries(SIZES.map(([label, codeUnits]) => [label, makeText(codeUnits)]))
 // Same length, every code unit narrow: exercises the branch the wide text never takes.
 const ASCII = TEXTS['1MB'].replace(/[^\x00-\x7f]/g, 'x')
 for (const [label, text] of [...Object.entries(TEXTS), ['1MB-ascii', ASCII]]) {
@@ -102,34 +113,33 @@ console.log(
 
 // question-shaped tail: planContext is always called with the session it is about to send
 const results = []
-for (const [label, fn, iterations, ts, rust] of [
-  ['estimateTokens@empty', 'estimateTokens', 20000, () => estimateTokens(''), () => glue.estimateTokens('')],
-  ['estimateTokens@1KB', 'estimateTokens', 5000, () => estimateTokens(TEXTS['1KB']), () => glue.estimateTokens(TEXTS['1KB'])],
-  ['estimateTokens@100KB', 'estimateTokens', 100, () => estimateTokens(TEXTS['100KB']), () => glue.estimateTokens(TEXTS['100KB'])],
-  ['estimateTokens@1MB', 'estimateTokens', 20, () => estimateTokens(TEXTS['1MB']), () => glue.estimateTokens(TEXTS['1MB'])],
-  ['estimateTokens@1MB-ascii', 'estimateTokens', 20, () => estimateTokens(ASCII), () => glue.estimateTokens(ASCII)],
-  [
-    'planContext@40rounds',
-    'planContext',
-    60,
-    () => planContext(history, 'deepseek-v4-pro'),
-    () => viaRust('planContext', historyJson, 'deepseek-v4-pro'),
-  ],
-  [
-    'planContext@40rounds+measured',
-    'planContext',
-    60,
-    () => planContext(history, 'deepseek-v4-pro', 95_000),
-    () => viaRust('planContext', historyJson, 'deepseek-v4-pro', 95_000),
-  ],
-  [
-    'planContext@40rounds+measured/flash',
-    'planContext',
-    60,
-    () => planContext(history, 'deepseek-flash', 700_000),
-    () => viaRust('planContext', historyJson, 'deepseek-flash', 700_000),
-  ],
-]) {
-  results.push(await compare({ crate: 'budget', fn: label, iterations, ts, rust }))
+const ITERATIONS = { '16': 20000, '64': 20000, '128': 20000, '256': 20000, '512': 20000, '1KB': 5000, '100KB': 100, '1MB': 20 }
+const tokenCases = [['empty', '', 20000]]
+for (const [label, text] of Object.entries(TEXTS)) tokenCases.push([label, text, ITERATIONS[label]])
+tokenCases.push(['1MB-ascii', ASCII, 20])
+for (const [label, text, iterations] of tokenCases) {
+  results.push(
+    await compare({ crate: 'budget', fn: `estimateTokens@${label}`, iterations, ts: () => estimateTokens(text), rust: () => glue.estimateTokens(text) }),
+  )
+}
+const planCases = [
+  {
+    label: 'planContext@40rounds',
+    ts: () => planContext(history, 'deepseek-v4-pro'),
+    rust: () => viaRust('planContext', historyJson, 'deepseek-v4-pro'),
+  },
+  {
+    label: 'planContext@40rounds+measured',
+    ts: () => planContext(history, 'deepseek-v4-pro', 95_000),
+    rust: () => viaRust('planContext', historyJson, 'deepseek-v4-pro', 95_000),
+  },
+  {
+    label: 'planContext@40rounds+measured/flash',
+    ts: () => planContext(history, 'deepseek-flash', 700_000),
+    rust: () => viaRust('planContext', historyJson, 'deepseek-flash', 700_000),
+  },
+]
+for (const { label, ts, rust } of planCases) {
+  results.push(await compare({ crate: 'budget', fn: label, iterations: 60, ts, rust }))
 }
 summarize('budget', results)

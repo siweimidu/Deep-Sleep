@@ -1,14 +1,14 @@
 /* tslint:disable */
 /* eslint-disable */
 
-export function imagePath(session_id: string, file_id: string, file_name: string): string;
+export function estimateTokens(text: string): number;
 
-export function parseSessionPath(path: string): string;
+export function planContext(history: string, model: string, last_input_tokens?: number | null): string;
 
 /**
- * `parseSessionPath` over the binary wire.
+ * `planContext` over the binary wire.
  */
-export function parseSessionPathWire(len: number): number;
+export function planContextWire(len: number): number;
 
 /**
  * The address of an argument buffer of `len` bytes.
@@ -25,22 +25,16 @@ export function rustAnythingWireMemory(): any;
  */
 export function rustAnythingWireOut(): number;
 
-export function sessionFilesDir(session_id: string): string;
-
-export function sessionPath(session_id: string): string;
-
 export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembly.Module;
 
 export interface InitOutput {
     readonly memory: WebAssembly.Memory;
-    readonly imagePath: (a: number, b: number, c: number, d: number, e: number, f: number) => [number, number, number, number];
-    readonly parseSessionPath: (a: number, b: number) => [number, number, number, number];
-    readonly parseSessionPathWire: (a: number) => [number, number, number];
+    readonly estimateTokens: (a: number, b: number) => [number, number, number];
+    readonly planContext: (a: number, b: number, c: number, d: number, e: number, f: number) => [number, number, number, number];
+    readonly planContextWire: (a: number) => [number, number, number];
     readonly rustAnythingWireIn: (a: number) => number;
     readonly rustAnythingWireMemory: () => any;
     readonly rustAnythingWireOut: () => number;
-    readonly sessionFilesDir: (a: number, b: number) => [number, number, number, number];
-    readonly sessionPath: (a: number, b: number) => [number, number, number, number];
     readonly __wbindgen_externrefs: WebAssembly.Table;
     readonly __wbindgen_malloc: (a: number, b: number) => number;
     readonly __wbindgen_realloc: (a: number, b: number, c: number, d: number) => number;

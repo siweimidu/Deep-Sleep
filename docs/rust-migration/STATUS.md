@@ -60,36 +60,30 @@ ADOPTION.md 有直接证据）。
 详见 ADOPTION.md。
 
 
-## 已经接入的两个单元
+## 已经接入的两个单元（按性能实测挑选）
 
-| 源文件 | 适配层 | 接入的函数 |
-| --- | --- | --- |
-| `services/chat/history/paths.ts` | `src/rust-core/paths.ts` | `sessionPath`、`sessionFilesDir`、`parseSessionPath`、`imagePath` |
-| `services/attachments.ts` | `src/rust-core/attachments.ts` | `getFileExt`、`isAcceptedExt`、`getUploadPurpose`、`isImage`、`getExtension`、`formatSize` |
-| `services/location.ts` | `src/rust-core/location.ts` | `getRegionName`、`normalizeLocation` |
-| `services/chat/history/zipReader.ts` | `src/rust-core/zipReader.ts` | `parseArchiveBase64`（**实测快 5.14 倍**） |
+| 源文件 | 适配层 | 接入的函数 | 实测 |
+| --- | --- | --- | --- |
+| `services/chat/history/zipReader.ts` | `src/rust-core/zipReader.ts` | `parseArchiveBase64` | **5.14×** |
+| `services/chat/context/budget.ts` | `src/rust-core/budget.ts` | `estimateTokens`（≥128 单元才走 Rust） | **1.2–1.8×** |
 
-约定：适配层模块加载时自动初始化（不阻塞首屏），**拿不到 wasm 就返回 `null`/`undefined` 让调用方走
-原 TS 实现**，所以接入不会成为新的失败源。`undefined` 专门表示"未就绪"，因为 `null` 本身是
-`parseSessionPath` 与 `getUploadPurpose` 的合法返回值。
+判据与全部 16 个 crate 的实测数字见 [PERFORMANCE.md](./PERFORMANCE.md)。`paths` / `attachments` /
+`location` 曾经接过，但实测更慢（约 0.11×），已用 `git checkout` 还原成接线前的源文件并移除适配层。
 
-实测证据：
+约定：适配层加载时自动初始化（不阻塞首屏），**拿不到 wasm 就返回 `undefined` 让调用方走原 TS 实现**，
+所以接入不会成为新的失败源。`estimateTokens` 的阈值放在调用点（`text.length >= 128`），因为短文本
+Rust 反而更慢（16 单元时只有 0.64×）。
 
-- `node rust/adapter-check.mjs` → **24/24**（走的是应用真正 import 的那个模块，含 `JSON.parse`、
-  `null` 返回、NFC 归一化）；
-- `pnpm type` 干净、`pnpm lint` 0 warning 0 error、`pnpm build` 两次 `Rspack compiled successfully`；
-- `dist/static/media/` 下真实产出 `paths_rs_bg.*.wasm`（233,503 B）与
-  `attachments_rs_bg.*.wasm`（331,679 B），并被 bundle 引用。
+实测证据：`node rust/adapter-check.mjs` → 7/7；`pnpm type` 干净、`pnpm lint` 0/0、`pnpm build` 成功；
+`dist/static/media/` 只产出 `zipreader_rs_bg.*.wasm`（299,960 B）与 `budget_rs_bg.*.wasm`（246,019 B）。
 
-`attachments.ts` 里还有 2 个未接：`validateFiles`、`resolveMimeType`（入参是 `File`，需要先做
-`File → {name,size,type}` 的映射）。
+APK：`gradlew assembleRelease` → `app-release.apk` 4,723,359 B，两个 wasm 都在
+`assets/static/media/` 里。
 
-**这四个单元里，只有 `zipReader` 是真正的提速**：1.1 MB / 41 条归档，TypeScript 99.59 ms →
-Rust **19.35 ms（快 5.14 倍）**，输出逐字节一致，`rust/bench-archive.mjs` 可复现。
+`attachments.ts` 里的 `validateFiles` / `resolveMimeType` 从未接（入参是 `File`，需要先做
+`File → {name,size,type}` 映射）。
 
-另外三个是**正确性试点，不是性能优化**：JSON 文本边界使连字符串函数都比原 TS 慢约 9 倍、整对象变换
-慢 26–57 倍，而二进制 wire 更慢（800 条消息时慢 91 倍）。它们的价值是「Rust 真的在线上跑」的链路
-已打通并验证；整对象互转的单元故意不接。
+回退那三个之后，APK 里少带 806 KB 的 wasm（233,503 + 331,679 + 241,378），只留真正更快的两个。
 
 
 

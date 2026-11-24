@@ -1,265 +1,63 @@
-/* @ts-self-types="./attachments_rs.d.ts" */
+/* @ts-self-types="./budget_rs.d.ts" */
 
 /**
- * @param {number} bytes
- * @returns {string}
- */
-export function formatSize(bytes) {
-    let deferred2_0;
-    let deferred2_1;
-    try {
-        const ret = wasm.formatSize(bytes);
-        var ptr1 = ret[0];
-        var len1 = ret[1];
-        if (ret[3]) {
-            ptr1 = 0; len1 = 0;
-            throw takeFromExternrefTable0(ret[2]);
-        }
-        deferred2_0 = ptr1;
-        deferred2_1 = len1;
-        return getStringFromWasm0(ptr1, len1);
-    } finally {
-        wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
-    }
-}
-
-/**
- * `formatSize` over the binary wire.
- * @param {number} len
+ * @param {string} text
  * @returns {number}
  */
-export function formatSizeWire(len) {
-    const ret = wasm.formatSizeWire(len);
+export function estimateTokens(text) {
+    const ptr0 = passStringToWasm0(text, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    const len0 = WASM_VECTOR_LEN;
+    const ret = wasm.estimateTokens(ptr0, len0);
     if (ret[2]) {
         throw takeFromExternrefTable0(ret[1]);
     }
-    return ret[0] >>> 0;
+    return ret[0];
 }
 
 /**
- * @param {string} name
+ * @param {string} history
+ * @param {string} model
+ * @param {number | null} [last_input_tokens]
  * @returns {string}
  */
-export function getExtension(name) {
-    let deferred3_0;
-    let deferred3_1;
+export function planContext(history, model, last_input_tokens) {
+    let deferred5_0;
+    let deferred5_1;
     try {
-        const ptr0 = passStringToWasm0(name, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        const len0 = WASM_VECTOR_LEN;
-        const ret = wasm.getExtension(ptr0, len0);
-        var ptr2 = ret[0];
-        var len2 = ret[1];
+        const val3 = +(isLikeNone(last_input_tokens) ? 0 : last_input_tokens);
+        let ptr0, len0, ptr1, len1;
+        try {
+            ptr0 = passStringToWasm0(history, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+            len0 = WASM_VECTOR_LEN;
+            ptr1 = passStringToWasm0(model, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+            len1 = WASM_VECTOR_LEN;
+        } catch (e) {
+            if (ptr1) { wasm.__wbindgen_free(ptr1, len1 * 1, 1); }
+            if (ptr0) { wasm.__wbindgen_free(ptr0, len0 * 1, 1); }
+            throw e;
+        }
+        const ret = wasm.planContext(ptr0, len0, ptr1, len1, !isLikeNone(last_input_tokens), val3);
+        var ptr4 = ret[0];
+        var len4 = ret[1];
         if (ret[3]) {
-            ptr2 = 0; len2 = 0;
+            ptr4 = 0; len4 = 0;
             throw takeFromExternrefTable0(ret[2]);
         }
-        deferred3_0 = ptr2;
-        deferred3_1 = len2;
-        return getStringFromWasm0(ptr2, len2);
+        deferred5_0 = ptr4;
+        deferred5_1 = len4;
+        return getStringFromWasm0(ptr4, len4);
     } finally {
-        wasm.__wbindgen_free(deferred3_0, deferred3_1, 1);
+        wasm.__wbindgen_free(deferred5_0, deferred5_1, 1);
     }
 }
 
 /**
- * `getExtension` over the binary wire.
+ * `planContext` over the binary wire.
  * @param {number} len
  * @returns {number}
  */
-export function getExtensionWire(len) {
-    const ret = wasm.getExtensionWire(len);
-    if (ret[2]) {
-        throw takeFromExternrefTable0(ret[1]);
-    }
-    return ret[0] >>> 0;
-}
-
-/**
- * @param {string} name
- * @returns {string}
- */
-export function getFileExt(name) {
-    let deferred3_0;
-    let deferred3_1;
-    try {
-        const ptr0 = passStringToWasm0(name, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        const len0 = WASM_VECTOR_LEN;
-        const ret = wasm.getFileExt(ptr0, len0);
-        var ptr2 = ret[0];
-        var len2 = ret[1];
-        if (ret[3]) {
-            ptr2 = 0; len2 = 0;
-            throw takeFromExternrefTable0(ret[2]);
-        }
-        deferred3_0 = ptr2;
-        deferred3_1 = len2;
-        return getStringFromWasm0(ptr2, len2);
-    } finally {
-        wasm.__wbindgen_free(deferred3_0, deferred3_1, 1);
-    }
-}
-
-/**
- * `getFileExt` over the binary wire.
- * @param {number} len
- * @returns {number}
- */
-export function getFileExtWire(len) {
-    const ret = wasm.getFileExtWire(len);
-    if (ret[2]) {
-        throw takeFromExternrefTable0(ret[1]);
-    }
-    return ret[0] >>> 0;
-}
-
-/**
- * @param {string} name
- * @param {boolean} is_image
- * @returns {string}
- */
-export function getUploadPurpose(name, is_image) {
-    let deferred4_0;
-    let deferred4_1;
-    try {
-        const val2 = +is_image;
-        const ptr0 = passStringToWasm0(name, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        const len0 = WASM_VECTOR_LEN;
-        const ret = wasm.getUploadPurpose(ptr0, len0, val2);
-        var ptr3 = ret[0];
-        var len3 = ret[1];
-        if (ret[3]) {
-            ptr3 = 0; len3 = 0;
-            throw takeFromExternrefTable0(ret[2]);
-        }
-        deferred4_0 = ptr3;
-        deferred4_1 = len3;
-        return getStringFromWasm0(ptr3, len3);
-    } finally {
-        wasm.__wbindgen_free(deferred4_0, deferred4_1, 1);
-    }
-}
-
-/**
- * `getUploadPurpose` over the binary wire.
- * @param {number} len
- * @returns {number}
- */
-export function getUploadPurposeWire(len) {
-    const ret = wasm.getUploadPurposeWire(len);
-    if (ret[2]) {
-        throw takeFromExternrefTable0(ret[1]);
-    }
-    return ret[0] >>> 0;
-}
-
-/**
- * @param {string} name
- * @returns {string}
- */
-export function isAcceptedExt(name) {
-    let deferred3_0;
-    let deferred3_1;
-    try {
-        const ptr0 = passStringToWasm0(name, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        const len0 = WASM_VECTOR_LEN;
-        const ret = wasm.isAcceptedExt(ptr0, len0);
-        var ptr2 = ret[0];
-        var len2 = ret[1];
-        if (ret[3]) {
-            ptr2 = 0; len2 = 0;
-            throw takeFromExternrefTable0(ret[2]);
-        }
-        deferred3_0 = ptr2;
-        deferred3_1 = len2;
-        return getStringFromWasm0(ptr2, len2);
-    } finally {
-        wasm.__wbindgen_free(deferred3_0, deferred3_1, 1);
-    }
-}
-
-/**
- * `isAcceptedExt` over the binary wire.
- * @param {number} len
- * @returns {number}
- */
-export function isAcceptedExtWire(len) {
-    const ret = wasm.isAcceptedExtWire(len);
-    if (ret[2]) {
-        throw takeFromExternrefTable0(ret[1]);
-    }
-    return ret[0] >>> 0;
-}
-
-/**
- * @param {string} mime_type
- * @returns {string}
- */
-export function isImage(mime_type) {
-    let deferred3_0;
-    let deferred3_1;
-    try {
-        const ptr0 = passStringToWasm0(mime_type, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        const len0 = WASM_VECTOR_LEN;
-        const ret = wasm.isImage(ptr0, len0);
-        var ptr2 = ret[0];
-        var len2 = ret[1];
-        if (ret[3]) {
-            ptr2 = 0; len2 = 0;
-            throw takeFromExternrefTable0(ret[2]);
-        }
-        deferred3_0 = ptr2;
-        deferred3_1 = len2;
-        return getStringFromWasm0(ptr2, len2);
-    } finally {
-        wasm.__wbindgen_free(deferred3_0, deferred3_1, 1);
-    }
-}
-
-/**
- * `isImage` over the binary wire.
- * @param {number} len
- * @returns {number}
- */
-export function isImageWire(len) {
-    const ret = wasm.isImageWire(len);
-    if (ret[2]) {
-        throw takeFromExternrefTable0(ret[1]);
-    }
-    return ret[0] >>> 0;
-}
-
-/**
- * @param {string} file
- * @returns {string}
- */
-export function resolveMimeType(file) {
-    let deferred3_0;
-    let deferred3_1;
-    try {
-        const ptr0 = passStringToWasm0(file, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        const len0 = WASM_VECTOR_LEN;
-        const ret = wasm.resolveMimeType(ptr0, len0);
-        var ptr2 = ret[0];
-        var len2 = ret[1];
-        if (ret[3]) {
-            ptr2 = 0; len2 = 0;
-            throw takeFromExternrefTable0(ret[2]);
-        }
-        deferred3_0 = ptr2;
-        deferred3_1 = len2;
-        return getStringFromWasm0(ptr2, len2);
-    } finally {
-        wasm.__wbindgen_free(deferred3_0, deferred3_1, 1);
-    }
-}
-
-/**
- * `resolveMimeType` over the binary wire.
- * @param {number} len
- * @returns {number}
- */
-export function resolveMimeTypeWire(len) {
-    const ret = wasm.resolveMimeTypeWire(len);
+export function planContextWire(len) {
+    const ret = wasm.planContextWire(len);
     if (ret[2]) {
         throw takeFromExternrefTable0(ret[1]);
     }
@@ -293,46 +91,6 @@ export function rustAnythingWireOut() {
     const ret = wasm.rustAnythingWireOut();
     return ret >>> 0;
 }
-
-/**
- * @param {string} files
- * @param {number} current_count
- * @returns {string}
- */
-export function validateFiles(files, current_count) {
-    let deferred4_0;
-    let deferred4_1;
-    try {
-        const val2 = +current_count;
-        const ptr0 = passStringToWasm0(files, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        const len0 = WASM_VECTOR_LEN;
-        const ret = wasm.validateFiles(ptr0, len0, val2);
-        var ptr3 = ret[0];
-        var len3 = ret[1];
-        if (ret[3]) {
-            ptr3 = 0; len3 = 0;
-            throw takeFromExternrefTable0(ret[2]);
-        }
-        deferred4_0 = ptr3;
-        deferred4_1 = len3;
-        return getStringFromWasm0(ptr3, len3);
-    } finally {
-        wasm.__wbindgen_free(deferred4_0, deferred4_1, 1);
-    }
-}
-
-/**
- * `validateFiles` over the binary wire.
- * @param {number} len
- * @returns {number}
- */
-export function validateFilesWire(len) {
-    const ret = wasm.validateFilesWire(len);
-    if (ret[2]) {
-        throw takeFromExternrefTable0(ret[1]);
-    }
-    return ret[0] >>> 0;
-}
 function __wbg_get_imports() {
     const import0 = {
         __proto__: null,
@@ -355,7 +113,7 @@ function __wbg_get_imports() {
     };
     return {
         __proto__: null,
-        "./attachments_rs_bg.js": import0,
+        "./budget_rs_bg.js": import0,
     };
 }
 
@@ -370,6 +128,10 @@ function getUint8ArrayMemory0() {
         cachedUint8ArrayMemory0 = new Uint8Array(wasm.memory.buffer);
     }
     return cachedUint8ArrayMemory0;
+}
+
+function isLikeNone(x) {
+    return x === undefined || x === null;
 }
 
 function passStringToWasm0(arg, malloc, realloc) {
@@ -534,7 +296,7 @@ async function __wbg_init_once(module_or_path) {
     }
 
     if (module_or_path === undefined) {
-        module_or_path = new URL('attachments_rs_bg.wasm', import.meta.url);
+        module_or_path = new URL('budget_rs_bg.wasm', import.meta.url);
     }
     const imports = __wbg_get_imports();
 

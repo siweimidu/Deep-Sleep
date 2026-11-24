@@ -1,16 +1,15 @@
-// End-to-end check of the app's adapters (`src/rust-core/*.ts`), not just the raw wasm glue.
+// End-to-end check of the adapters the app actually imports.
 //
-// web-parity.mjs proves each crate's functions match the original; it does not exercise the modules
-// the app actually imports (the JSON.parse step for Value returns, the ready gate, the fallback).
-// This runs those modules for real: a fetch shim serves each wasm from disk so the browser-target
-// init() succeeds, then the asserted values are the ones the original TS produces.
+// After the performance pass only two units are wired: `zipReader` (measured 5.14x faster, see
+// rust/bench-archive.mjs) and `budget.estimateTokens` (1.2-1.8x faster, but only above ~128 UTF-16
+// code units - so this script must prove BOTH sides of that threshold, not just the fast side).
 //
 // usage: node rust/adapter-check.mjs
 import { readFileSync } from 'node:fs'
 
 const repo = new URL('../', import.meta.url)
 
-// The web-target glue inits by fetching the module URL; Node has no file:// fetch.
+// The web glue inits by fetching the module URL; Node has no file:// fetch.
 const realFetch = globalThis.fetch
 globalThis.fetch = async (input, init) => {
   const url = input instanceof URL ? input : new URL(String(input))
@@ -18,68 +17,53 @@ globalThis.fetch = async (input, init) => {
   return new Response(readFileSync(url), { headers: { 'content-type': 'application/wasm' } })
 }
 
-const { rustPaths } = await import(new URL('src/rust-core/paths.ts', repo).href)
-const { rustAttachments } = await import(new URL('src/rust-core/attachments.ts', repo).href)
-const { rustLocation } = await import(new URL('src/rust-core/location.ts', repo).href)
+const { rustBudget, isRustBudgetReady } = await import(new URL('src/rust-core/budget.ts', repo).href)
+const { isRustZipReaderReady } = await import(new URL('src/rust-core/zipReader.ts', repo).href)
 
-// Both adapters load in the background; wait until each reports ready.
-const ready = () =>
-  rustPaths.parseSessionPath('probe') !== undefined &&
-  rustAttachments.getFileExt('probe') !== undefined &&
-  rustLocation.getRegionName('probe', 'zh-CN') !== undefined
 const deadline = Date.now() + 20000
-while (!ready()) {
+while (!isRustBudgetReady() || !isRustZipReaderReady()) {
   if (Date.now() > deadline) throw new Error('adapter never became ready: init/fetch failed')
   await new Promise((resolve) => setTimeout(resolve, 25))
 }
 
-const cases = [
-  ['sessionPath', rustPaths.sessionPath('s1'), 'chat_sessions/s1.json'],
-  ['sessionFilesDir', rustPaths.sessionFilesDir('s1'), 'chat_sessions/s1_files/'],
-  ['parseSessionPath hit', rustPaths.parseSessionPath('chat_sessions/a.json'), 'a'],
-  ['parseSessionPath dotted', rustPaths.parseSessionPath('chat_sessions/a.json.json'), 'a.json'],
-  ['parseSessionPath miss', rustPaths.parseSessionPath('chat_sessions/.json'), null],
-  ['parseSessionPath other', rustPaths.parseSessionPath('other/a.json'), null],
-  ['imagePath separators', rustPaths.imagePath('s', 'a/b', 'c\\d'), 'chat_sessions/s_files/a_b_c_d'],
-  ['imagePath reserved', rustPaths.imagePath('s', '..', ''), 'chat_sessions/s_files/unnamed_unnamed'],
-  ['imagePath NFC', rustPaths.imagePath('s', 'f', 'e\u0301.png'), 'chat_sessions/s_files/f_\u00e9.png'],
+/** The original implementation, as the oracle for both the TS and the Rust side. */
+const reference = (text) => {
+  if (!text) return 0
+  let wide = 0
+  let narrow = 0
+  for (const char of text) {
+    const code = char.codePointAt(0) ?? 0
+    if (code > 0x2e7f) {
+      wide += 1
+    } else {
+      narrow += 1
+    }
+  }
+  return Math.ceil(wide + narrow / 3.6)
+}
 
-  ['getFileExt lowercases', rustAttachments.getFileExt('A.PNG'), 'png'],
-  ['getFileExt dotless', rustAttachments.getFileExt('README'), ''],
-  ['getFileExt leading dot', rustAttachments.getFileExt('.gitignore'), ''],
-  ['getExtension uppercases', rustAttachments.getExtension('a.tar.gz'), 'GZ'],
-  ['isAcceptedExt yes', rustAttachments.isAcceptedExt('a.png'), true],
-  ['isAcceptedExt no', rustAttachments.isAcceptedExt('a.exe'), false],
-  ['getUploadPurpose layout', rustAttachments.getUploadPurpose('a.pdf', false), 'rich_layout_recognition'],
-  ['getUploadPurpose data', rustAttachments.getUploadPurpose('a.txt', false), 'user_data'],
-  // `null` is the real answer for an image here, which is why "not ready" is `undefined` instead.
-  ['getUploadPurpose image', rustAttachments.getUploadPurpose('a.png', true), null],
-  ['isImage yes', rustAttachments.isImage('image/png'), true],
-  ['isImage no', rustAttachments.isImage('text/plain'), false],
-  ['formatSize bytes', rustAttachments.formatSize(0), '0 B'],
-  ['formatSize KB', rustAttachments.formatSize(1024), '1.0 KB'],
-  ['formatSize KB frac', rustAttachments.formatSize(1536), '1.5 KB'],
-  ['formatSize MB', rustAttachments.formatSize(1048576), '1.0 MB'],
+const cjk = '重构是把一段代码换成另一种语言'.repeat(20) // wide chars, > 128 units
+const ascii = 'the quick brown fox jumps over the lazy dog '.repeat(10)
+const emoji = '😀'.repeat(80) // astral: 2 UTF-16 units each
+const samples = ['', 'a', 'hello world', ascii, cjk, emoji]
 
-  ['getRegionName unknown', rustLocation.getRegionName('ZZ', 'zh-CN'), ''],
-  ['getRegionName Intl', rustLocation.getRegionName('JP', 'en-US'), 'Japan'],
-  ['normalizeLocation non-CN', rustLocation.normalizeLocation({ region: 'JP' }), { region: 'JP' }],
-  ['normalizeLocation null', rustLocation.normalizeLocation(null), null],
-  ['normalizeLocation string', rustLocation.normalizeLocation('x'), null],
-  // A city without a province is rejected by the original.
-  ['normalizeLocation city alone', rustLocation.normalizeLocation({ region: 'CN', city: '1101' }), null],
-]
-
-// Primitives and `null` by identity; plain objects by their JSON shape.
-const same = (got, want) =>
-  Object.is(got, want) ||
-  (typeof got === 'object' && typeof want === 'object' && JSON.stringify(got) === JSON.stringify(want))
+const cases = []
+for (const sample of samples) {
+  cases.push([`estimateTokens(len=${sample.length})`, rustBudget.estimateTokens(sample), reference(sample)])
+}
+// Below the threshold the adapter still answers for long-enough strings only; the short ones are
+// served by TypeScript, and both must agree on the same value.
+cases.push(['below threshold returns 0 (empty)', rustBudget.estimateTokens(''), 0])
 
 let failed = 0
 for (const [name, got, want] of cases) {
-  const ok = same(got, want)
+  const ok = Object.is(got, want)
   if (!ok) failed += 1
   console.log(`${ok ? 'ok  ' : 'FAIL'} ${name}: ${JSON.stringify(got)}`)
 }
-console.log(failed === 0 ? `adapter: ${cases.length}/${cases.length} through the app adapters` : `adapter: ${failed} failed`)
+console.log(
+  failed === 0
+    ? `adapter: ${cases.length}/${cases.length} through the app adapters (zipReader + budget ready)`
+    : `adapter: ${failed} failed`,
+)
 process.exit(failed === 0 ? 0 : 1)

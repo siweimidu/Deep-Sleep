@@ -100,6 +100,7 @@ pnpm install
 每个单元都以「录制原版行为 → 移植 → diff 回放 → gate」证明行为等价，React 前端与视觉不变。
 
 - 现状与已完成单元：[docs/rust-migration/STATUS.md](docs/rust-migration/STATUS.md)
+- **性能实测：哪些单元真的更快**：[docs/rust-migration/PERFORMANCE.md](docs/rust-migration/PERFORMANCE.md)
 - 范围与取舍：[docs/rust-migration/DESIGN.md](docs/rust-migration/DESIGN.md)
 - 移植操作手册：[docs/rust-migration/HOW-TO-PORT-A-UNIT.md](docs/rust-migration/HOW-TO-PORT-A-UNIT.md)
 - 接入 WebView：[docs/rust-migration/ADOPTION.md](docs/rust-migration/ADOPTION.md)

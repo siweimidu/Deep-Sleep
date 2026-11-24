@@ -2,6 +2,7 @@ import type { ChatModel } from '../../api/types.js'
 import type { AssistantMessage, Message, UserMessage } from '../types.js'
 import { getContextRounds } from '../reply.js'
 import { buildReplyView } from '../view.js'
+import { rustBudget } from '../../../rust-core/budget.js'
 
 /**
  * 上下文预算
@@ -34,8 +35,15 @@ export const TARGET_RATIO = 0.36
 
 /** 粗略估算 token：中日韩字符约 1 字 1 token，拉丁文约 4 字符 1 token。 */
 export const estimateTokens = (text: string): number => {
+  // 先保持原实现的短路语义：空/未定义一律 0，不能先去读 `.length`（那会在 undefined 上抛错）。
   if (!text) {
     return 0
+  }
+  // 实测（rust/bench/budget.mjs）：≥128 个 UTF-16 单元时 Rust 快 1.2–1.8 倍；更短时边界成本反而
+  // 超过这段循环本身（16 单元时只有 0.64×），所以短文本直接用下面的原实现。
+  const rust = text.length >= 128 ? rustBudget.estimateTokens(text) : undefined
+  if (rust !== undefined) {
+    return rust
   }
   let wide = 0
   let narrow = 0
