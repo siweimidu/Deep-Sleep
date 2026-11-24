@@ -7,7 +7,7 @@
 ## 一句话结论
 
 DeepSleep 的**逻辑层已经用 Rust 重写，并且逐单元用 record/diff 证明了行为等价**：
-**13 个 crate、8643 条记录用例全部通过 `rust-anything gate`**（fmt / clippy -D warnings /
+**14 个 crate、9170 条记录用例全部通过 `rust-anything gate`**（fmt / clippy -D warnings /
 cargo test / build / api / behavior 全绿）。React 前端与视觉一行未改。
 
 ## 已移植并通过 gate 的 13 个单元
@@ -27,8 +27,9 @@ cargo test / build / api / behavior 全绿）。React 前端与视觉一行未�
 | `location-rs` | `services/location.ts` | 364/364 | 249 个地区表内嵌，精确码匹配 |
 | `view-rs` | `services/chat/view.ts` | 1403/1403 | 回复视图、检索合并、来源去重 |
 | `reply-rs` | `services/chat/reply.ts` | 1533/1533 | 事件应用、结算、上下文轮次 |
+| `budget-rs` | `services/chat/context/budget.ts` | 527/527 | token 估算（按码点）+ 上下文裁剪 |
 
-**合计 8643 条用例。** 复验一条命令：
+**合计 9170 条用例。** 复验一条命令：
 
 ```powershell
 Set-Location "D:\Code\重构\deepseek"
@@ -78,12 +79,16 @@ Get-ChildItem rust -Directory | Where-Object { Test-Path "$($_.FullName)\rust-an
    `branches-rs` 有同样情况。
 3. **本机无法出 APK。** 没有 Android SDK/NDK，Rust 的 android target 虽装但缺 NDK 链接器。
    交付到 wasm 产物 + 接入步骤（见 ADOPTION.md），没到安装包。
+4. **这些 crate 不能合并成单个 wasm 模块。** 每个 crate 都是生成的 cdylib，各自导出同名 wire
+   入口（`rustAnythingWireMemory` 等），两个一起链接会直接报
+   `the name rustAnythingWireMemory is exported by multiple crates in this build`。所以交付形态是
+   **每单元一个 wasm 模块、按需 `import()`**，不是一个大包。`budget-rs` 因此把 `reply.ts` /
+   `view.ts` 中它真正用到的那两小段在内部重新实现了一遍，而不是去依赖兄弟 crate。
 
 ## 还没做的
 
 - **没有接入任何调用点**：`src/` 一行未改，跑起来的仍全是原 TS。接入是开关式的，步骤已在
   ADOPTION.md 里验证过。
-- `services/chat/context/budget.ts`：唯一还在移植中的逻辑单元。
 - `src/i18n/**`：纯数据，但 `translate` 依赖 store，需要先改成显式 locale 参数。
 - `zipReader.ts`：需要先在 `src/` 抽出上面说的接缝，才能开始验证。
 - wasm 体积/首屏代价没在真机上测过。
