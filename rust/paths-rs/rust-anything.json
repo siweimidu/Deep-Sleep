@@ -1,0 +1,96 @@
+{
+  "schema": "rust-anything/bridge@1",
+  "root": "D:\\Code\\重构\\deepseek",
+  "unit": "src/services/chat/history/paths.ts",
+  "language": "ts",
+  "kind": "wasm",
+  "crate_name": "paths-rs",
+  "exports": [
+    {
+      "name": "sessionPath",
+      "file": "src/services/chat/history/paths.ts",
+      "line": 7,
+      "params": [
+        {
+          "name": "sessionId",
+          "ts_type": "string",
+          "optional": false,
+          "rest": false
+        }
+      ],
+      "returns": "unknown",
+      "is_async": false,
+      "is_generator": false,
+      "type_params": [],
+      "uses_instanceof": false
+    },
+    {
+      "name": "sessionFilesDir",
+      "file": "src/services/chat/history/paths.ts",
+      "line": 10,
+      "params": [
+        {
+          "name": "sessionId",
+          "ts_type": "string",
+          "optional": false,
+          "rest": false
+        }
+      ],
+      "returns": "unknown",
+      "is_async": false,
+      "is_generator": false,
+      "type_params": [],
+      "uses_instanceof": false
+    },
+    {
+      "name": "parseSessionPath",
+      "file": "src/services/chat/history/paths.ts",
+      "line": 13,
+      "params": [
+        {
+          "name": "path",
+          "ts_type": "string",
+          "optional": false,
+          "rest": false
+        }
+      ],
+      "returns": "string | null",
+      "is_async": false,
+      "is_generator": false,
+      "type_params": [],
+      "uses_instanceof": false
+    },
+    {
+      "name": "imagePath",
+      "file": "src/services/chat/history/paths.ts",
+      "line": 23,
+      "params": [
+        {
+          "name": "sessionId",
+          "ts_type": "string",
+          "optional": false,
+          "rest": false
+        },
+        {
+          "name": "fileId",
+          "ts_type": "string",
+          "optional": false,
+          "rest": false
+        },
+        {
+          "name": "fileName",
+          "ts_type": "string",
+          "optional": false,
+          "rest": false
+        }
+      ],
+      "returns": "unknown",
+      "is_async": false,
+      "is_generator": false,
+      "type_params": [],
+      "uses_instanceof": false
+    }
+  ],
+  "classes": [],
+  "js_only": []
+}

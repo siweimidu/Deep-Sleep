@@ -8,9 +8,9 @@
 | --- | --- | --- | --- |
 | W0 | `services/api/sse.ts`（ServerSentEventDecoder） | 136 | ✅ gate 通过，232/232 |
 | W1 | `services/api/parseEvent.ts` | 231 | ✅ gate 通过，83/83 |
-| W2 | `services/chat/history/schema.ts` | 263 | 待做 |
-| W2 | `services/chat/history/format.ts` | 208 | 待做 |
-| W2 | `services/chat/history/paths.ts` | — | 待做 |
+| W2 | `services/chat/history/schema.ts`（checkManifest, readSessionFile） | 263 | ✅ gate 通过，67/67 |
+| W2 | `services/chat/history/format.ts` | 208 | 类型定义，无需移植 |
+| W2 | `services/chat/history/paths.ts` | 24 | ✅ gate 通过，956/956 |
 | W2 | `services/chat/history/describe.ts` | — | 待做 |
 | W2 | `services/chat/history/normalize.ts` | — | 待做 |
 | W2 | `services/chat/history/toArchive.ts` | — | 待做 |

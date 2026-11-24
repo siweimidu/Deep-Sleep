@@ -1,0 +1,30 @@
+{
+  "schema": "rust-anything/bridge@1",
+  "root": "D:\\Code\\重构\\deepseek",
+  "unit": "src/services/chat/history/toLocal.ts",
+  "language": "ts",
+  "kind": "wasm",
+  "crate_name": "tolocal-rs",
+  "exports": [
+    {
+      "name": "toLocalSession",
+      "file": "src/services/chat/history/toLocal.ts",
+      "line": 282,
+      "params": [
+        {
+          "name": "file",
+          "ts_type": "({\n  id: string\n  title: string | null\n  pinned: boolean\n  /** 用户当前停留的消息，线性化消息树的唯一依据 */\n  current_message_id: number\n  inserted_at: string\n  updated_at: string\n  /** 消息树，分支靠 parent_id */\n  messages: ({\n  /** 会话内自增 */\n  id: number\n  /** null 表示该会话的第一条 */\n  parent_id: number | null\n  role: ('USER' | 'ASSISTANT')\n  status: (| 'WIP'\n  | 'FINISHED'\n  | 'CONTENT_FILTER'\n  | 'FAILED'\n  | 'INCOMPLETE'\n  | 'CONTEXT_LENGTH_EXCEEDED'\n  | 'TIMEOUT')\n  thinking_enabled: boolean\n  search_enabled: boolean\n  /** 沿分支累计的上下文 token */\n  accumulated_token_usage: number\n  inserted_at: string\n  /** 按发生顺序排列 */\n  fragments: (| { type: 'REQUEST'; content: string }\n  | { type: 'RESPONSE'; content: string }\n  | ({\n  type: 'THINK'\n  content: string\n  /** 思考耗时（秒） */\n  elapsed_secs: number | null\n})\n  | { type: 'TEMPLATE_RESPONSE'; content: string }\n  | { type: 'TIP'; content: string; style: TipStyle }\n  | { type: 'CONTENT_RISK'; content: string; style: TipStyle }\n  | {\n  type: 'PARTIAL_FILE_READ'\n  /** 截断后占原文的百分比，0–100 */\n  ratio: number\n}\n  | {\n  type: 'TOOL_SEARCH'\n  queries: string[]\n  results: SearchResult[]\n  /** 可选的搜索状态；FINISHED 允许空结果 */\n  status?: SearchStatus\n  /** 可选的模型推理轮次编号 */\n  stage_id?: number\n  /** 部分产物携带的分组标识，原样保留 */\n  group_id?: number\n}\n  | ({\n  type: 'TOOL_OPEN'\n  status: ToolOpenStatus\n  url: string | null\n  title: string | null\n  snippet?: string | null\n  site_name?: string | null\n  published_at: Iso8601Utc | null\n  stage_id?: number\n  group_id?: number\n})\n  | {\n  type: 'TOOL_FIND'\n  status: ToolFindStatus\n  pattern?: string\n  stage_id?: number\n  group_id?: number\n}\n  | { type: 'READ_LINK'; results: ReadLinkResult[] }\n  | { type: 'FILE'; files: FileEntry[] }\n  | {\n  type: 'TOOL_IMAGE_SEARCH'\n  status: ImageSearchStatus\n  image_indexes?: number[]\n  results: ImageSearchResult[]\n  stage_id?: number\n  group_id?: number\n})[]\n})[]\n})",
+          "optional": false,
+          "rest": false
+        }
+      ],
+      "returns": "{\n  session: ({\n  id: string\n  title: string\n  createdAt: number\n  updatedAt: number\n  /** 包含所有分支的消息，按创建顺序存储。 */\n  messages: (MessageBranch & {\n  id: string\n  role: 'user'\n  content: string\n  files: FileAttachment[]\n  createdAt: number\n} | (MessageBranch & {\n  id: string\n  role: 'assistant'\n  createdAt: number\n  /** 未记录模型时为 null，续写使用当前默认模型。 */\n  model: ChatModel | null\n  /** 请求时是否开启深度思考 */\n  thinking?: boolean\n  /** 请求时是否声明 deepseek_web_search；关闭时仍声明 deepseek_read_url */\n  search?: boolean\n  /** 本轮请求的系统信息快照；各回答版本独立保存，续写沿用。历史消息中缺省的快照保持为空。 */\n  latestReminder?: string\n  /** 是否允许作为续写前缀；仍需满足回复状态与内容限制。 */\n  prefix: boolean\n  status: ReplyStatus\n  /** 可识别的内容块按接收顺序排列；续写产生的块追加在已有块之后 */\n  blocks: ReplyBlock[]\n  stopReason?: StopReason\n  stopDetails?: StopDetails\n  /** 最近一次请求的用量，续写后更新 */\n  usage?: MessageUsage\n  error?: {\n    /** upload：发送前补传附件失败，请求没有发出 */\n    kind: ApiErrorKind | 'upload'\n    message: string\n    status?: number\n    localMessage?: TranslationMessage\n    /** 仅 upload：重新上传是否可能成功（网络、限流、服务端繁忙）；过大、格式不支持为 false */\n    retryable?: boolean\n  }\n}))[]\n  /** undefined 表示线性消息列表；null 表示空会话。 */\n  rootMessageId?: string | null\n  /** 上一轮的 token 用量（含缓存命中情况） */\n  contextUsage?: {\n  inputTokens: number\n  outputTokens: number\n  cacheReadTokens: number\n  cacheWriteTokens: number\n  updatedAt: number\n}\n  /** 开头存档，编译一次后冻结，保证长对话仍记得最初内容 */\n  anchor?: {\n  text: string\n  upTo: string\n  createdAt: number\n}\n  /** 事实账本：只追加，覆盖中段对话，裁剪也不会丢 */\n  memory?: {\n  index: number\n  fromRound: number\n  toRound: number\n  text: string\n  createdAt: number\n}[]\n})\n  /** 本会话目录下应存在的图片：ZIP 条目名 → 文件 ID */\n  images: Map<string, string>\n}",
+      "is_async": false,
+      "is_generator": false,
+      "type_params": [],
+      "uses_instanceof": false
+    }
+  ],
+  "classes": [],
+  "js_only": []
+}

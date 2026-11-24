@@ -1,0 +1,37 @@
+{
+  "schema": "rust-anything/bridge@1",
+  "root": "D:\\Code\\重构\\deepseek",
+  "unit": "src/services/chat/history/toArchive.ts",
+  "language": "ts",
+  "kind": "wasm",
+  "crate_name": "toarchive-rs",
+  "exports": [
+    {
+      "name": "toIndexEntry",
+      "file": "src/services/chat/history/toArchive.ts",
+      "line": 271,
+      "params": [
+        {
+          "name": "file",
+          "ts_type": "({\n  id: string\n  title: string | null\n  pinned: boolean\n  /** 用户当前停留的消息，线性化消息树的唯一依据 */\n  current_message_id: number\n  inserted_at: string\n  updated_at: string\n  /** 消息树，分支靠 parent_id */\n  messages: ({\n  /** 会话内自增 */\n  id: number\n  /** null 表示该会话的第一条 */\n  parent_id: number | null\n  role: ('USER' | 'ASSISTANT')\n  status: (| 'WIP'\n  | 'FINISHED'\n  | 'CONTENT_FILTER'\n  | 'FAILED'\n  | 'INCOMPLETE'\n  | 'CONTEXT_LENGTH_EXCEEDED'\n  | 'TIMEOUT')\n  thinking_enabled: boolean\n  search_enabled: boolean\n  /** 沿分支累计的上下文 token */\n  accumulated_token_usage: number\n  inserted_at: string\n  /** 按发生顺序排列 */\n  fragments: (| { type: 'REQUEST'; content: string }\n  | { type: 'RESPONSE'; content: string }\n  | ({\n  type: 'THINK'\n  content: string\n  /** 思考耗时（秒） */\n  elapsed_secs: number | null\n})\n  | { type: 'TEMPLATE_RESPONSE'; content: string }\n  | { type: 'TIP'; content: string; style: TipStyle }\n  | { type: 'CONTENT_RISK'; content: string; style: TipStyle }\n  | {\n  type: 'PARTIAL_FILE_READ'\n  /** 截断后占原文的百分比，0–100 */\n  ratio: number\n}\n  | {\n  type: 'TOOL_SEARCH'\n  queries: string[]\n  results: SearchResult[]\n  /** 可选的搜索状态；FINISHED 允许空结果 */\n  status?: SearchStatus\n  /** 可选的模型推理轮次编号 */\n  stage_id?: number\n  /** 部分产物携带的分组标识，原样保留 */\n  group_id?: number\n}\n  | ({\n  type: 'TOOL_OPEN'\n  status: ToolOpenStatus\n  url: string | null\n  title: string | null\n  snippet?: string | null\n  site_name?: string | null\n  published_at: Iso8601Utc | null\n  stage_id?: number\n  group_id?: number\n})\n  | {\n  type: 'TOOL_FIND'\n  status: ToolFindStatus\n  pattern?: string\n  stage_id?: number\n  group_id?: number\n}\n  | { type: 'READ_LINK'; results: ReadLinkResult[] }\n  | { type: 'FILE'; files: FileEntry[] }\n  | {\n  type: 'TOOL_IMAGE_SEARCH'\n  status: ImageSearchStatus\n  image_indexes?: number[]\n  results: ImageSearchResult[]\n  stage_id?: number\n  group_id?: number\n})[]\n})[]\n})",
+          "optional": false,
+          "rest": false
+        }
+      ],
+      "returns": "({\n  id: string\n  title: string | null\n  pinned: boolean\n  message_count: number\n  inserted_at: string\n  updated_at: string\n})",
+      "is_async": false,
+      "is_generator": false,
+      "type_params": [],
+      "uses_instanceof": false
+    }
+  ],
+  "classes": [],
+  "js_only": [
+    {
+      "name": "toSessionFile",
+      "file": "src/services/chat/history/toArchive.ts",
+      "line": 229,
+      "reason": "takes or returns a function"
+    }
+  ]
+}
