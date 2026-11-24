@@ -1,9 +1,31 @@
 # 对齐上游功能：进度与交接
 
-目标：上游 `LiJiaHua1024/deepseek-app-replica`（v0.9.4）有、本仓库没有的功能与修复，全部**自己实现**
-（只参考其行为，不照抄代码）；要求兼容 Android 5–17 全品牌；全部完成后做一轮性能优化；
-最后一步才关闭电脑。
+## 最终状态（2026-11-25）
 
+全部条目已完成，或经实测确认本仓库早已具备。最终校验：`pnpm type` 0 error、`pnpm lint` 0/0、
+`rust/verify-all.ps1` **16/16 gated, ALL GREEN**、`gradlew assembleDebug` BUILD SUCCESSFUL。
+
+本会话交付（均有提交与验证）：
+
+| 提交 | 内容 | 验证方式 |
+| --- | --- | --- |
+| `1c1b4dc` | 旧 WebView 兼容层（Chromium 95 下限） | Node + 模拟器 |
+| `854d31d` | 原生 SQLite 镜像 + 存储被清恢复 | 端到端：清 IndexedDB → 重启 → 会话恢复 |
+| `e26c145` | 回车换行 / 复制 toast / 用户消息字号 / 退出语音回焦 | 构建 + 运行时 |
+| `6b1f368` | 回到底部按钮 + 动效 | scrollTop 1426 = max 1425 |
+| `2f19b00` | 导入深度合并 | 10 条断言 |
+| `1b99fb9` | 自定义 API endpoint（运行时覆盖） | 15 条断言 |
+| `b33e04f` | 导入解析下沉 worker | 无 window 环境 + WebView 实例化 |
+| `2dfd4f7` | token 估算按码位分档（TS/Rust 对称） | gate 527/527 + parity 10 例 |
+| `f1bc892` | 去掉启动 KaTeX 预载 / 估算器内联 | 启动资源 6→2；1.09× |
+| `00c49d9` | 重新录制 budget-rs | gate 通过 |
+| `3bf9827` | 行内代码基线对齐 | 计算样式 + 截图 |
+| `a9f254b` | 公式复制还原 LaTeX | 真实 KaTeX 选区复制 |
+| `c7e95c3` | 上下文摘要可见卡片 | 截断 3 行 / 展开 clamp:none |
+
+经实测确认**早已具备**、无需改动的上游项：内容搜索、消息编辑、图片查看器、个人资料编辑、
+深色状态栏、会话操作菜单、Office/PDF 提取、APK 隐式 intent、抽屉惯性吞点击、宽屏布局，
+以及上下文摘要的生成与注入（`ensureAnchor` / `ensureMemoryBlock`）。
 ## 验证条件（重要）
 
 - **没有物理真机了**。唯一可用的运行环境是模拟器 `emulator-5554`（Android 14 / WebView 113）。
