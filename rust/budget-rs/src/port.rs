@@ -19,10 +19,6 @@ const TRIGGER_RATIO: f64 = 0.75;
 const TARGET_RATIO: f64 = 0.36;
 /// Flat cost of one attachment (`FILE_TOKENS`).
 const FILE_TOKENS: f64 = 900.0;
-/// Code points above this are full width and cost one token each (`WIDE_CODE_POINT`).
-const WIDE_CODE_POINT: u32 = 0x2e7f;
-/// Narrow code points that buy one token (`NARROW_PER_TOKEN`).
-const NARROW_PER_TOKEN: f64 = 3.6;
 
 /// Port of `estimateTokens` (`src/services/chat/context/budget.ts:35`).
 ///
@@ -31,16 +27,34 @@ pub fn estimate_tokens(text: String) -> Result<f64, String> {
     if text.is_empty() {
         return Ok(0.0);
     }
-    let mut wide = 0.0_f64;
-    let mut narrow = 0.0_f64;
-    for character in text.chars() {
-        if character as u32 > WIDE_CODE_POINT {
-            wide += 1.0;
-        } else {
-            narrow += 1.0;
+    // 与 budget.ts 的分档权重逐位对应：任一侧改动都必须同步，否则 gate 的 behavior 检查会失败
+    fn weight_of(code: u32) -> f64 {
+        if code >= 0x1f000 {
+            return 2.0;
         }
+        if code >= 0x10000 {
+            return 1.2;
+        }
+        if code >= 0x2e80 {
+            return 1.0;
+        }
+        if code <= 0x7f {
+            let alnum = (0x30..=0x39).contains(&code)
+                || (0x41..=0x5a).contains(&code)
+                || (0x61..=0x7a).contains(&code);
+            let blank = matches!(code, 0x20 | 0x09 | 0x0a | 0x0d);
+            return if alnum || blank { 0.25 } else { 0.4 };
+        }
+        if code <= 0x3ff {
+            return 0.5;
+        }
+        0.34
     }
-    Ok((wide + narrow / NARROW_PER_TOKEN).ceil())
+    let mut total = 0.0_f64;
+    for character in text.chars() {
+        total += weight_of(character as u32);
+    }
+    Ok(total.ceil())
 }
 
 /// `MODEL_WINDOWS` (`budget.ts:15`) with the same `?? 128_000` fallback for an unknown model.

@@ -27,19 +27,25 @@ while (!isRustBudgetReady() || !isRustZipReaderReady()) {
 }
 
 /** The original implementation, as the oracle for both the TS and the Rust side. */
+// 独立镜像 budget.ts 的分档权重（故意不复用实现，这样它能当 oracle）。
+// 改公式时这里必须同步；scripts/test-budget-parity.mjs 负责 TS↔wasm 的一致，
+// 两者一起才能保证「适配层接对了」且「两边公式没漂」。
 const reference = (text) => {
   if (!text) return 0
-  let wide = 0
-  let narrow = 0
-  for (const char of text) {
-    const code = char.codePointAt(0) ?? 0
-    if (code > 0x2e7f) {
-      wide += 1
-    } else {
-      narrow += 1
+  const weightOf = (code) => {
+    if (code >= 0x1f000) return 2
+    if (code >= 0x10000) return 1.2
+    if (code >= 0x2e80) return 1
+    if (code <= 0x7f) {
+      const alnum = (code >= 0x30 && code <= 0x39) || (code >= 0x41 && code <= 0x5a) || (code >= 0x61 && code <= 0x7a)
+      const blank = code === 0x20 || code === 0x09 || code === 0x0a || code === 0x0d
+      return alnum || blank ? 0.25 : 0.4
     }
+    return code <= 0x3ff ? 0.5 : 0.34
   }
-  return Math.ceil(wide + narrow / 3.6)
+  let total = 0
+  for (const char of text) total += weightOf(char.codePointAt(0) ?? 0)
+  return Math.ceil(total)
 }
 
 const cjk = '重构是把一段代码换成另一种语言'.repeat(20) // wide chars, > 128 units

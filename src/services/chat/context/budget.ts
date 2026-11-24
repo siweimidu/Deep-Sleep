@@ -46,17 +46,37 @@ export const estimateTokens = (text: string): number => {
   if (rust !== undefined) {
     return rust
   }
-  let wide = 0
-  let narrow = 0
-  for (const char of text) {
-    const code = char.codePointAt(0) ?? 0
-    if (code > 0x2e7f) {
-      wide += 1
-    } else {
-      narrow += 1
+  // 按码位分档估算：不同文字的分词密度差得很远，用一个统一除数（原来是窄字符/3.6）会同时
+  // 高估标点密集的代码、低估 emoji。权重取常见分词器的经验值：
+  //   ASCII 字母/数字/空白 0.25（约 4 字符/token，英文常态）
+  //   ASCII 标点/符号      0.4 （代码与标点明显更费 token）
+  //   Latin-1/希腊/西里尔  0.5
+  //   CJK/假名/谚文/全角   1.0
+  //   增补平面罕见字       1.2
+  //   emoji 等象形         2.0 （原来按 1 算，是明确的低估）
+  const weightOf = (code: number): number => {
+    if (code >= 0x1f000) {
+      return 2
     }
+    if (code >= 0x10000) {
+      return 1.2
+    }
+    if (code >= 0x2e80) {
+      return 1
+    }
+    if (code <= 0x7f) {
+      const alnum =
+        (code >= 0x30 && code <= 0x39) || (code >= 0x41 && code <= 0x5a) || (code >= 0x61 && code <= 0x7a)
+      const blank = code === 0x20 || code === 0x09 || code === 0x0a || code === 0x0d
+      return alnum || blank ? 0.25 : 0.4
+    }
+    return code <= 0x3ff ? 0.5 : 0.34
   }
-  return Math.ceil(wide + narrow / 3.6)
+  let total = 0
+  for (const char of text) {
+    total += weightOf(char.codePointAt(0) ?? 0)
+  }
+  return Math.ceil(total)
 }
 
 /** 附件按固定预算估算，避免为一两个图片反复解析 */
