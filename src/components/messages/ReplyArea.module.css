@@ -80,6 +80,14 @@
 }
 
 [data-android] .shimmer {
+  /* 旧内核（< Chrome 111）不认识 color-mix，先用中性灰顶替中间色，避免渐变整条失效 */
+  background: linear-gradient(
+      90deg,
+      var(--android-thinking-text) 34%,
+      rgba(127, 127, 127, 0.5) 50%,
+      var(--android-thinking-text) 66%
+    )
+    100% 0 / 400% 100%;
   background: linear-gradient(
       90deg,
       var(--android-thinking-text) 34%,

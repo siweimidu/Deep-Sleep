@@ -6,7 +6,10 @@ import { rspack, type Configuration } from '@rspack/core'
 
 const dev = process.env.NODE_ENV === 'development' || process.argv.includes('serve')
 // Android 11 ships with an older WebView that can be updated independently of the OS.
-const targets = ['chrome >= 83', 'edge >= 105', 'safari >= 16', 'firefox >= 110']
+// 兼容基线：Chromium 66 ≈ Android 9 及更早机型的 WebView 下限。
+// 降到这个目标后 lightningcss 会自动降级 :is() / color-mix() / dvh 等新语法，
+// swc 也会按 targets 注入 core-js 补丁——比逐个文件手写回退更不容易漏。
+const targets = ['chrome >= 66', 'edge >= 79', 'safari >= 12', 'firefox >= 60']
 const root = path.dirname(fileURLToPath(import.meta.url))
 const { version } = JSON.parse(
   readFileSync(new URL('./package.json', import.meta.url), 'utf8')

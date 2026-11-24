@@ -2,6 +2,7 @@
   position: fixed;
   z-index: 23;
   inset: auto 0 0;
+  height: min(340px, 46vh);
   height: min(340px, 46dvh);
   isolation: isolate;
   overflow: hidden;

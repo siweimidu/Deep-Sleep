@@ -69,6 +69,8 @@
 }
 
 [data-android] .caveat {
+  /* 旧内核降级：用中性灰代替 color-mix 的两色混合 */
+  color: rgba(127, 127, 127, 0.65);
   color: color-mix(in srgb, var(--dsw-alias-label-tertiary) 26%, var(--dsw-alias-bg-base));
 }
 

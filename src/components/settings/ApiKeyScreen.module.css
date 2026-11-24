@@ -3,6 +3,7 @@
   align-items: safe center;
   justify-content: center;
   box-sizing: border-box;
+  height: 100vh;
   height: 100dvh;
   overflow: auto;
   padding: 24px;

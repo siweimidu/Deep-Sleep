@@ -46,6 +46,7 @@
   height: 4px;
   margin: 4px auto 18px;
   border-radius: 999px;
+  background: rgba(127, 127, 127, 0.24);
   background: color-mix(in srgb, var(--dsw-alias-label-primary) 24%, transparent);
 }
 
@@ -79,6 +80,7 @@
   display: flex;
   flex-shrink: 0;
   margin-top: 2px;
+  color: rgba(127, 127, 127, 0.52);
   color: color-mix(in srgb, var(--dsw-alias-label-primary) 52%, transparent);
 }
 
@@ -93,6 +95,7 @@
 .rowLabel {
   font-size: 13.5px;
   line-height: 19px;
+  color: rgba(127, 127, 127, 0.52);
   color: color-mix(in srgb, var(--dsw-alias-label-primary) 52%, transparent);
 }
 
@@ -120,6 +123,7 @@
   border: 0;
   border-radius: 50%;
   background: transparent;
+  color: rgba(127, 127, 127, 0.58);
   color: color-mix(in srgb, var(--dsw-alias-label-primary) 58%, transparent);
   cursor: pointer;
   transition: transform var(--motion-press);

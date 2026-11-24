@@ -362,6 +362,7 @@ a.row:active,
   display: flex;
   flex-direction: column;
   width: 100%;
+  height: min(690px, 70vh);
   height: min(690px, 70dvh);
   border-radius: 21px 21px 0 0;
   background: var(--settings-card);
@@ -552,6 +553,7 @@ a.row:active,
   transition: background-color 150ms ease-out;
 
   &:active {
+    background: rgba(127, 127, 127, 0.12);
     background: color-mix(in srgb, var(--settings-muted) 12%, transparent);
   }
 }
@@ -564,6 +566,7 @@ a.row:active,
   height: 50px;
   border-radius: 50%;
   overflow: hidden;
+  background: rgba(127, 127, 127, 0.22);
   background: color-mix(in srgb, var(--settings-muted) 22%, transparent);
   color: var(--settings-muted);
 
@@ -633,6 +636,7 @@ a.row:active,
 .importTrack {
   height: 4px;
   border-radius: 999px;
+  background: rgba(127, 127, 127, 0.26);
   background: color-mix(in srgb, var(--settings-muted) 26%, transparent);
   overflow: hidden;
 

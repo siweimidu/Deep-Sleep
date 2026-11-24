@@ -45,7 +45,9 @@
 /* 搜索命中的消息：短暂高亮，2s 后淡出 */
 .flash {
   border-radius: 14px;
+  background: rgba(127, 127, 127, 0.2);
   background: color-mix(in srgb, #4d6bfe 20%, transparent);
+  box-shadow: 0 0 0 2px rgba(127, 127, 127, 0.7);
   box-shadow: 0 0 0 2px color-mix(in srgb, #4d6bfe 70%, transparent);
   transition:
     background-color 600ms ease-out,
