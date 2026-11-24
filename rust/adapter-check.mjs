@@ -20,10 +20,13 @@ globalThis.fetch = async (input, init) => {
 
 const { rustPaths } = await import(new URL('src/rust-core/paths.ts', repo).href)
 const { rustAttachments } = await import(new URL('src/rust-core/attachments.ts', repo).href)
+const { rustLocation } = await import(new URL('src/rust-core/location.ts', repo).href)
 
 // Both adapters load in the background; wait until each reports ready.
 const ready = () =>
-  rustPaths.parseSessionPath('probe') !== undefined && rustAttachments.getFileExt('probe') !== undefined
+  rustPaths.parseSessionPath('probe') !== undefined &&
+  rustAttachments.getFileExt('probe') !== undefined &&
+  rustLocation.getRegionName('probe', 'zh-CN') !== undefined
 const deadline = Date.now() + 20000
 while (!ready()) {
   if (Date.now() > deadline) throw new Error('adapter never became ready: init/fetch failed')
@@ -57,11 +60,24 @@ const cases = [
   ['formatSize KB', rustAttachments.formatSize(1024), '1.0 KB'],
   ['formatSize KB frac', rustAttachments.formatSize(1536), '1.5 KB'],
   ['formatSize MB', rustAttachments.formatSize(1048576), '1.0 MB'],
+
+  ['getRegionName unknown', rustLocation.getRegionName('ZZ', 'zh-CN'), ''],
+  ['getRegionName Intl', rustLocation.getRegionName('JP', 'en-US'), 'Japan'],
+  ['normalizeLocation non-CN', rustLocation.normalizeLocation({ region: 'JP' }), { region: 'JP' }],
+  ['normalizeLocation null', rustLocation.normalizeLocation(null), null],
+  ['normalizeLocation string', rustLocation.normalizeLocation('x'), null],
+  // A city without a province is rejected by the original.
+  ['normalizeLocation city alone', rustLocation.normalizeLocation({ region: 'CN', city: '1101' }), null],
 ]
+
+// Primitives and `null` by identity; plain objects by their JSON shape.
+const same = (got, want) =>
+  Object.is(got, want) ||
+  (typeof got === 'object' && typeof want === 'object' && JSON.stringify(got) === JSON.stringify(want))
 
 let failed = 0
 for (const [name, got, want] of cases) {
-  const ok = Object.is(got, want)
+  const ok = same(got, want)
   if (!ok) failed += 1
   console.log(`${ok ? 'ok  ' : 'FAIL'} ${name}: ${JSON.stringify(got)}`)
 }

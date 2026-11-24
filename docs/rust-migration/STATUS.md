@@ -61,6 +61,7 @@ Get-ChildItem rust -Directory | Where-Object { Test-Path "$($_.FullName)\rust-an
 | --- | --- | --- |
 | `services/chat/history/paths.ts` | `src/rust-core/paths.ts` | `sessionPath`、`sessionFilesDir`、`parseSessionPath`、`imagePath` |
 | `services/attachments.ts` | `src/rust-core/attachments.ts` | `getFileExt`、`isAcceptedExt`、`getUploadPurpose`、`isImage`、`getExtension`、`formatSize` |
+| `services/location.ts` | `src/rust-core/location.ts` | `getRegionName`、`normalizeLocation` |
 
 约定：适配层模块加载时自动初始化（不阻塞首屏），**拿不到 wasm 就返回 `null`/`undefined` 让调用方走
 原 TS 实现**，所以接入不会成为新的失败源。`undefined` 专门表示"未就绪"，因为 `null` 本身是
