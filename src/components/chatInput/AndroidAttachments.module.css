@@ -19,8 +19,11 @@
 }
 
 .recent {
+  --recent-gap: 5px;
   display: flex;
-  gap: 5px;
+  /* 关键：不拉伸。否则 flex 会把按钮拉到整行高，aspect-ratio 失效、图片只贴在一角。 */
+  align-items: flex-start;
+  gap: var(--recent-gap);
   padding: 16px 16px 0;
   overflow-x: auto;
   scrollbar-width: none;
@@ -28,8 +31,14 @@
 
 .recent button {
   position: relative;
-  flex: 0 0 48px;
-  height: 48px;
+  /* 可见 4.5 条：4 条整加半条露出，既给足缩略图尺寸，也提示可以横滑。
+     原来的定宽 48px 在 360 宽的屏上会挤到 6 条多，缩略图偏小。
+     宽高都用同一个公式显式算：只写 aspect-ratio 时，height:auto 会让 img 的
+     height:100% 回退成内容高度，缩略图就贴在一角了。
+     52px = 左右内边距 16*2 + 4 个间隙 5px。 */
+  width: calc((100vw - 52px) / 4.5);
+  height: calc((100vw - 52px) / 4.5);
+  flex: 0 0 auto;
   overflow: hidden;
   border: 0;
   border-radius: 12px;

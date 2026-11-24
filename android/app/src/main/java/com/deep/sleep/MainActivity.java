@@ -54,6 +54,16 @@ public final class MainActivity extends Activity {
     private float swipeDownX;
     private float swipeDownY;
     private boolean swipeTracking;
+    /** 由网页在 touchstart 时同步写入：本次手势起手在横向滚动容器里，原生别抢。 */
+    private volatile boolean swipeBlocked;
+
+    /** 网页 → 原生的手势协商通道（同步生效，见 useDrawerSwipe.ts）。 */
+    public final class GestureBridge {
+        @JavascriptInterface
+        public void setSwipeBlocked(boolean blocked) {
+            swipeBlocked = blocked;
+        }
+    }
     private static final float SWIPE_DP = 24f;
     private static final float SWIPE_RATIO = 1.2f;
 
@@ -86,6 +96,10 @@ public final class MainActivity extends Activity {
                 swipeDownX = event.getX();
                 swipeDownY = event.getY();
                 swipeTracking = true;
+                // 每次按下都确保 WebView 持有焦点，否则输入法可能不弹（见上面 setFocusable 的说明）。
+                if (webView != null && !webView.hasFocus()) {
+                    webView.requestFocus();
+                }
                 break;
             case MotionEvent.ACTION_UP:
                 if (swipeTracking) {
@@ -104,6 +118,11 @@ public final class MainActivity extends Activity {
 
     /** 横滑超过 24dp 且明显偏横向时通知网页：left = 打开侧边栏，right = 回到对话 */
     private void dispatchSwipeIfHorizontal(float upX, float upY) {
+        // 网页在 touchstart 时判定"这次起手是否落在可横向滚动的容器里"，并通过 DshGesture 同步写回来。
+        // 是的话这里必须让路，否则图片条/代码块永远滑不动，会变成"一滑就出侧边栏"。
+        if (swipeBlocked) {
+            return;
+        }
         final float dx = upX - swipeDownX;
         final float dy = upY - swipeDownY;
         final float minPx = SWIPE_DP * getResources().getDisplayMetrics().density;
@@ -134,6 +153,10 @@ public final class MainActivity extends Activity {
             WebView.setWebContentsDebuggingEnabled(true);
         }
         webView = new WebView(this);
+        // 必须能自己拿焦点：不少 ROM（尤其 ColorOS 这类）在 WebView 没有 View 级焦点时，
+        // 点击页内输入框不会弹输入法。
+        webView.setFocusable(true);
+        webView.setFocusableInTouchMode(true);
         frame.addView(webView, new FrameLayout.LayoutParams(-1, -1));
         frame.setOnApplyWindowInsetsListener((view, insets) -> {
             Insets safe = insets.getInsets(WindowInsets.Type.systemBars()
@@ -151,7 +174,9 @@ public final class MainActivity extends Activity {
                 webView.evaluateJavascript("document.documentElement?.toggleAttribute("
                     + "'data-keyboard', " + ime + ")", null);
             }
-            return WindowInsets.CONSUMED;
+            // 返回 insets 而不是 CONSUMED：Android 15 强制 edge-to-edge，把 insets 全吃掉会让
+            // 输入法/系统栏的分发断在这里（表现为点输入框不弹键盘）。留白我们自己按 safe 算，不影响布局。
+            return insets;
         });
         setContentView(frame);
         // 真正铺满屏幕：内容画到系统状态栏/导航栏下面，留白由页面按 --android-status-inset 处理
@@ -174,7 +199,11 @@ public final class MainActivity extends Activity {
         webView.setWebChromeClient(new DeviceFeatures());
         webView.addJavascriptInterface(new DeviceBridge(), "DeepSeekAndroid");
         registerBackCallback();
-        webView.loadUrl(HOME);
+        webView.addJavascriptInterface(new GestureBridge(), "DshGesture");
+        // 只有可调试的包才带 ?diag=1，页面据此才暴露设备验证用的钩子（见 src/rust-core/diagnostics.ts）。
+        // release 包不带，页面上不会多出任何入口。
+        webView.loadUrl(HOME
+            + (((getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0) ? "?diag=1" : ""));
     }
 
     @Override

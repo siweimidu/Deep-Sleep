@@ -17,12 +17,17 @@ export default defineConfig({
   mode: 'production',
   target: 'webworker',
   devtool: false,
-  entry: './src/services/markdown/parse.worker.ts',
+  entry: {
+    'parse-worker': './src/services/markdown/parse.worker.ts',
+    // 解压 worker 也必须单独打出来：主配置里的 new Worker(new URL(...)) 在本项目不产出脚本，
+    // 页面拿到的是 404，于是任何 DEFLATE 归档（含官方导出的 zip）都会导入失败。
+    'inflate-worker': './src/services/chat/history/inflate.worker.ts',
+  },
   output: {
     // 不能 clean：主配置刚把整个 dist 产出来
     clean: false,
     path: path.resolve(root, 'dist/static/js'),
-    filename: 'parse-worker.js',
+    filename: '[name].js',
     chunkFormat: 'commonjs',
   },
   resolve: {

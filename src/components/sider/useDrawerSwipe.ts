@@ -44,6 +44,8 @@ type Drag = {
   y: number
   width: number
   opened: boolean
+  /** 起点落在可横向滚动的容器里：横滑属于滚动，不该抢来开抽屉。 */
+  blocked: boolean
   axis: false | 'opening' | 'closing'
   progress: number
   lastX: number
@@ -124,13 +126,37 @@ export const useDrawerSwipe = (frameRef: { current: HTMLElement | null }) => {
       }))
     }
 
-    const begin = (x: number, y: number) => {
+    /**
+     * 起点是否落在可横向滚动的容器里（图片条、代码块、设置里的横向列表）。
+     * 这种地方横滑是滚动，抽屉不该抢——否则用户永远滑不动那一行。
+     */
+    const inHorizontalScroller = (target: EventTarget | null): boolean => {
+      let node = target instanceof Element ? target : null
+      while (node) {
+        if (node instanceof HTMLElement && node.scrollWidth > node.clientWidth + 1) {
+          const overflowX = getComputedStyle(node).overflowX
+          if (overflowX === 'auto' || overflowX === 'scroll') {
+            return true
+          }
+        }
+        node = node.parentElement
+      }
+      return false
+    }
+
+    const begin = (x: number, y: number, target: EventTarget | null) => {
       const opened = useMobileSider.getState().open
+      const blocked = inHorizontalScroller(target)
+      // 同步告诉原生层同一个判断：否则 Java 的 dispatchTouchEvent 仍会把这次横滑当成开抽屉。
+      const bridge = (window as unknown as { DshGesture?: { setSwipeBlocked?: (v: boolean) => void } })
+        .DshGesture
+      bridge?.setSwipeBlocked?.(blocked)
       drag.current = {
         x,
         y,
         width: drawerWidth(),
         opened,
+        blocked,
         axis: false,
         progress: opened ? 1 : 0,
         lastX: x,
@@ -151,6 +177,12 @@ export const useDrawerSwipe = (frameRef: { current: HTMLElement | null }) => {
 
       if (!state.axis) {
         if (Math.abs(dx) < SLOP && Math.abs(dy) < SLOP) {
+          return false
+        }
+        // 起手落在横向滚动容器里：横滑是滚动，放行给页面。
+        if (state.blocked) {
+          drag.current = null
+          useSwipeDebug.setState({ last: '横向滚动 → 放行' })
           return false
         }
         if (Math.abs(dx) <= Math.abs(dy) * RATIO) {
@@ -233,7 +265,7 @@ export const useDrawerSwipe = (frameRef: { current: HTMLElement | null }) => {
       ) {
         return
       }
-      begin(touch.clientX, touch.clientY)
+      begin(touch.clientX, touch.clientY, event.target)
     }
 
     const onTouchMove = (event: TouchEvent) => {
@@ -264,7 +296,7 @@ export const useDrawerSwipe = (frameRef: { current: HTMLElement | null }) => {
         return
       }
       if (!drag.current) {
-        begin(event.clientX, event.clientY)
+        begin(event.clientX, event.clientY, event.target)
       }
     }
     const onPointerMove = (event: PointerEvent) => {

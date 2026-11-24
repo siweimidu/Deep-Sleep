@@ -224,7 +224,8 @@ export const Sider = ({ mobile = false }: { mobile?: boolean }) => {
         </>
       )}
       <div className={styles.listWrap}>
-        {androidDrawer && !selecting ? (
+        {/* 没有会话时"多选"没有意义，不显示（否则空抽屉里会挂一个点了没反应的按钮）。 */}
+        {androidDrawer && !selecting && sessions.length > 0 ? (
           <IconButton
             className={styles.selectChats}
             icon={

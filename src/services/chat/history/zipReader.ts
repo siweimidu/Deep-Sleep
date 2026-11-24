@@ -1,6 +1,7 @@
 import { inflateInWorker } from './inflateWorker.js'
 import { blobSource, type ByteSource } from './source.js'
 import { rustZipReader } from '../../../rust-core/zipReader.js'
+import { diagnosticsEnabled } from '../../../rust-core/diagnostics.js'
 
 // 文件读取与解压的分块：一次读 1 MiB，解压时同样按 1 MiB 喂给 fflate。
 // 早先 8 KiB 的粒度会把一次导入切成上千次 async 往返，是导入缓慢的主因。
@@ -388,7 +389,10 @@ export const parseArchiveBase64InTypeScript = async (base64: string): Promise<Pa
   const data = Uint8Array.from(binary, (char: string) => char.charCodeAt(0))
   const source: ByteSource = {
     size: data.length,
-    read: async (start, length) => data.subarray(start, start + length),
+    // 必须是拷贝而不是 subarray：DEFLATE 条目会把拿到的 buffer transfer 给解压 worker，
+    // 如果给的是共享视图，整个底 buffer 会被 detach，后续读取直接报
+    // "Cannot perform Construct on a detached ArrayBuffer"（STORE 条目不 inflate，所以看不出来）。
+    read: async (start, length) => data.slice(start, start + length),
   }
   const readBytes = createReader(source)
   const directory = await readDirectory(source, readBytes)
@@ -422,8 +426,8 @@ export const parseArchiveBase64 = async (base64: string): Promise<ParsedArchive>
   (await rustZipReader.parseArchiveBase64(base64)) ?? parseArchiveBase64InTypeScript(base64)
 
 // 诊断钩子：设备上用 CDP 对同一份归档对比 Rust 与 TS 两条路径（见 rust/cdp-archive.mjs）。
-// 只挂两个纯函数，不发起任何网络请求；模块本身是按需加载的，页面不会因此多拉任何东西。
-if (typeof window !== 'undefined') {
+// 只在 debug 包 + ?diag=1 时启用，release 页面不会多出任何入口。
+if (diagnosticsEnabled()) {
   const scope = window as unknown as {
     __deepseekArchive?: {
       viaRust: (base64: string) => Promise<ParsedArchive | undefined>

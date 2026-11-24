@@ -9,12 +9,13 @@
  * `estimateTokens` 返回 `f64`，浏览器胶水直接给 JS number，没有 JSON 文本那一层。
  */
 import init, { estimateTokens as rustEstimateTokens } from './pkg/budget_rs.js'
+import { diagnosticsEnabled } from './diagnostics.js'
 
 let ready = false
 
-/** 诊断用，见 zipReader.ts 里同名函数。 */
+/** 诊断用，见 zipReader.ts 里同名函数；release 包不会启用。 */
 const publish = (value: boolean, error?: string): void => {
-  if (typeof window === 'undefined') {
+  if (!diagnosticsEnabled()) {
     return
   }
   const scope = window as unknown as { __deepseekRust?: Record<string, unknown> }
@@ -46,8 +47,8 @@ export const rustBudget = {
 }
 
 // 诊断：把 Rust 侧的 estimateTokens 挂出来，设备上用 CDP 与 TS 实现对比（rust/cdp-budget.mjs）。
-// 只挂一个纯函数，不发起请求；`publish` 会保留这个键。
-if (typeof window !== 'undefined') {
+// 只在 debug 包 + ?diag=1 时启用。
+if (diagnosticsEnabled()) {
   const scope = window as unknown as { __deepseekRust?: Record<string, unknown> }
   scope.__deepseekRust = { ...scope.__deepseekRust, estimateTokensRust: rustBudget.estimateTokens }
 }

@@ -9,6 +9,7 @@
  * 由它抛出 `ArchiveError` —— 这样"解不出来的归档报什么错、报什么类型"完全不变。
  */
 import init, { parseArchiveBase64 as rustParseArchiveBase64 } from './pkg/zipreader_rs.js'
+import { diagnosticsEnabled } from './diagnostics.js'
 
 export type RustParsedArchiveEntry = {
   path: string
@@ -30,7 +31,7 @@ let ready = false
  * 这是设备验证唯一可靠的信号（Node 环境没有 window，直接跳过）。
  */
 const publish = (value: boolean): void => {
-  if (typeof window === 'undefined') {
+  if (!diagnosticsEnabled()) {
     return
   }
   const scope = window as unknown as { __deepseekRust?: Record<string, boolean> }

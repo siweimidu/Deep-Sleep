@@ -34,7 +34,7 @@ if ($LASTEXITCODE -ne 0) { $failed += 'web-parity' }
 
 Write-Output ''
 Write-Output '=== 3. app adapters ==='
-node (Join-Path $repo 'rust/adapter-check.mjs')
+node --experimental-transform-types --no-warnings --import ./rust/register-ts.mjs (Join-Path $repo 'rust/adapter-check.mjs')
 if ($LASTEXITCODE -ne 0) { $failed += 'adapter-check' }
 
 Write-Output ''

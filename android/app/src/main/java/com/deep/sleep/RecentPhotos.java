@@ -44,7 +44,9 @@ final class RecentPhotos {
                 photos = Map.of();
                 return "[]";
             }
-            while (result.length() < 20 && !Thread.currentThread().isInterrupted() && rows.moveToNext()) {
+            // 只取最近这么几张：相册条一屏可见 4.5 条（见 AndroidAttachments.module.css），
+        // 取 8 张够滑一小段，也不会像原来 20 张那样一眼看不到头。
+        while (result.length() < 8 && !Thread.currentThread().isInterrupted() && rows.moveToNext()) {
                 long id = rows.getLong(0);
                 String key = Long.toString(id);
                 String name = rows.getString(1);
