@@ -1,0 +1,105 @@
+/* 头像裁切页：独立整页，铺满屏幕，自带不透明底色（不依赖 token，深浅色都稳）。 */
+.page {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  background: #f7f7f9;
+  color: #101012;
+  /* 只由预测性返回手势驱动位移；不做入场动画，避免被冻结在起始帧 */
+  transform: translateX(calc(var(--back-progress, 0) * 100%));
+  transition: transform var(--motion-gesture);
+}
+
+.page[data-back='active'] {
+  transition: none;
+}
+
+body[data-ds-dark-theme] .page {
+  background: #0e0e10;
+  color: #f4f4f5;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-shrink: 0;
+  /* WebView 里 env(safe-area-inset-top) 为 0，用原生给的状态栏高度 */
+  padding: calc(var(--android-status-inset, 0px) + 10px) 14px 12px;
+  border-bottom: 1px solid rgb(0 0 0 / 6%);
+}
+
+body[data-ds-dark-theme] .header {
+  border-bottom-color: rgb(255 255 255 / 8%);
+}
+
+.heading {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.action {
+  padding: 8px 6px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  opacity: 0.62;
+  font: inherit;
+  font-size: 15px;
+  cursor: pointer;
+  transition: transform var(--motion-press);
+
+  &[data-primary] {
+    color: #4d6bfe;
+    opacity: 1;
+    font-weight: 600;
+  }
+
+  &:active {
+    transform: scale(0.93);
+  }
+}
+
+.stage {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  touch-action: none;
+  cursor: grab;
+
+  &:active {
+    cursor: grabbing;
+  }
+}
+
+/* 取景框遮罩：圆内透明、圆外压暗，半径与 STAGE/2 对齐 */
+.hole {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: radial-gradient(circle at center, transparent 143px, rgb(0 0 0 / 62%) 144px);
+}
+
+.image {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 1;
+  object-fit: cover;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.hint {
+  margin: 0;
+  padding: 14px 24px calc(20px + env(safe-area-inset-bottom));
+  text-align: center;
+  font-size: 12.5px;
+  line-height: 18px;
+  opacity: 0.55;
+}

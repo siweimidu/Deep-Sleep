@@ -1,0 +1,111 @@
+.anchor {
+  display: inline-flex;
+}
+
+.menu {
+  position: fixed;
+  z-index: 900;
+  box-sizing: border-box;
+  min-width: 124px;
+  padding: 4px;
+  border-radius: 12px;
+  background-color: var(--dsw-specific-menu);
+  box-shadow:
+    0 0 1px rgba(0, 0, 0, 0.2),
+    0 0 4px rgba(0, 0, 0, 0.02),
+    0 12px 32px rgba(0, 0, 0, 0.08);
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 14px;
+  line-height: 24px;
+  color: var(--dsw-alias-label-primary);
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background-color 120ms ease-out,
+    transform var(--motion-press);
+
+  @media (hover: hover) {
+    &:hover {
+    background-color: var(--dsw-alias-interactive-bg-hover);
+  }
+  }
+
+  &:active {
+    transform: scale(0.975);
+    background-color: var(--dsw-alias-interactive-bg-hover);
+  }
+}
+
+.icon {
+  display: flex;
+  font-size: 16px;
+}
+
+.danger {
+  color: var(--dsw-alias-state-error-primary);
+
+  @media (hover: hover) {
+    &:hover {
+    background-color: var(--dsw-alias-interactive-bg-hover-danger);
+  }
+  }
+}
+
+/* 官方会话菜单：更宽的行高、20px 图标、项间细分隔线 */
+.roomy {
+  min-width: 188px;
+  padding: 0;
+  border-radius: 16px;
+  overflow: hidden;
+  background-color: var(--dsw-specific-menu, #2e2e31);
+  box-shadow:
+    0 1px 2px rgb(0 0 0 / 10%),
+    0 14px 38px rgb(0 0 0 / 20%);
+  transform-origin: var(--menu-origin, top right);
+  animation: menu-pop var(--motion-reveal);
+
+  .option {
+    gap: 14px;
+    padding: 0 18px;
+    height: 56px;
+    border-radius: 0;
+    font-size: 16.5px;
+    line-height: 1;
+    letter-spacing: 0.2px;
+
+    &:active {
+      transform: none;
+      background-color: color-mix(in srgb, currentColor 12%, transparent);
+    }
+  }
+
+  .icon {
+    width: 20px;
+    height: 20px;
+    font-size: 20px;
+    opacity: 0.92;
+  }
+}
+
+.roomy .option:active {
+  background-color: color-mix(in srgb, var(--dsw-alias-label-primary) 10%, transparent);
+}
+
+.divided {
+  border-top: 1px solid var(--dsw-alias-border-l2);
+}
+
+@keyframes menu-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.86) translateY(-6px);
+  }
+}

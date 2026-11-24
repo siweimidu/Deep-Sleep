@@ -1,0 +1,551 @@
+.sider {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  width: 261px;
+  height: 100%;
+  padding: 6px 12px 0;
+  border-right: 1px solid var(--dsw-alias-border-l1);
+  background-color: var(--dsw-specific-sidebar-fill);
+  /* 长按列表不要再弹系统的文字选择条 */
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.sider input,
+.sider textarea {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+.top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  box-sizing: border-box;
+  height: 48px;
+  margin-bottom: 16px;
+  padding: 15px 0 10px 4px;
+  flex-shrink: 0;
+}
+
+.appName {
+  min-width: 0;
+  padding-left: 4px;
+  overflow: hidden;
+  font-size: 20px;
+  line-height: 22px;
+  font-weight: 600;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--dsw-alias-brand-primary);
+}
+
+.newChat {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  width: 100%;
+  height: 40px;
+  padding: 0 16px;
+  border-radius: 100px;
+  border: 1px solid rgba(103, 158, 254, 0);
+  background: var(--dsw-alias-button-elevated-fill);
+  color: var(--dsw-alias-label-primary);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  user-select: none;
+  box-shadow:
+    0 -2px 2px rgba(72, 104, 178, 0.04),
+    0 2px 2px rgba(106, 111, 117, 0.09),
+    0 1px 2px rgba(72, 104, 178, 0.08);
+  transition: box-shadow 0.3s ease;
+
+  @media (hover: hover) {
+    &:hover {
+    box-shadow:
+      0 4px 4px 0 rgba(72, 104, 178, 0.04),
+      0 -3px 4px 0 rgba(72, 104, 178, 0.04),
+      0 6px 6px 0 rgba(106, 111, 117, 0.1);
+  }
+  }
+
+  [data-ds-dark-theme] & {
+    border: none;
+    box-shadow:
+      inset 0 1px 1px rgba(255, 255, 255, 0.1),
+      0 2px 4px rgba(106, 111, 117, 0.08);
+  }
+}
+
+.newChatIcon {
+  display: flex;
+  margin-right: 6px;
+}
+
+.listWrap {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  margin-top: 24px;
+}
+
+.list {
+  height: 100%;
+  margin: 0 -2px;
+  padding: 0 2px;
+  overflow-y: auto;
+  scrollbar-color: var(--scroll-color) transparent;
+}
+
+.section {
+  position: relative;
+  margin-top: 16px;
+  padding-top: 4px;
+
+  &:first-child {
+    margin-top: 0;
+  }
+}
+
+.sectionHeader {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  padding: 2px 10px;
+  font-size: 12px;
+  line-height: 18px;
+  font-weight: 500;
+  color: var(--dsw-alias-label-tertiary);
+  background-color: var(--dsw-specific-sidebar-fill);
+  user-select: none;
+}
+
+.bottom {
+  display: flex;
+  flex-shrink: 0;
+  height: 64px;
+}
+
+.settings {
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  width: 100%;
+  margin-block: auto;
+  padding: 6px 2px 6px 6px;
+  border: none;
+  border-radius: 12px;
+  background: none;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  user-select: none;
+  outline: none;
+
+  @media (hover: hover) {
+    &:hover {
+    background-color: var(--dsw-specific-sidebar-nav-item-hover);
+  }
+  }
+
+  &:focus-visible {
+    box-shadow: inset 0 0 0 2px var(--dsw-alias-button-primary-fill);
+  }
+}
+
+.settingsIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  color: var(--dsw-alias-label-primary);
+}
+
+.settingsLabel {
+  min-width: 0;
+  margin-left: 4px;
+  overflow: hidden;
+  font-size: 14px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--dsw-alias-label-primary);
+}
+
+.collapsed {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 12px 0 0 16px;
+}
+
+.collapsedGroup {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: 40px;
+  padding: 0 2px;
+  box-sizing: border-box;
+  border-radius: 100px;
+  border: 1px solid var(--dsw-alias-border-l2);
+  background: var(--dsw-alias-bg-layer-3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+}
+
+.drawer {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 800;
+}
+
+.drawerMask {
+  position: absolute;
+  inset: 0;
+  z-index: 799;
+}
+
+.mobile {
+  width: 300px;
+  max-width: calc(100vw - 48px);
+
+  .listWrap {
+    margin-top: 16px;
+  }
+
+  .sectionHeader {
+    padding: 4px 10px 3px;
+    font-size: 14px;
+    line-height: 22px;
+  }
+
+  .bottom {
+    height: auto;
+    padding: 12px 0;
+  }
+
+  .settings {
+    padding: 9px 10px;
+  }
+
+  .settingsIcon {
+    width: auto;
+    height: auto;
+
+    svg {
+      width: 20px;
+      height: 20px;
+    }
+  }
+
+  .settingsLabel {
+    margin-left: 10px;
+    font-size: 16px;
+    line-height: 22px;
+  }
+}
+
+[data-android] .drawer {
+  /* 抽屉盖在正文之上：正文是 z-index 1 的不透明层 */
+  z-index: 2;
+  width: var(--drawer-width, var(--drawer-edge));
+  padding-top: var(--android-status-inset, 0px);
+  /* 抽屉底色明显比对话区亮一档，右边界给一条看得见的亮线 */
+  --drawer-surface: var(--dsw-specific-sidebar-fill);
+  background: var(--drawer-surface);
+  border-right: 1px solid rgb(255 255 255 / 8%);
+  /* 纵向滚动留给列表，横向留给「左滑关闭」 */
+  touch-action: pan-y;
+  /* 位置完全由 --drawer-progress 决定，拖动时改它就同时带动卡片 */
+  transform: translateX(calc((var(--drawer-progress) - 1 + var(--back-progress, 0)) * 100%));
+  transition: transform var(--drawer-transition);
+  box-sizing: border-box;
+  backface-visibility: hidden;
+}
+
+/* 抽屉内容不再跟着淡入淡出，少一层全尺寸重绘 */
+
+[data-android] .drawerMask {
+  left: var(--drawer-edge);
+}
+
+[data-android] .mobile {
+  width: 100%;
+  max-width: none;
+  padding: 12px 24px 16px 16px;
+  border: 0;
+  /* 由抽屉自己出底色，这里透明，否则两边永远一样黑 */
+  background: transparent;
+
+  .listWrap {
+    margin-top: 16px;
+  }
+
+  .sectionHeader {
+    padding-inline: 7px;
+    font-weight: 400;
+    background: var(--dsw-alias-bg-base);
+  }
+
+  .section {
+    margin-top: 7px;
+
+    &:first-child {
+      margin-top: 0;
+    }
+  }
+
+  .bottom {
+    padding: 8px 0 0;
+  }
+
+  .settings {
+    padding: 4px 0;
+  }
+
+  .settingsIcon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--dsw-alias-bg-skeleton);
+    color: #a2a5a8;
+    overflow: hidden;
+  }
+
+  .settingsLabel {
+    flex: 1;
+  }
+}
+
+.selectChats {
+  position: absolute;
+  top: 6px;
+  right: 1px;
+  z-index: 25;
+}
+
+.selectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 64px;
+  flex-shrink: 0;
+  padding-left: 4px;
+  font-size: 21px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+
+/* 官方用一个灰色圆底 + 叉号关闭多选 */
+.closeCircle {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--dsw-alias-label-primary) 10%, transparent);
+  color: var(--dsw-alias-label-primary);
+  cursor: pointer;
+  transition: transform var(--motion-press);
+
+  &:active {
+    transform: scale(0.88);
+  }
+}
+
+.selectionActions {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  border-top: 1px solid var(--dsw-alias-border-l2);
+
+  button {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 52px;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    font-size: 16px;
+    transition: transform var(--motion-press);
+
+    &:active:not(:disabled) {
+      transform: scale(0.96);
+    }
+
+    &:disabled {
+      opacity: 0.35;
+    }
+  }
+}
+
+.selectionDivider {
+  width: 1px;
+  height: 22px;
+  background: var(--dsw-alias-border-l2);
+}
+
+
+.search {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  gap: 8px;
+  height: 48px;
+  padding: 0 14px;
+  border-radius: 24px;
+  color: var(--dsw-alias-label-tertiary);
+  background: var(--dsw-alias-bg-skeleton);
+
+  input {
+    flex: 1;
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    outline: none;
+    color: var(--dsw-alias-label-primary);
+    background: transparent;
+    font: inherit;
+    font-size: 16px;
+  }
+}
+
+/* ---- 底部账号行：可点击态（官方按下时整行变亮） ---- */
+.settingsLabel {
+  flex: 1;
+}
+
+.avatarImage {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+}
+
+/* 底部账号行：按下时整行变亮（对齐官方按下态） */
+[data-android] .mobile .settings {
+  transition:
+    background-color 150ms ease-out,
+    transform var(--motion-press);
+
+  &:active {
+    background-color: color-mix(in srgb, var(--dsw-alias-label-primary) 11%, transparent);
+    transform: scale(0.985);
+  }
+}
+
+[data-android] .mobile .settingsIcon[data-avatar] {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--dsw-alias-label-primary) 14%, transparent);
+  color: color-mix(in srgb, var(--dsw-alias-label-primary) 78%, transparent);
+
+  svg {
+    width: 24px;
+    height: 24px;
+  }
+}
+
+/* 多选页右上角：全选 + 关闭 */
+.selectionTools {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.selectAll {
+  padding: 8px 10px;
+  border: 0;
+  background: transparent;
+  color: var(--dsw-alias-brand-text);
+  font: inherit;
+  font-size: 15px;
+  cursor: pointer;
+  transition: transform var(--motion-press);
+
+  &:active {
+    transform: scale(0.93);
+  }
+}
+
+[data-android] .mobile .sectionHeader {
+  background: var(--drawer-surface, var(--dsw-alias-bg-base));
+}
+
+/* 浅色下抽屉是纯白，边界由对话卡片的阴影给出 */
+/* 深色下边界更分明一点 */
+[data-android] body[data-ds-dark-theme] .drawer {
+  --drawer-surface: var(--dsw-specific-sidebar-fill);
+  border-right-color: rgb(255 255 255 / 8%);
+}
+
+html[data-android]:not([data-ds-dark-theme]) .drawer {
+  border-right-color: rgb(0 0 0 / 5%);
+  box-shadow: none;
+}
+
+/* 底部账号行的三点按钮往左收一点，别贴着屏幕边 */
+[data-android] .mobile .settings {
+  padding-right: 10px;
+}
+
+[data-android] .mobile .settings > svg {
+  margin-right: 4px;
+  flex-shrink: 0;
+}
+
+/* 搜索框 + 收起按钮一行 */
+[data-android] .searchRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+[data-android] .searchRow .search {
+  flex: 1;
+  min-width: 0;
+}
+
+[data-android] .collapse {
+  display: grid;
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--dsw-alias-label-secondary);
+  cursor: pointer;
+  transition: transform var(--motion-press), background-color 150ms ease-out;
+
+  &:active {
+    transform: scale(0.92);
+    background: var(--dsw-alias-bg-skeleton);
+  }
+}

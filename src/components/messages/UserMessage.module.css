@@ -1,0 +1,134 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  padding-bottom: 16px;
+
+  &.isFirst {
+    padding-top: 34px;
+  }
+
+  &:hover .actions {
+    opacity: 1;
+  }
+}
+
+[data-android] .container {
+  padding-bottom: 20px;
+}
+
+[data-android] .container.isFirst {
+  padding-top: 22px;
+}
+
+.files {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: flex-end;
+  gap: 10px;
+  max-width: 100%;
+  margin-bottom: 8px;
+}
+
+.filesWithDocuments {
+  --message-file-image-size: 64px;
+}
+
+.bubble {
+  max-width: calc(100% - 88px);
+  box-sizing: border-box;
+  padding: 10px 16px;
+  border-radius: 22px;
+  font-size: 16px;
+  line-height: 24px;
+  color: var(--dsw-alias-label-primary);
+  background-color: var(--dsw-specific-bubble);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+[data-android] .bubble {
+  position: relative;
+  max-width: calc(100% - 48px);
+  margin-right: -4px;
+  padding-block: 10px;
+  border-radius: 22px 22px 4px 22px;
+  line-height: 26px;
+  user-select: none;
+}
+
+.menuTrigger {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  border: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+@media not all and (min-width: 440px) {
+  .bubble {
+    max-width: calc(100% - 68px);
+  }
+}
+
+.bottom {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 28px;
+  margin-top: 6px;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  opacity: 0;
+  transition: opacity var(--ds-transition-duration) var(--ds-ease-in-out);
+
+  &:focus-within {
+    opacity: 1;
+  }
+}
+
+.alwaysShow {
+  opacity: 1;
+}
+
+.editor {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid var(--dsw-alias-brand-primary);
+  border-radius: 22px;
+  background-color: var(--dsw-alias-bg-base);
+  overflow: hidden;
+}
+
+.textarea {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 44px;
+  max-height: 202px;
+  padding: 10px 16px;
+  border: none;
+  outline: none;
+  resize: none;
+  font: inherit;
+  font-size: 16px;
+  line-height: 24px;
+  color: var(--dsw-alias-label-primary);
+  background: transparent;
+}
+
+.editorActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin: 6px 10px 10px;
+}

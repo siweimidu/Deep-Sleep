@@ -1,0 +1,67 @@
+.page {
+  display: flex;
+  align-items: safe center;
+  justify-content: center;
+  box-sizing: border-box;
+  height: 100dvh;
+  overflow: auto;
+  padding: 24px;
+  padding-top: calc(24px + var(--android-status-inset, 0px));
+}
+
+.form {
+  display: grid;
+  gap: 18px;
+  width: min(100%, 360px);
+  text-align: center;
+}
+
+.appIcon {
+  width: 64px;
+  height: 64px;
+  border-radius: 18px;
+  object-fit: cover;
+  justify-self: center;
+}
+
+.form h1 {
+  margin: 2px 0 6px;
+  font-size: 22px;
+}
+
+.form input,
+.form button {
+  box-sizing: border-box;
+  min-width: 0;
+  min-height: 48px;
+  border-radius: 16px;
+  font: inherit;
+}
+
+.form input {
+  border: 1px solid var(--dsw-alias-border-l2);
+  padding: 12px 16px;
+  color: inherit;
+  background: transparent;
+}
+
+.form button {
+  border: 0;
+  background: var(--dsw-alias-button-primary-fill);
+  color: white;
+}
+
+.form button:disabled {
+  opacity: 0.5;
+}
+
+.form a {
+  justify-self: center;
+  color: var(--dsw-alias-brand-text);
+  font-size: 14px;
+}
+
+.error {
+  font-size: 14px;
+  color: var(--dsw-alias-state-error-primary);
+}

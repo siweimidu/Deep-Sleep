@@ -1,0 +1,170 @@
+.item {
+  /* 长列表里屏幕外的行跳过渲染，滚动与打开抽屉都更轻 */
+  content-visibility: auto;
+  contain-intrinsic-size: 0 48px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  height: 40px;
+  padding: 9px 6px 9px 10px;
+  border-radius: 12px;
+  font-size: 14px;
+  line-height: 22px;
+  color: var(--dsw-alias-label-primary);
+  cursor: pointer;
+
+  &.active {
+    /* 官方选中行：深藏青底 + 蓝色文字（取色器实测 #283142 / #5f9dff） */
+    background-color: #e9efff;
+    color: #2f5bd6;
+  }
+
+  @media (hover: hover) {
+    @media (hover: hover) {
+      &:not(.active):hover {
+      background-color: var(--dsw-specific-sidebar-nav-item-hover);
+    }
+    }
+
+    &:hover,
+    &.active {
+      .action {
+        display: flex;
+      }
+    }
+  }
+}
+
+.title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  line-height: 18px;
+}
+
+.action {
+  display: none;
+  flex-shrink: 0;
+  margin-left: 4px;
+}
+
+[data-android] .item {
+  /* 官方行更高、字更大、左侧留白更宽 */
+  padding-inline: 12px 6px;
+  height: 48px;
+  font-size: 16px;
+  user-select: none;
+
+  .action {
+    position: absolute;
+    right: 6px;
+    display: flex;
+    /* 官方那个「⋯」是灰色，不跟着选中行的蓝字走 */
+    color: color-mix(in srgb, var(--dsw-alias-label-primary) 46%, transparent);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .action:focus-within {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* 选中行常显「⋯」：官方只在当前会话上露出这个按钮 */
+  &.active .action {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  &:active {
+    background: var(--dsw-alias-bg-skeleton);
+  }
+}
+
+.select {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  height: 48px;
+  padding: 0 7px;
+  border: 0;
+  color: inherit;
+  background: transparent;
+  font: inherit;
+  font-size: 16px;
+  text-align: left;
+  cursor: pointer;
+}
+
+/* 官方多选是空心圆勾选框，选中后填充品牌色并显示对勾 */
+.checkbox {
+  display: grid;
+  place-items: center;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border: 1.5px solid color-mix(in srgb, var(--dsw-alias-label-primary) 42%, transparent);
+  border-radius: 50%;
+  color: #fff;
+  transition:
+    background-color 160ms ease-out,
+    border-color 160ms ease-out,
+    transform var(--motion-press);
+}
+
+.checked .checkbox {
+  border-color: var(--dsw-alias-brand-text);
+  background: var(--dsw-alias-brand-text);
+  transform: scale(1.04);
+}
+
+.renameInput {
+  box-sizing: border-box;
+  width: 100%;
+  height: 40px;
+  padding: 0 10px;
+  border-radius: 12px;
+  border: 1px solid var(--dsw-alias-brand-primary);
+  background-color: var(--dsw-specific-input-major);
+  color: var(--dsw-alias-label-primary);
+  font: inherit;
+  font-size: 14px;
+  outline: none;
+}
+
+@media (hover: none) {
+  .action {
+    display: flex;
+  }
+}
+
+@media not all and (min-width: 768px) {
+  .item {
+    height: 44px;
+    padding: 11px 6px 11px 12px;
+    border-radius: 16px;
+    font-size: 16px;
+  }
+
+  .title {
+    line-height: 22px;
+  }
+
+  .renameInput {
+    height: 44px;
+    padding: 0 12px;
+    border-radius: 16px;
+    font-size: 16px;
+  }
+}
+
+/* 深色下选中行用官方的藏青底与蓝字 */
+[data-ds-dark-theme] .item.active {
+  background-color: #283142;
+  color: #5f9dff;
+}

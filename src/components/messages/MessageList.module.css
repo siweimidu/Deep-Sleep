@@ -1,0 +1,53 @@
+.container {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  scrollbar-gutter: stable both-edges;
+  scrollbar-color: var(--scroll-color) transparent;
+}
+
+.scroll {
+  /* 滚动容器自身独立布局与绘制，滚动时不影响页面其它部分 */
+  contain: content;
+  display: contents;
+}
+
+@media not all and (min-width: 768px) {
+  .container {
+    overflow: hidden;
+    scrollbar-gutter: auto;
+  }
+
+  .scroll {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+    scrollbar-color: var(--scroll-color) transparent;
+  }
+}
+
+[data-android] .scroll {
+  touch-action: pan-y;
+}
+
+.column {
+  width: calc(var(--message-list-max-width) - 2 * var(--message-list-padding-horizontal));
+  max-width: calc(100% - 40px);
+  margin: 0 auto;
+  padding-bottom: 24px;
+}
+
+/* 搜索命中的消息：短暂高亮，2s 后淡出 */
+.flash {
+  border-radius: 14px;
+  background: color-mix(in srgb, #4d6bfe 20%, transparent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, #4d6bfe 70%, transparent);
+  transition:
+    background-color 600ms ease-out,
+    box-shadow 600ms ease-out;
+}

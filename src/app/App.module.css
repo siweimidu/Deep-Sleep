@@ -1,0 +1,165 @@
+.frame {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  overflow: hidden;
+  background-color: var(--dsw-alias-bg-base);
+}
+
+.main {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.content {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+}
+
+[data-android] .frame {
+  --drawer-edge: min(calc(100% - 68.4px), 380px);
+  --drawer-progress: 0;
+  /* 弹簧曲线：起手快、收尾轻微过冲再回稳，比 cubic-bezier 更有弹性 */
+  --drawer-transition: var(--motion-drawer);
+  touch-action: pan-y;
+}
+
+[data-android] .frame::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: #000;
+  opacity: calc(0.28 * var(--drawer-progress));
+  transition: opacity 200ms ease-out;
+  pointer-events: none;
+}
+
+[data-android] .frame[data-drawer-open='true'] {
+  --drawer-progress: 1;
+}
+
+[data-android] .frame[data-drawer-dragging] {
+  --drawer-transition: 0ms;
+  /* 拖动期间卡片也必须跟手，不能走弹簧过渡 */
+  --card-transition: 0ms;
+}
+
+/*
+ * 对话区是一张卡片：抽屉打开时整体右移、左侧出现大圆角与投影，
+ * 这就是官方那条一眼可辨的边界。只让 transform 参与过渡，
+ * 圆角/阴影在打开瞬间一次成型，不做逐帧插值（否则整页重绘会掉帧）。
+ */
+[data-android] .frame {
+  --drawer-transition: var(--motion-drawer);
+}
+
+[data-android] .main {
+  z-index: 1;
+  box-sizing: border-box;
+  padding-top: var(--android-status-inset, 0px);
+  background: var(--dsw-alias-bg-base);
+  transform-origin: left center;
+  transform: translateX(calc(var(--drawer-width, var(--drawer-edge)) * var(--drawer-progress)));
+  border-radius: 0;
+  transition: transform var(--card-transition, var(--motion-card));
+}
+
+
+
+[data-android] .frame[data-drawer-open='true'] .main {
+  /* 位移由基础规则按 --drawer-progress 统一驱动；这里只补圆角与边界 */
+  border-radius: 26px;
+  overflow: hidden;
+  box-shadow: -6px 0 16px rgb(0 0 0 / 38%);
+}
+
+[data-android] .main::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 21;
+  border-radius: inherit;
+  background: var(--dsw-alias-bg-base);
+  opacity: calc(0.24 * var(--drawer-progress));
+  transition: opacity 200ms ease-out;
+  pointer-events: none;
+}
+
+.saveError {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 12px 16px;
+  color: var(--dsw-alias-label-primary);
+  background-color: var(--dsw-alias-bg-base);
+  font-size: 14px;
+}
+
+.loadingView {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.loadingState {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 24px;
+  color: var(--dsw-alias-label-secondary);
+  font-size: 14px;
+  text-align: center;
+}
+
+@media not all and (min-width: 768px) {
+  .frame {
+    position: fixed;
+    top: var(--app-viewport-top, 0px);
+    bottom: auto;
+    height: var(--app-viewport-height, 100dvh);
+  }
+}
+
+/* 与官方一致：深色下对话区纯黑，抽屉是 #1b1b1c；浅色下两边都白，靠卡片阴影分界 */
+[data-android] .main {
+  background: var(--dsw-alias-bg-base);
+}
+
+
+/* 卡片边缘一圈极细的亮线，深色下也能看清圆角 */
+[data-android] .frame[data-drawer-open='true'] .main {
+  box-shadow:
+    -14px 0 44px rgb(0 0 0 / 58%),
+    inset 1px 0 0 rgb(255 255 255 / 7%);
+}
+
+html[data-android]:not([data-ds-dark-theme]) .frame[data-drawer-open='true'] .main {
+  box-shadow:
+    -12px 0 34px rgb(0 0 0 / 12%),
+    inset 1px 0 0 rgb(0 0 0 / 6%);
+}
+
+/*
+ * 动画期间：不做 overflow 裁剪、不画投影。
+ * 全屏元素每帧裁剪 + 16px 模糊投影是弱机光栅化的主要成本；
+ * 圆角保留（只是自身背景圆角，不裁剪子节点），动画结束再补回裁剪与投影。
+ */
+[data-android] .frame[data-drawer-animating] .main {
+  overflow: visible;
+  box-shadow: none;
+}
+
+/* 抽屉本身在动画期间单独成层，避免内容重新光栅化 */
+[data-android] .frame[data-drawer-animating] .drawer {
+  will-change: transform;
+}
