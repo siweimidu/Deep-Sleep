@@ -3,7 +3,6 @@ import { createRoot } from 'react-dom/client'
 import { App } from './app/App.js'
 import { android } from './app/android.js'
 import { setupTheme } from './app/theme.js'
-import { ensureKatex } from './services/markdown/katex.js'
 import { diagnosticsEnabled } from './rust-core/diagnostics.js'
 import { installMirrorFlush } from './services/chat/nativeMirror.js'
 import { installLatexCopy } from './app/latexCopy.js'
@@ -12,7 +11,8 @@ import './app/motion.css'
 import './app/global.css'
 import './app/android.css'
 
-ensureKatex()
+// 不在启动时预载 KaTeX：MathFormula 自己会在遇到公式时调用 ensureKatex()。
+// 启动预载会无条件拉一个 264KB 的块 + 两个附属块，而绝大多数会话根本没有公式。
 if (android) {
   document.documentElement.dataset.android = ''
   document.documentElement.style.setProperty('--android-status-inset', `${android.statusInset()}px`)
