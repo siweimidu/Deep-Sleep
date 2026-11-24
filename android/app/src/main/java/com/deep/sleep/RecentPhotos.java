@@ -5,6 +5,7 @@ import android.content.ContentUris;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Build;
 import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 import android.util.Size;
@@ -71,12 +72,30 @@ final class RecentPhotos {
         return result.toString();
     }
 
+    /** Android 10+ 用 loadThumbnail；5-9 没有这个 API，退回老的 MediaStore 缩略图。 */
+    @SuppressWarnings("deprecation")
+    private Bitmap loadThumbnail(Photo photo) throws IOException {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            return resolver.loadThumbnail(photo.uri(), new Size(224, 224), null);
+        }
+        try {
+            long id = ContentUris.parseId(photo.uri());
+            return MediaStore.Images.Thumbnails.getThumbnail(
+                resolver, id, MediaStore.Images.Thumbnails.MINI_KIND, null);
+        } catch (RuntimeException error) {
+            return null;
+        }
+    }
+
     WebResourceResponse open(String id, boolean thumbnail) {
         Photo photo = photos.get(id);
         if (photo == null) return null;
         try {
             if (thumbnail) {
-                Bitmap bitmap = resolver.loadThumbnail(photo.uri(), new Size(224, 224), null);
+                Bitmap bitmap = loadThumbnail(photo);
+                if (bitmap == null) {
+                    return null;
+                }
                 ByteArrayOutputStream output = new ByteArrayOutputStream();
                 try {
                     bitmap.compress(Bitmap.CompressFormat.JPEG, 88, output);

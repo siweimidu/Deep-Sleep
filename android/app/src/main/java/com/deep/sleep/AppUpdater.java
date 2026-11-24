@@ -22,7 +22,7 @@ import java.net.URL;
 final class AppUpdater {
 
     /** 仓库固定，发布流程不变的情况下不需要改这里 */
-    private static final String OWNER_REPO = "siweimidu/deepseek-app-replica";
+    private static final String OWNER_REPO = "siweimidu/Deep-Sleep";
     private static final String API =
             "https://api.github.com/repos/" + OWNER_REPO + "/releases/latest";
     private static final int CONNECT_TIMEOUT = 15000;
@@ -129,7 +129,8 @@ final class AppUpdater {
             if (status < 200 || status >= 300) {
                 throw new IOException("HTTP " + status);
             }
-            long total = connection.getContentLengthLong();
+            long total = Build.VERSION.SDK_INT >= 24
+                ? connection.getContentLengthLong() : connection.getContentLength();
             File dir = new File(context.getCacheDir(), "update");
             if (!dir.exists() && !dir.mkdirs()) {
                 throw new IOException("无法创建缓存目录");

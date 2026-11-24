@@ -23,7 +23,7 @@ export type UpdateInfo = {
 
 export type UpdateProgress = { state: 'downloading' | 'progress' | 'ready' | 'error'; percent: number; loaded: number; total: number; message: string }
 
-const REPO = 'siweimidu/deepseek-app-replica'
+const REPO = 'siweimidu/Deep-Sleep'
 
 const buildFromUrl = (url: string) => {
   const match = /build(\d+)/.exec(url)

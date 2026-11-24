@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="AppTheme" parent="android:style/Theme.Material.Light.NoActionBar">
-        <item name="android:windowLightStatusBar">true</item>
-        <item name="android:windowLightNavigationBar">true</item>
+    <!-- 公共部分。windowLightStatusBar 要 API 23、windowLightNavigationBar 要 API 27，
+         所以那两项分别放进 values-v23 / values-v27，Android 5-6 上不会因为未知属性出错。 -->
+    <style name="AppTheme.Base" parent="android:style/Theme.Material.Light.NoActionBar">
         <item name="android:windowActionModeOverlay">true</item>
         <item name="android:windowBackground">#FFFFFF</item>
         <!-- 全屏绘制：状态栏/导航栏透明，避免顶部出现灰色遮罩带 -->
@@ -10,4 +10,6 @@
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
     </style>
+
+    <style name="AppTheme" parent="AppTheme.Base" />
 </resources>

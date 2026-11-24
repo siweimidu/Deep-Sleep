@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.annotation.TargetApi;
 import android.graphics.Color;
 import android.graphics.Insets;
 import android.net.Uri;
@@ -17,6 +18,8 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.provider.Settings;
 import android.view.MotionEvent;
+import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.view.WindowInsets;
 import android.view.WindowInsetsController;
 import android.webkit.JavascriptInterface;
@@ -158,29 +161,19 @@ public final class MainActivity extends Activity {
         webView.setFocusable(true);
         webView.setFocusableInTouchMode(true);
         frame.addView(webView, new FrameLayout.LayoutParams(-1, -1));
-        frame.setOnApplyWindowInsetsListener((view, insets) -> {
-            Insets safe = insets.getInsets(WindowInsets.Type.systemBars()
-                | WindowInsets.Type.displayCutout() | WindowInsets.Type.ime());
-            view.setPadding(safe.left, 0, safe.right, safe.bottom);
-            float top = safe.top / getResources().getDisplayMetrics().density;
-            if (top != statusInset) {
-                statusInset = top;
-                webView.evaluateJavascript("document.documentElement?.style.setProperty("
-                    + "'--android-status-inset', '" + top + "px')", null);
-            }
-            boolean ime = insets.isVisible(WindowInsets.Type.ime());
-            if (ime != keyboardVisible) {
-                keyboardVisible = ime;
-                webView.evaluateJavascript("document.documentElement?.toggleAttribute("
-                    + "'data-keyboard', " + ime + ")", null);
-            }
-            // 返回 insets 而不是 CONSUMED：Android 15 强制 edge-to-edge，把 insets 全吃掉会让
-            // 输入法/系统栏的分发断在这里（表现为点输入框不弹键盘）。留白我们自己按 safe 算，不影响布局。
-            return insets;
-        });
+        // API 30 起才能用 WindowInsets.Type；Android 5-10 只有 getSystemWindowInset*。
+        // 分开写，否则在老系统上一进页面就是 NoSuchMethodError。
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            frame.setOnApplyWindowInsetsListener(this::applyInsetsModern);
+        } else {
+            frame.setOnApplyWindowInsetsListener(this::applyInsetsLegacy);
+        }
         setContentView(frame);
-        // 真正铺满屏幕：内容画到系统状态栏/导航栏下面，留白由页面按 --android-status-inset 处理
-        getWindow().setDecorFitsSystemWindows(false);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            // 真正铺满屏幕：内容画到系统状态栏/导航栏下面，留白由页面按 --android-status-inset 处理
+            getWindow().setDecorFitsSystemWindows(false);
+        }
+        // Android 5-10 不铺满：让系统按 adjustResize 处理系统栏与键盘，比手工算 insets 稳。
         getWindow().setStatusBarColor(Color.TRANSPARENT);
         getWindow().setNavigationBarColor(Color.TRANSPARENT);
         setBars((getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK)
@@ -270,16 +263,67 @@ public final class MainActivity extends Activity {
     }
 
     private void setBars(boolean dark) {
-        int flags = WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS
-            | WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS;
-        getWindow().getInsetsController().setSystemBarsAppearance(dark ? 0 : flags, flags);
-        getWindow().setNavigationBarContrastEnforced(false);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            int flags = WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS
+                | WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS;
+            WindowInsetsController controller = getWindow().getInsetsController();
+            if (controller != null) {
+                controller.setSystemBarsAppearance(dark ? 0 : flags, flags);
+            }
+            getWindow().setNavigationBarContrastEnforced(false);
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            // Android 6-10 只有状态栏图标有深色开关，导航栏没有对应能力
+            View decor = getWindow().getDecorView();
+            int visibility = decor.getSystemUiVisibility();
+            if (dark) {
+                visibility &= ~View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
+            } else {
+                visibility |= View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
+            }
+            decor.setSystemUiVisibility(visibility);
+        }
         // 状态栏/导航栏保持透明，颜色始终由页面本身决定，深浅色切换时不会留下灰边
         getWindow().setStatusBarColor(Color.TRANSPARENT);
         getWindow().setNavigationBarColor(Color.TRANSPARENT);
         int color = Color.parseColor(dark ? "#151517" : "#FFFFFF");
         frame.setBackgroundColor(color);
         webView.setBackgroundColor(color);
+    }
+
+    /** Android 11+：键盘高度是 insets 的一部分，能精确拿到，页面据此让位。 */
+    @TargetApi(Build.VERSION_CODES.R)
+    private WindowInsets applyInsetsModern(View view, WindowInsets insets) {
+        Insets safe = insets.getInsets(WindowInsets.Type.systemBars()
+            | WindowInsets.Type.displayCutout() | WindowInsets.Type.ime());
+        view.setPadding(safe.left, 0, safe.right, safe.bottom);
+        setStatusInset(safe.top);
+        boolean ime = insets.isVisible(WindowInsets.Type.ime());
+        if (ime != keyboardVisible) {
+            keyboardVisible = ime;
+            webView.evaluateJavascript("document.documentElement?.toggleAttribute("
+                + "'data-keyboard', " + ime + ")", null);
+        }
+        // 返回 insets 而不是 CONSUMED：把 insets 全吃掉会让输入法/系统栏的分发断在这里。
+        return insets;
+    }
+
+    /**
+     * Android 5-10：没有 WindowInsets.Type，也没有可靠的键盘 inset（键盘靠 adjustResize 缩窗口）。
+     * 这里不做任何 padding，页面按 statusInset=0 处理即可，避免和系统双重让位。
+     */
+    private WindowInsets applyInsetsLegacy(View view, WindowInsets insets) {
+        setStatusInset(0);
+        return insets;
+    }
+
+    private void setStatusInset(int topPx) {
+        float top = topPx / getResources().getDisplayMetrics().density;
+        if (top == statusInset) {
+            return;
+        }
+        statusInset = top;
+        webView.evaluateJavascript("document.documentElement?.style.setProperty("
+            + "'--android-status-inset', '" + top + "px')", null);
     }
 
     private static boolean isBundled(Uri url) {
@@ -372,7 +416,8 @@ public final class MainActivity extends Activity {
                     emitDownload(token, "error", 0, 0, "", "HTTP " + status);
                     return;
                 }
-                long total = connection.getContentLengthLong();
+                long total = Build.VERSION.SDK_INT >= 24
+                ? connection.getContentLengthLong() : connection.getContentLength();
                 long loaded = 0;
                 long reported = 0;
                 try (InputStream input = connection.getInputStream();
@@ -472,18 +517,23 @@ public final class MainActivity extends Activity {
                 if (granted(Manifest.permission.CAMERA)) {
                     launchCamera();
                 } else {
-                    requestPermissions(new String[]{Manifest.permission.CAMERA}, CAMERA);
+                    askPermissions(CAMERA, Manifest.permission.CAMERA);
                 }
                 return true;
             }
             boolean multiple = params.getMode() == FileChooserParams.MODE_OPEN_MULTIPLE;
             Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE);
             if (multiple) intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
-            String[] mimeTypes = Arrays.stream(params.getAcceptTypes())
-                .map(type -> type.startsWith(".")
-                    ? MimeTypeMap.getSingleton().getMimeTypeFromExtension(type.substring(1)) : type)
-                .filter(type -> type != null && type.contains("/"))
-                .distinct().toArray(String[]::new);
+            // 手写收集：Arrays.stream 是 API 24 才有的，Android 5 上会直接崩
+            java.util.List<String> collected = new java.util.ArrayList<>();
+            for (String type : params.getAcceptTypes()) {
+                String mime = type.startsWith(".")
+                    ? MimeTypeMap.getSingleton().getMimeTypeFromExtension(type.substring(1)) : type;
+                if (mime != null && mime.contains("/") && !collected.contains(mime)) {
+                    collected.add(mime);
+                }
+            }
+            String[] mimeTypes = collected.toArray(new String[0]);
             intent.setType(mimeTypes.length == 1 ? mimeTypes[0] : "*/*");
             if (mimeTypes.length > 1) intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
             if (Build.VERSION.SDK_INT >= 33 && Arrays.equals(mimeTypes, new String[]{"image/*"})) {
@@ -508,8 +558,22 @@ public final class MainActivity extends Activity {
         }
     }
 
+    /**
+     * API 23 起才有运行时权限；Android 5.x 是安装时授权，直接按"已授予"继续走原来的流程，
+     * 免得分支里再写一遍业务代码。
+     */
+    private void askPermissions(int code, String... permissions) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            requestPermissions(permissions, code);
+        } else {
+            onRequestPermissionsResult(code, permissions,
+                new int[]{PackageManager.PERMISSION_GRANTED});
+        }
+    }
+
     private boolean granted(String permission) {
-        return checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED;
+        return Build.VERSION.SDK_INT < Build.VERSION_CODES.M
+            || checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED;
     }
 
     private boolean hasRecentPhotosPermission() {
@@ -527,7 +591,7 @@ public final class MainActivity extends Activity {
             String[] permissions = Build.VERSION.SDK_INT >= 34
                 ? new String[]{imagesPermission, Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED}
                 : new String[]{imagesPermission};
-            requestPermissions(permissions, PHOTOS);
+            askPermissions(PHOTOS, permissions);
         } else {
             notifyRecentPhotos();
         }
@@ -670,6 +734,28 @@ public final class MainActivity extends Activity {
         @JavascriptInterface
         public void setDarkBars(boolean dark) { runOnUiThread(() -> setBars(dark)); }
 
+        /**
+         * 页面里的输入框拿到焦点后主动补一刀 showSoftInput。
+         *
+         * WebView 自己会请求输入法，但在部分 ROM（ColorOS / EMUI 这类）上这一步会被吞掉，表现就是
+         * "点了输入框、光标有了、键盘死活不出来"。由页面在 focusin 时回调这里，等于绕开 WebView
+         * 的内部判断直接向 InputMethodManager 请求。对已经弹出的键盘是空操作，重复调用没有副作用。
+         */
+        @JavascriptInterface
+        public void showKeyboard() {
+            runOnUiThread(() -> {
+                if (webView == null) {
+                    return;
+                }
+                webView.requestFocus();
+                InputMethodManager imm =
+                    (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+                if (imm != null) {
+                    imm.showSoftInput(webView, InputMethodManager.SHOW_FORCED);
+                }
+            });
+        }
+
         @JavascriptInterface
         public void requestRecentPhotos() { runOnUiThread(() -> showRecentPhotos()); }
 
@@ -714,7 +800,7 @@ public final class MainActivity extends Activity {
                 if (granted(Manifest.permission.RECORD_AUDIO)) {
                     startRecording();
                 } else {
-                    requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO}, MICROPHONE);
+                    askPermissions(MICROPHONE, Manifest.permission.RECORD_AUDIO);
                 }
             });
         }

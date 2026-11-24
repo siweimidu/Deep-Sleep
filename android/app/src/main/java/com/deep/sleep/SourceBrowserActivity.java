@@ -56,12 +56,15 @@ public final class SourceBrowserActivity extends Activity {
         root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
         root.setBackgroundColor(background);
-        root.setOnApplyWindowInsetsListener((view, insets) -> {
-            Insets safe = insets.getInsets(WindowInsets.Type.systemBars()
-                | WindowInsets.Type.displayCutout() | WindowInsets.Type.ime());
-            view.setPadding(safe.left, safe.top, safe.right, safe.bottom);
-            return WindowInsets.CONSUMED;
-        });
+        // API 30 起才有 WindowInsets.Type；Android 5-10 不铺满，系统栏留白交给窗口自己处理
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            root.setOnApplyWindowInsetsListener((view, insets) -> {
+                Insets safe = insets.getInsets(WindowInsets.Type.systemBars()
+                    | WindowInsets.Type.displayCutout() | WindowInsets.Type.ime());
+                view.setPadding(safe.left, safe.top, safe.right, safe.bottom);
+                return WindowInsets.CONSUMED;
+            });
+        }
         FrameLayout toolbar = new FrameLayout(this);
         toolbar.setBackgroundColor(background);
         root.addView(toolbar, new LinearLayout.LayoutParams(-1, dp(52)));
@@ -104,10 +107,18 @@ public final class SourceBrowserActivity extends Activity {
         });
         root.addView(page, new LinearLayout.LayoutParams(-1, 0, 1));
         setContentView(root);
-        int flags = WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS
-            | WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS;
-        getWindow().getInsetsController().setSystemBarsAppearance(dark ? 0 : flags, flags);
-        getWindow().setNavigationBarContrastEnforced(false);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            int flags = WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS
+                | WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS;
+            getWindow().getInsetsController().setSystemBarsAppearance(dark ? 0 : flags, flags);
+            getWindow().setNavigationBarContrastEnforced(false);
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            // Android 6-10 只有状态栏图标支持深色
+            int visibility = getWindow().getDecorView().getSystemUiVisibility();
+            getWindow().getDecorView().setSystemUiVisibility(dark
+                ? (visibility & ~View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR)
+                : (visibility | View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR));
+        }
         // 状态栏跟随内置浏览器的工具栏底色，避免出现一条灰带
         getWindow().setStatusBarColor(background);
         getWindow().setNavigationBarColor(background);
@@ -133,6 +144,7 @@ public final class SourceBrowserActivity extends Activity {
 
     @Override
     @SuppressWarnings("deprecation")
+    @android.annotation.SuppressLint("GestureBackNavigation")
     public void onBackPressed() {
         goBack();
     }

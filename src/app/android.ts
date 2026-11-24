@@ -6,6 +6,8 @@ type AndroidBridge = {
   readApiKey: () => string | null
   writeApiKey: (value: string | null) => boolean
   setDarkBars: (dark: boolean) => void
+  /** 输入框拿到焦点后强制唤起输入法（部分 ROM 上 WebView 自己请求不到） */
+  showKeyboard?: () => void
   requestRecentPhotos: () => void
   prefetchRecentPhotos: () => void
   requestHistoryExport: (name: string) => void
