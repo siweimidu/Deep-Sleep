@@ -78,6 +78,10 @@ Get-ChildItem rust -Directory | Where-Object { Test-Path "$($_.FullName)\rust-an
 `attachments.ts` 里还有 2 个未接：`validateFiles`、`resolveMimeType`（入参是 `File`，需要先做
 `File → {name,size,type}` 的映射）。
 
+**重要：这三处接入不是提速。** `rust/bench-boundary.mjs` 实测 JSON 文本边界的成本使连字符串函数都
+比原 TS 慢约 9 倍，整对象进出的变换慢 26–49 倍（数字见 ADOPTION.md §5）。它们的价值是「Rust 真的
+在线上跑」的链路已打通并验证；要给热路径提速必须改走二进制 wire。
+
 
 
 **类型上过不了桥的：**

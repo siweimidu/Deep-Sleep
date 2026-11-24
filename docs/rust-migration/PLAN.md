@@ -12,9 +12,10 @@
 
 | 优先级 | 事项 | 阻塞点 / 说明 |
 | --- | --- | --- |
-| 高 | **把 Rust 接进调用点** | 目前业务代码零调用。ADOPTION.md 的步骤本机实测过，浏览器产物行为也已逐 crate 验过（10626 次调用），但真机上 `Map` 返回值与首屏代价必须在设备上复验 |
-| 中 | `src/i18n/**` | 纯数据可移植；但 `translate` 读 zustand store，得先改成显式 `locale` 参数，否则 `view-rs` 的 `getAreaTitle` 与 `schema-rs` 的错误文案永远只有 zh-CN |
-| 低 | `zipReader.ts` 剩余 5 个导出 | 字节级核心已通过接缝移植（322/322）；剩下的 `isZipFile`/`summarizeArchive`/`readArchive`/`readEntry` 是函数/生成器/Blob 边界，无法过桥 |
+| 高 | **二进制 wire 适配层** | 实测 JSON 文本边界比原 TS 慢 9–49 倍（ADOPTION §5）。要让 Rust 在热路径真正有价值，必须走 `*Wire` + `rustAnythingWireIn/Out`，绕开 JSON 文本 |
+| 中 | 继续接「大输入、小输出」的单元 | 已接 3 个（paths / attachments / location）。消息树、reply、view **故意不接**，除非先有二进制 wire |
+| 中 | `src/i18n/**` | 纯数据可移植；但 `translate` 读 zustand store，得先改成显式 `locale` 参数 |
+| 低 | `zipReader.ts` 剩余 5 个导出 | 字节级核心已通过接缝移植（322/322）；剩下的是函数/生成器/Blob 边界 |
 | 低 | 出 APK | 本机无 Android SDK/NDK，物理上做不到，不是没做 |
 
 ## 顺序理由（已完成部分当时为什么这么排）
