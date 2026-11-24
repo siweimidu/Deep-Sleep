@@ -13,6 +13,7 @@
 | 优先级 | 事项 | 阻塞点 / 说明 |
 | --- | --- | --- |
 | 高 | **把 Rust 接进调用点** | 目前业务代码零调用。ADOPTION.md 的步骤本机实测过（`--target web` 产出 ESM），但真机上 `Map` 返回值与首屏代价必须在设备上复验 |
+| 高 | **补齐浏览器产物的参数编码** | `rust/web-parity.ps1` 已把 9897 次调用跑通记录语料；branches / budget / location / reply / view 五个 crate 的复杂结构体参数还没对上（Node 侧 100% 绿），属 harness/适配层问题 |
 | 中 | `src/i18n/**` | 纯数据可移植；但 `translate` 读 zustand store，得先改成显式 `locale` 参数，否则 `view-rs` 的 `getAreaTitle` 与 `schema-rs` 的错误文案永远只有 zh-CN |
 | 低 | `zipReader.ts` 剩余 5 个导出 | 字节级核心已通过接缝移植（322/322）；剩下的 `isZipFile`/`summarizeArchive`/`readArchive`/`readEntry` 是函数/生成器/Blob 边界，无法过桥 |
 | 低 | 出 APK | 本机无 Android SDK/NDK，物理上做不到，不是没做 |

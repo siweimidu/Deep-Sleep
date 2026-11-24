@@ -69,6 +69,41 @@ export const loadRustCore = async () => {
 `--target web` 的胶水后这条路径不同，仍需在真机上确认 `images instanceof Map === true` ——
 这是唯一一处**必须在真机复验**、本机无法替你确认的点。
 
+## 1.5 浏览器胶水和 Node 胶水**不等价**（实测，务必先读这段）
+
+`rust-anything diff` 验的是 Node 胶水（内部 `require('fs')` 读 wasm 那套）；真正进 WebView 的是
+`--target web` 的 ESM。两者对同一份 Rust 的调用约定不同，`rust/web-parity.mjs` 就是为了把这件事
+量出来（对着录制语料回放浏览器产物）：
+
+```powershell
+# 逐 crate 复验浏览器产物（会先 cargo build 出原始 wasm，再 wasm-bindgen --target web）
+powershell -NoProfile -ExecutionPolicy Bypass -File rust\web-parity.ps1
+```
+
+实测到的三条约定差异，**接入时必须照做**：
+
+| 情形 | Node 胶水 | 浏览器胶水 | 适配层要做什么 |
+| --- | --- | --- | --- |
+| `serde_json::Value` 参数 | 自动 encode | `.d.ts` 写的是 `(value: string)` | `JSON.stringify(参数)`，且**不要**先 revive（`$undefined` 等标记要留给 Rust 认） |
+| `serde_json::Value` 返回值 | 自动 decode | 返回**JSON 文本** | `JSON.parse` 之后再做标记还原 |
+| 源导出是 `async` | 内部处理 | 返回 Promise | `await` |
+
+wire 标记一共五种，适配层的还原函数必须全支持：
+`{"$undefined":true}`、`{"$num":"NaN"}`、`{"$map":[[k,v],…]}`、`{"$set":[…]}`、`{"$bytes":[…]}`。
+
+### 当前浏览器产物的验证结果（`rust/web-parity.mjs`，9897 次调用通过）
+
+9 个 crate 在浏览器产物上 **全量通过**：`attachments-rs` 1556/1556、`documenttext-rs` 544/544、
+`parseevent-rs` 83/83、`paths-rs` 956/956、`schema-rs` 67/67、`sse-rs` 1372/1372、
+`toarchive-rs` 228/228、`zipreader-rs` 322/322、`zipwriter-rs` 270/270。
+`tolocal-rs` 309/315 —— 差的 6 条正是它已声明的 `known-diffs`（宿主时区日期解析）。
+
+**还没在浏览器产物上跑通**：`branches-rs` 911/1092、`budget-rs` 516/527、`location-rs` 342/364、
+`reply-rs` 1308/1533、`view-rs` 1113/1403。症状是这些函数的**复杂结构体参数**在浏览器胶水里报
+`Cannot read properties of undefined (reading 'length')`，即我的 harness 的参数编码还没完全对上
+（Node 胶水的 encode 比"JSON.stringify 非原始类型"更细）。**这不影响 Rust 逻辑本身**——Node 侧
+`diff` 对这些 crate 是 100% 通过的，问题在适配层的参数编码，属于接入时要补的活，不是移植错误。
+
 ## 4. 随时复验等价性
 
 ```powershell
