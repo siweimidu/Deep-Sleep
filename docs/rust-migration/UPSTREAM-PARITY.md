@@ -28,6 +28,7 @@ cd android; gradlew.bat assembleDebug
 | 2 | **原生 SQLite 镜像**：`ChatStorage.java`（WAL、单写者、按会话存 JSON）+ `nativeMirror.ts`（800ms 合并写、静音恢复、坏数据跳过）+ `db.ts` 在整表/单会话为空时自动恢复 | `854d31d` |
 | 3 | **交互修复**：移动端回车换行、复制回答弹 toast、用户消息字号跟随设置、退出语音模式回焦输入框 | `e26c145` |
 | 4 | **回到底部按钮**（仅移动端）：距底 >320px 浮出，强制恢复跟随 + 平滑滚动，动效走项目 token | `6b1f368` |
+| 5 | **导入深度合并**：`mergeSessions.ts` 明确合并策略（归档顺序权威、同 id 保留本地对象、标题/时间/根消息/本地派生字段各自规则），`scripts/test-merge-sessions.mjs` 10 条断言 | `2f19b00` |
 
 ## 未完成（按建议顺序）
 
@@ -36,7 +37,7 @@ cd android; gradlew.bat assembleDebug
    注意：`estimateTokens` 已接 Rust（阈值 512），改公式要同步 `rust/budget-rs` 并重新录制。
 2. **上下文摘要**（`contextSummary`）：长会话的可见摘要卡片，配合已有的锚点卡 + 事实账本。
 3. **内容搜索**：跨会话全文搜索页（现有 `SessionSearchPage` 只搜标题/会话内），需要索引与高亮。
-4. **导入走 worker + 深度会话树合并**：导入目前在主线程；`mergeSessions` 需要按消息树做深度合并
+4. **导入走 worker**：导入目前在主线程解压+解析，长归档会卡 UI；深度合并已完成（批次 5）。
    （现有合并在导入路径里按会话 ID 覆盖）。
 5. **消息编辑页**：编辑已发送的用户消息并重发，含版本切换。
 6. **自由文本选择 + LaTeX 复制格式**：Android WebView 上的长按选择、公式按 LaTeX/纯文本复制。
