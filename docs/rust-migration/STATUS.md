@@ -42,14 +42,17 @@ Get-ChildItem rust -Directory | Where-Object { Test-Path "$($_.FullName)\rust-an
 ### 额外的第二层验证：浏览器产物
 
 `gate` 验的是 **Node 胶水**；进 WebView 的是 `wasm-bindgen --target web` 的另一套胶水，两者调用约定
-**不等价**。`rust/web-parity.ps1` 把同一批录制语料回放到浏览器产物上，实测 **9897 次调用通过**：
+**不等价**。`rust/web-parity.ps1` 把同一批录制语料回放到浏览器产物上，实测 **10626 次调用通过**，
+**每个 crate 的数字与 Node 侧 gate 结论逐一对齐**：
 
-- **9 个 crate 全量通过**：attachments 1556/1556、documenttext 544/544、parseevent 83/83、
-  paths 956/956、schema 67/67、sse 1372/1372、toarchive 228/228、zipreader 322/322、zipwriter 270/270
-- `tolocal` 309/315 —— 差的 6 条正是它已声明的 `known-diffs`（宿主时区）
-- **未跑通**：branches 911/1092、budget 516/527、location 342/364、reply 1308/1533、view 1113/1403。
-  症状是复杂结构体参数在浏览器胶水里报 `Cannot read properties of undefined (reading 'length')`：
-  **是 harness 的参数编码没对上，不是 Rust 逻辑错**——这些 crate 在 Node 侧 diff 全是 100%。
+- **14 个 crate 浏览器产物全量通过**：attachments 1556、branches 1092、budget 527、
+  documenttext 544、location 364、parseevent 83、paths 956、reply 1533、schema 67、
+  sse 1372、toarchive 228、view 1403、zipreader 322、zipwriter 270
+- `tolocal` 309/315 —— 差的 6 条已核对就是 `known-diffs.jsonl` 那 6 条（V8 legacy 日期解析 / 无时区）
+
+编码规则（从 `port.rs` 的参数类型判定，不是猜 TS 类型）：Rust `Value` 参数传 JSON 文本、
+`String`/`f64`/`bool` 原样、`async` 要 `await`、缺省的尾随可选参数补 `{"$undefined":true}`。
+详见 ADOPTION.md。
 
 
 ## 没有移植的东西，以及为什么（都是证据，不是偷懒）
@@ -116,8 +119,6 @@ export const parseArchiveBase64 = async (base64: string): Promise<ParsedArchive>
 ## 还没做的
 
 - **没有接入任何调用点**：`src/` 只加了 ZIP 那个接缝，业务代码没有一处改为调用 Rust，跑起来的仍
-  全是原 TS。接入是开关式的，步骤已在 ADOPTION.md 里验证过。
-- **浏览器产物的参数编码还差 5 个 crate**：branches / budget / location / reply / view 在
-  `--target web` 胶水下有几成用例报参数类型错，需把 harness 的 encode 补齐（Node 侧全绿）。
+  全是原 TS。接入是开关式的，步骤已在 ADOPTION.md 里验证过，浏览器产物的行为也已逐 crate 验过。
 - `src/i18n/**`：纯数据，但 `translate` 依赖 store，需要先改成显式 locale 参数。
 - wasm 体积/首屏代价没在真机上测过。

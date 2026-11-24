@@ -43,12 +43,38 @@ const revive = (value) => {
   return value
 }
 
-const PRIMITIVE = /^(string|number|boolean|bigint|undefined|null)$/
-const valueParam = (tsType) => {
-  if (!tsType) return false
-  const parts = tsType.split('|').map((part) => part.trim())
-  return !parts.every((part) => PRIMITIVE.test(part))
+/** Split on top-level commas only, so `Map<String, Value>` stays one parameter. */
+const splitTop = (text) => {
+  const out = []
+  let depth = 0
+  let current = ''
+  for (const char of text) {
+    if ('<([{'.includes(char)) depth += 1
+    else if ('>)]}'.includes(char)) depth -= 1
+    if (char === ',' && depth === 0) {
+      out.push(current)
+      current = ''
+    } else current += char
+  }
+  if (current.trim()) out.push(current)
+  return out.map((part) => part.trim()).filter(Boolean)
 }
+
+// The Rust signature is the only unambiguous answer to "is this parameter a serde_json::Value?".
+// A TS type like `'a' | 'b'` or `ChatModel` becomes a plain Rust `String` and must be passed raw;
+// an object type becomes `serde_json::Value` and travels as JSON text.
+const portSource = readFileSync(join(dirname(casesPath), 'src', 'port.rs'), 'utf8').replace(/\s+/g, ' ')
+const rustParams = new Map()
+for (const [, name, params] of portSource.matchAll(/pub (?:async )?fn (\w+)\s*\(([^)]*)\)/g)) {
+  const types = splitTop(params)
+    .filter((p) => !/^&\s*(mut\s+)?self\b|^self\b/.test(p))
+    .map((p) => (p.includes(':') ? p.slice(p.indexOf(':') + 1).trim() : p))
+  rustParams.set(name, types)
+}
+const toSnake = (name) => name.replace(/[A-Z]/g, (char) => `_${char.toLowerCase()}`)
+// `port.rs` imports `Value` from serde_json and uses the bare name, so match the type by name
+// rather than by a `serde_json::Value` path.
+const isJsonParam = (key, index) => /\bValue\b/.test(rustParams.get(toSnake(key.split('.').pop()))?.[index] ?? '')
 
 // Declared param types, keyed by export name and by `Class.method`, from the bridge manifest.
 const manifest = JSON.parse(readFileSync(join(dirname(casesPath), 'rust-anything.json'), 'utf8'))
@@ -76,13 +102,17 @@ const classConverts = new Map(
   ]),
 )
 
-/** Encode arguments the way the documented adapter must: JSON text for a Value param. */
+/** Encode arguments the way the documented adapter must. */
 const encodeArgs = (key, args) => {
   const declared = paramTypes.get(key) ?? []
-  return args.map((arg, index) => {
-    const spec = declared[index]
-    if (!spec || !valueParam(spec.ts_type)) return revive(arg)
-    return JSON.stringify(arg) // markers intact: the port reads them itself
+  // A trailing optional parameter is simply absent from the recorded call. The Node glue encodes
+  // that as the `$undefined` marker, so pad to the declared arity instead of passing `undefined`
+  // (which the web glue then dereferences, e.g. "Cannot read properties of undefined").
+  const arity = Math.max(args.length, declared.length)
+  return Array.from({ length: arity }, (_, index) => {
+    const arg = index < args.length ? args[index] : { $undefined: true }
+    if (isJsonParam(key, index)) return JSON.stringify(arg)
+    return index < args.length ? revive(arg) : undefined
   })
 }
 
@@ -100,6 +130,9 @@ let pass = 0
 let fail = 0
 let skipped = 0
 const failures = []
+let lastFailIndex = -1
+let firstFailIndex = -1
+let currentCaseIndex = 0
 
 const record = (ok, detail) => {
   if (ok) {
@@ -107,10 +140,14 @@ const record = (ok, detail) => {
     return
   }
   fail += 1
+  if (firstFailIndex < 0) firstFailIndex = currentCaseIndex
+  lastFailIndex = Math.max(lastFailIndex, currentCaseIndex)
   if (failures.length < 5) failures.push(detail)
 }
 
-for (const testCase of cases) {
+for (let caseIndex = 0; caseIndex < cases.length; caseIndex += 1) {
+  const testCase = cases[caseIndex]
+  currentCaseIndex = caseIndex
   if (testCase.class) {
     const Ctor = glue[testCase.class]
     if (typeof Ctor !== 'function') {
@@ -167,9 +204,12 @@ for (const testCase of cases) {
 }
 
 console.log(`${pass}/${pass + fail} match on the --target web artifact` + (skipped ? ` (${skipped} skipped)` : ''))
+if (fail) console.log(`  failures span case #${firstFailIndex}..#${lastFailIndex} of ${cases.length}`)
 for (const failure of failures) {
-  // The interesting part of a throw is the message, not the (often huge) expected value.
-  const shown = failure.why === 'port threw' ? { at: failure.fn ?? failure.method, got: failure.got } : failure
-  console.log('  ', JSON.stringify(shown).slice(0, 280))
+  // Show the interesting side only; `expected` is often a whole session object.
+  const at = failure.fn ?? failure.method
+  const got = typeof failure.got === 'string' ? failure.got : JSON.stringify(failure.got)
+  const want = JSON.stringify(failure.expected)
+  console.log('  ', JSON.stringify({ at, why: failure.why ?? 'differs', got: got?.slice(0, 140), want: want?.slice(0, 140) }))
 }
 process.exit(fail === 0 ? 0 : 1)

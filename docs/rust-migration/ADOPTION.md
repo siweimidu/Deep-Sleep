@@ -91,18 +91,33 @@ powershell -NoProfile -ExecutionPolicy Bypass -File rust\web-parity.ps1
 wire 标记一共五种，适配层的还原函数必须全支持：
 `{"$undefined":true}`、`{"$num":"NaN"}`、`{"$map":[[k,v],…]}`、`{"$set":[…]}`、`{"$bytes":[…]}`。
 
-### 当前浏览器产物的验证结果（`rust/web-parity.mjs`，9897 次调用通过）
+### 参数/返回怎么编码：看 `port.rs` 的参数类型，别猜 TS 类型
 
-9 个 crate 在浏览器产物上 **全量通过**：`attachments-rs` 1556/1556、`documenttext-rs` 544/544、
-`parseevent-rs` 83/83、`paths-rs` 956/956、`schema-rs` 67/67、`sse-rs` 1372/1372、
-`toarchive-rs` 228/228、`zipreader-rs` 322/322、`zipwriter-rs` 270/270。
-`tolocal-rs` 309/315 —— 差的 6 条正是它已声明的 `known-diffs`（宿主时区日期解析）。
+TS 类型不可靠：`model: ('deepseek-flash' | 'deepseek-v4-pro')` 在 Rust 里是普通 `String`（原样传），
+而 `value: unknown` 在 Rust 里是 `serde_json::Value`（要传 JSON 文本）。两者在 `.d.ts` 里都写成
+`string`，光看 d.ts 分不出来。**判据用 port.rs 的 Rust 参数类型**：
 
-**还没在浏览器产物上跑通**：`branches-rs` 911/1092、`budget-rs` 516/527、`location-rs` 342/364、
-`reply-rs` 1308/1533、`view-rs` 1113/1403。症状是这些函数的**复杂结构体参数**在浏览器胶水里报
-`Cannot read properties of undefined (reading 'length')`，即我的 harness 的参数编码还没完全对上
-（Node 胶水的 encode 比"JSON.stringify 非原始类型"更细）。**这不影响 Rust 逻辑本身**——Node 侧
-`diff` 对这些 crate 是 100% 通过的，问题在适配层的参数编码，属于接入时要补的活，不是移植错误。
+| Rust 参数类型 | 浏览器侧要传 |
+| --- | --- |
+| 含 `Value`（`Value`、`Option<Value>`、`Map<String, Value>`…） | `JSON.stringify(值)`，且**不要**先还原标记 |
+| `String` / `f64` / `bool` | 原样 |
+| `pub async fn` | 返回值要 `await` |
+| 记录里缺省的尾随可选参数 | 补 `{"$undefined":true}` 的 JSON 文本，**不能**传 `undefined`（胶水会解引用崩） |
+
+`rust/web-parity.mjs` 就是从 `src/port.rs` 读参数类型来编码的，可以直接当适配层的参考实现。
+
+### 浏览器产物验证结果：与 Node 侧完全一致
+
+`rust/web-parity.ps1` 对 15 个 crate 全部回放，**10626 次调用通过**，且每个 crate 的数字与
+`rust-anything gate` 的 Node 侧结论**逐一对齐**：
+
+| 状态 | crate |
+| --- | --- |
+| 浏览器产物全量通过（14 个） | attachments 1556/1556、branches 1092/1092、budget 527/527、documenttext 544/544、location 364/364、parseevent 83/83、paths 956/956、reply 1533/1533、schema 67/67、sse 1372/1372、toarchive 228/228、view 1403/1403、zipreader 322/322、zipwriter 270/270 |
+| 只差已声明差异（1 个） | tolocal 309/315 —— 差的 6 条正是 `known-diffs.jsonl` 里的 6 条（V8 legacy 日期解析 / 无时区），已逐条核对输入一致 |
+
+也就是说：**Node 胶水 100% 通过的 crate，换成浏览器胶水后仍然 100% 通过**，不存在"验的和发的不是
+一套"的隐患。
 
 ## 4. 随时复验等价性
 
