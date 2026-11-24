@@ -46,23 +46,26 @@ Android 容器用 `WebViewAssetLoader`/`assets` 提供页面时，`import.meta.u
 
 ## 3. TS 适配层（按需开启，可回退）
 
-不建议一次性全切。每个单元都保留原 TS 实现，加一个开关：
+**`paths.ts` 已经接好了，可以作为接入其余 crate 的模板**（`src/rust-core/paths.ts`）：
 
-```ts
-let rust: typeof import('./sse_rs.js') | null = null
+- 生成浏览器产物到应用能 import 的位置：
+  `powershell -NoProfile -ExecutionPolicy Bypass -File rust\build-web-core.ps1 -Crate paths-rs`
+  → 产出 `src/rust-core/pkg/paths_rs.{js,d.ts}` + `paths_rs_bg.wasm`（**已提交**，所以不装 Rust 也能构建）；
+- `rspack.config.ts` 已加 `{ test: /\.wasm$/, type: 'asset/resource' }`；
+- 适配层模块加载时**自动 `void load()`**，不阻塞首屏：能拿到 wasm 就走 Rust，拿不到就返回 `null`
+  让调用方走原 TS 实现 —— 所以它永远不可能成为新的失败源；
+- 调用点保持同步：`sessionPath = (id) => rustPaths.sessionPath(id) ?? \`chat_sessions/${id}.json\``。
 
-export const loadRustCore = async () => {
-  if (!rust) {
-    const mod = await import('./sse_rs.js')
-    await mod.default({ module_or_path: new URL('./sse_rs_bg.wasm', import.meta.url) })
-    rust = mod
-  }
-  return rust
-}
-```
+实测证据（都已跑过）：`pnpm type` 干净、`pnpm lint` 0 warning 0 error（生成目录已加入
+`.oxlintrc.json` 的 `ignorePatterns`）、`pnpm build` 两次 `Rspack compiled successfully`，且
+`dist/static/media/paths_rs_bg.<hash>.wasm`（233,503 B）被真实产出并被主 bundle 引用。
 
-调用点写成 `const decoder = useRust ? new (await loadRustCore()).ServerSentEventDecoder()
-: new ServerSentEventDecoder()`，出问题把开关关掉即可回到纯 TS。
+Android 侧资产是由 `WebViewAssetLoader` 以 `https://appassets.androidplatform.net/` 提供的
+（`MainActivity.java:51`），所以 `fetch()` 取 wasm 在生产环境可用——这正是不能把 wasm 放到
+`file://` 下的原因。
+
+其余 crate 照抄这个模板即可；差异只有两点：`Value` 参数/返回值要 `JSON.stringify`/`JSON.parse`
+（见下表），`async` 要 `await`。
 
 **注意 `Map` 返回值**：`toLocalSession`、`branches` 这类返回 JS `Map` 的单元，二进制 wire 路径需要
 `index.cjs` 里那行 `return revive(t)` 补丁（见 `rust/tolocal-rs/fix-glue.mjs`）。换成

@@ -78,6 +78,7 @@ export const createConfig = ({
       },
       { test: /\.(woff2?|ttf)$/, type: 'asset/resource' },
       { test: /\.svg$/, type: 'asset/resource' },
+      { test: /\.wasm$/, type: 'asset/resource' },
       { test: /\.(?:png|jpe?g|webp|avif)$/, type: 'asset/resource' },
     ],
   },

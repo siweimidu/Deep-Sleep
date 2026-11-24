@@ -55,7 +55,16 @@ Get-ChildItem rust -Directory | Where-Object { Test-Path "$($_.FullName)\rust-an
 详见 ADOPTION.md。
 
 
-## 没有移植的东西，以及为什么（都是证据，不是偷懒）
+## 已经开始接入：`paths.ts`
+
+`src/services/chat/history/paths.ts` 现在走 Rust（`src/rust-core/paths.ts` 适配层），是接入其余
+crate 的模板。适配层模块加载时自动初始化，**拿不到 wasm 就返回 `null` 让调用方走原 TS 实现**，
+所以接入不会成为新的失败源。
+
+实测：`pnpm type` 干净、`pnpm lint` 0 error、`pnpm build` 成功，且
+`dist/static/media/paths_rs_bg.<hash>.wasm`（233,503 B）确实被产出并被主 bundle 引用。
+
+
 
 **类型上过不了桥的：**
 - `services/api/errors.ts` —— 5 个导出里 4 个靠 `instanceof ApiError`；整份留在 TS。
