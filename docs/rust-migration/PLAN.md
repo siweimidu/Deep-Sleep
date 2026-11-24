@@ -6,9 +6,8 @@
 
 | 波次 | 单元 | 行数 | 状态 |
 | --- | --- | --- | --- |
-| W0 | `services/api/sse.ts`（ServerSentEventDecoder） | 136 | 移植完成，待 build/diff |
-| W1 | `services/api/errors.ts` | 99 | 待做 |
-| W1 | `services/api/parseEvent.ts` | 231 | 待做 |
+| W0 | `services/api/sse.ts`（ServerSentEventDecoder） | 136 | ✅ gate 通过，232/232 |
+| W1 | `services/api/parseEvent.ts` | 231 | ✅ gate 通过，83/83 |
 | W2 | `services/chat/history/schema.ts` | 263 | 待做 |
 | W2 | `services/chat/history/format.ts` | 208 | 待做 |
 | W2 | `services/chat/history/paths.ts` | — | 待做 |
@@ -39,6 +38,12 @@
 
 `zipReader` / `zipWriter` 只有返回 `Blob` 那一层是平台绑定的，压缩解压与条目解析本身是纯逻辑，
 所以移植内核、由 TS 侧的薄适配层负责 `Blob` 包装。
+
+`services/api/errors.ts` 整份留在 TS：5 个导出里 3 个（`classifyApiError`、
+`isRetryableApiError`、`getFileErrorCode`、`getUploadErrorInfo`）都靠 `instanceof ApiError`
+判断，类身份过不了桥；剩下 2 个（`classifyStatus`、`extractFileIds`）是边角，而且该模块
+`import { ApiError } from './client.js'` 后在 Node 里根本加载不起来（实测 record 直接崩），
+所以它不是一个能独立成 crate 的单元。
 
 ## 顺序理由
 

@@ -1,0 +1,30 @@
+{
+  "schema": "rust-anything/bridge@1",
+  "root": "D:\\Code\\重构\\deepseek",
+  "unit": "src/services/api/parseEvent.ts",
+  "language": "ts",
+  "kind": "wasm",
+  "crate_name": "parseevent-rs",
+  "exports": [
+    {
+      "name": "readMessageEvent",
+      "file": "src/services/api/parseEvent.ts",
+      "line": 175,
+      "params": [
+        {
+          "name": "value",
+          "ts_type": "unknown",
+          "optional": false,
+          "rest": false
+        }
+      ],
+      "returns": "(| {\n      type: 'message_start'\n      /** id 为不带 msg_ 前缀的 UUID，等于响应头 x-ds-request-id */\n      message: { id: string; model: string; usage?: {\n  /** 未命中缓存的输入 Token */\n  input_tokens: number\n  cache_creation_input_tokens: number\n  cache_read_input_tokens: number\n  /** message_start 中为 0，message_delta 中为全轮累计值 */\n  output_tokens: number\n  /** 仅当 message_delta 中有对外输出的搜索结果块时出现 */\n  server_tool_use?: { web_search_requests: number; tool_search: number }\n} }\n    }\n  | { type: 'content_block_start'; index: number; content_block: ({ type: 'text'; text: string; citations?: ({\n  type: 'web_search_result_location'\n  url: string\n  /** 查不到标题时为 null */\n  title: string | null\n  /** 当前文本块截至该引用处的全部正文（去除首尾空白） */\n  cited_text: string\n  /** 恒为空串 */\n  encrypted_index: string\n})[] } | { type: 'thinking'; thinking: string; signature: string } | (| ({\n  type: 'server_tool_use'\n  /** srvtoolu_{s|ds|rl|is|dis}_{序号}_{32 位 hex} */\n  id: string\n  /** 文字搜索与图搜均为 deepseek_web_search；read_link 为 deepseek_read_url */\n  name: 'deepseek_web_search' | 'deepseek_read_url'\n  input: ServerToolInput\n  caller: { type: 'direct' }\n  kind: ServerToolKind\n})\n  | ({\n  type: 'web_search_tool_result'\n  tool_use_id: string\n  /** 成功且无可见结果时为 []；失败时为只含一个错误项的数组 */\n  content: (WebSearchResult | WebSearchToolResultError)[]\n  kind: 'search' | 'deep_search' | 'image_search' | 'deep_image_search'\n})\n  | ({\n  type: 'web_fetch_tool_result'\n  tool_use_id: string\n  content: WebFetchResult | WebFetchToolResultError\n  kind: 'read_link' | 'deep_search'\n  /** 仅 read_link 成功时返回的加密页面，多轮请求原样回传；失败及 deep_search 不返回 */\n  signature?: string\n})) | { type: 'tool_use'; id: string; name: string; input: unknown }) }\n  | { type: 'content_block_delta'; index: number; delta: (| { type: 'text_delta'; text: string }\n  | { type: 'thinking_delta'; thinking: string }\n  | { type: 'signature_delta'; signature: string }\n  | { type: 'citations_delta'; citation: ({\n  type: 'web_search_result_location'\n  url: string\n  /** 查不到标题时为 null */\n  title: string | null\n  /** 当前文本块截至该引用处的全部正文（去除首尾空白） */\n  cited_text: string\n  /** 恒为空串 */\n  encrypted_index: string\n}) }\n  | { type: 'input_json_delta'; partial_json: string }) }\n  | { type: 'content_block_stop'; index: number }\n  | {\n      type: 'message_delta'\n      /** title 仅在开启标题且生成成功时出现；stop_details 仅在 refusal 时出现 */\n      delta: {\n        stop_reason: ('end_turn' | 'max_tokens' | 'tool_use' | 'refusal')\n        stop_sequence: null\n        stop_details?: { type: 'refusal'; category: null; explanation: null }\n        title?: string\n      }\n      usage?: {\n  /** 未命中缓存的输入 Token */\n  input_tokens: number\n  cache_creation_input_tokens: number\n  cache_read_input_tokens: number\n  /** message_start 中为 0，message_delta 中为全轮累计值 */\n  output_tokens: number\n  /** 仅当 message_delta 中有对外输出的搜索结果块时出现 */\n  server_tool_use?: { web_search_requests: number; tool_search: number }\n}\n    }\n  | { type: 'message_stop' }\n  | { type: 'ping' }) | null",
+      "is_async": false,
+      "is_generator": false,
+      "type_params": [],
+      "uses_instanceof": false
+    }
+  ],
+  "classes": [],
+  "js_only": []
+}
