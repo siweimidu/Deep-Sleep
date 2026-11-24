@@ -2,6 +2,7 @@ import appIcon from '../../assets/deepsleep-avatar.jpg'
 import { useTranslate } from '../../i18n/index.js'
 import { useApiKeyForm } from './useApiKeyForm.js'
 import styles from './ApiKeyScreen.module.css'
+import { secretInput } from '../../app/secretInput.js'
 
 export const ApiKeyScreen = () => {
   const t = useTranslate()
@@ -21,7 +22,7 @@ export const ApiKeyScreen = () => {
         <input
           aria-label="DeepSeek API Key"
           aria-invalid={Boolean(form.error)}
-          type="password"
+          {...secretInput()}
           autoComplete="off"
           autoCapitalize="off"
           spellCheck={false}

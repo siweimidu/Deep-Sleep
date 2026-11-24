@@ -6,6 +6,7 @@ import { IconButton } from '../base/IconButton.js'
 import { useApiKeyForm } from './useApiKeyForm.js'
 import { useTranslate } from '../../i18n/index.js'
 import styles from './Settings.module.css'
+import { secretInput } from '../../app/secretInput.js'
 
 /** API Key 的编辑状态：输入框与移动端底部的「确定」按钮共用 */
 export const useApiKeyEditor = () => {
@@ -40,7 +41,7 @@ export const ApiKeyField = ({ editor }: { editor: ApiKeyEditor }) => {
         ) : (
           <div className={styles.apiKeyInput}>
             <input
-              type="password"
+              {...secretInput()}
               placeholder={t('apiKeyPlaceholder')}
               autoComplete="off"
               spellCheck={false}
