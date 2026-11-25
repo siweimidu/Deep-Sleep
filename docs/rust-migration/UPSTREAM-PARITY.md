@@ -305,6 +305,11 @@ avigation_mode=2，手势导航；--android-nav-inset 未定义，应用只设�
 自定义 scheme（`appassets.androidplatform.net`）的 WebView 里无法解析节点。
 页面 JS 又读不到 `/sdcard`，所以没法用 DataTransfer 伪造。
 
+还试过第三条路：db reverse + 本地 HTTP 服务 + 应用自己的"导入链接"入口
+（startLinkImport → importHistoryFromUrl → importHistory，不校验 URL 类型，理论上接受任意 zip）。
+**结果被 CSP 挡住**：connect-src 'self' https://api.deepseek.com，页面无法 fetch http://127.0.0.1。
+这是正确的安全策略，不会为了测试而放宽。
+
 **待办**：人工点一次「设置 → 数据 → 导入 → deepseek_data-2026-11-24.zip」即可闭环
 （该归档 7 个会话全部已存在，预期"新增 0、更新 7"、总数仍 539）。
 顺手值得查的：抽屉底部的设置入口离手势感应区只有 16px，建议给抽屉列表加底部安全内边距。
