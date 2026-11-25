@@ -7,6 +7,7 @@ import { cancelUpload, describeUploadError, uploadAttachment, useUploads } from 
 import { useSettings } from '../settings.js'
 import { planContext } from './context/budget.js'
 import { ensureAnchor, withAnchor } from './context/anchor.js'
+import { backfillMirror } from './nativeMirror.js'
 import { ensureMemoryBlock, withMemory } from './context/memory.js'
 import { appendBranch, getVisibleMessages, normalizeSession, selectVersion } from './branches.js'
 import * as db from './db.js'
@@ -306,6 +307,11 @@ export const initChat = (): Promise<void> => {
       const summaries = await db.loadSessionSummaries()
       if (epoch === historyEpoch) {
         set({ ready: true, sessions: sortSessions(summaries) })
+        // 镜像只在保存时写入，功能上线前就有的会话需要在这里补进镜像（空闲时逐批进行）
+        backfillMirror(
+          summaries.map((summary) => summary.id),
+          db.loadSession
+        )
       }
     } catch (error) {
       if (epoch === historyEpoch) {

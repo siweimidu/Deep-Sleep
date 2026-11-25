@@ -26,6 +26,39 @@
 经实测确认**早已具备**、无需改动的上游项：内容搜索、消息编辑、图片查看器、个人资料编辑、
 深色状态栏、会话操作菜单、Office/PDF 提取、APK 隐式 intent、抽屉惯性吞点击、宽屏布局，
 以及上下文摘要的生成与注入（`ensureAnchor` / `ensureMemoryBlock`）。
+## 真机验证结果（OnePlus PJE110 / Android 15 / WebView 157）
+
+设备上跑的包与本地构建 **SHA256 一致**（39DE8C30…），确认验的是这一版代码。
+
+| 项 | 结果 |
+| --- | --- |
+| 兼容层 | 	oSorted/	oReversed/Object.hasOwn/	hrowIfAborted/andomUUID/.at 全部存在且可用 |
+| 原生桥 | mirrorPut/mirrorDump/mirrorRemove/mirrorIds/readApiKey/writeApiKey/statusInset 齐全 |
+| 导入 worker | 产物 200 / 135,057 字节，
+ew Worker(url) 能实例化并回消息 |
+| 回到底部 | 滚到顶 → data-visible/opacity 1/pointer-events auto → 点击后 scrollTop 1471 = max 1471 |
+| 公式复制 | 真实会话"棋类穷尽推演类比现实定数"渲染出 katex:1，复制得到 …极大但有限的整数 $N$。… |
+| 行内代码 | display:inline / padding:2px 5px / ertical-align:baseline / ox-decoration-break:clone |
+| 摘要卡片 | 注入临时会话后：标题/开头存档/条记忆/锚点文本齐全，clamp:3 → 展开 clamp:none 且出现"收起"；**验完已删除** |
+| 抽屉开合 | 关闭 left:-292 ↔ 打开 left:0,right:292 |
+| 锚点门槛 | 539 个会话中 **112 个**用户轮数 ≥3（上限 62 轮），ensureAnchor 的门槛够得到；历史会话没有 anchor 属正常（只在下一轮回复时生成） |
+
+### 手机上的两个限制（不要误判为 bug）
+
+1. **无法制造宽视口**：settings put system user_rotation 1 在这台 ColorOS 上不生效，
+   wm size/wm density 需要 WRITE_SECURE_SETTINGS（shell 没有）。宽屏布局只能以模拟器
+   （866×388）的结果为准。
+2. **合成触摸不能聚焦输入框**：CDP Input.dispatchTouchEvent 点输入框后 ctiveElement 仍是 BODY，
+   而 db input tap 打在同一点命中的是 BUTTON。所以手机上"快甩后立刻点击"的焦点结果
+   **不可作为判据**；该结论仍以模拟器那次带有效对照的测量为准（当时对照为 TEXTAREA，结论成立）。
+
+### 本轮在真机上发现并修复的 bug
+
+**镜像对历史数据完全没覆盖**：手机上有 539 个会话，mirrorDump() 却是空数组——因为镜像只在
+saveSession 时写入，功能上线前就存在的会话永远进不去，而这批老数据恰恰是最需要兜底的。
+修复：新增 mirrorIds()（只回 id，避免为了判断缺口而序列化整个镜像）与 ackfillMirror()
+（启动后在 equestIdleCallback 里每次 3 个会话补齐）。真机验证：镜像从 54 → 539，**与 IndexedDB 的 539 完全一致**。
+
 ## 验证条件（重要）
 
 - **没有物理真机了**。唯一可用的运行环境是模拟器 `emulator-5554`（Android 14 / WebView 113）。

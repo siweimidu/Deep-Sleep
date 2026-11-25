@@ -763,6 +763,12 @@ public final class MainActivity extends Activity {
             return chatStorage == null ? "[]" : chatStorage.dump();
         }
 
+        /** 只回 id 列表：启动回填要判断"哪些会话还没进镜像"，用 dump 会白白序列化几百 MB。 */
+        @JavascriptInterface
+        public String mirrorIds() {
+            return chatStorage == null ? "[]" : chatStorage.ids();
+        }
+
         @JavascriptInterface
         public void requestRecentPhotos() { runOnUiThread(() -> showRecentPhotos()); }
 

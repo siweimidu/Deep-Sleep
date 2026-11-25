@@ -92,6 +92,20 @@ final class ChatStorage extends SQLiteOpenHelper {
         return "[" + String.join(",", pairs) + "]";
     }
 
+    /** 只取 id 列表，供前端判断哪些会话还需要回填（比 dump 轻得多）。返回 ["id", ...] 的 JSON。 */
+    synchronized String ids() {
+        List<String> ids = new ArrayList<>();
+        try (Cursor cursor = getReadableDatabase()
+            .query(TABLE, new String[]{"id"}, null, null, null, null, "updated ASC")) {
+            while (cursor.moveToNext()) {
+                ids.add(quote(cursor.getString(0)));
+            }
+        } catch (RuntimeException error) {
+            return "[]";
+        }
+        return "[" + String.join(",", ids) + "]";
+    }
+
     synchronized int count() {
         try (Cursor cursor = getReadableDatabase()
             .rawQuery("SELECT COUNT(*) FROM " + TABLE, null)) {

@@ -10,6 +10,8 @@ type AndroidBridge = {
   mirrorPut?: (id: string, body: string) => void
   mirrorRemove?: (id: string) => void
   mirrorDump?: () => string
+  /** 只回 id 列表，回填时用来判断缺口 */
+  mirrorIds?: () => string
   requestRecentPhotos: () => void
   prefetchRecentPhotos: () => void
   requestHistoryExport: (name: string) => void

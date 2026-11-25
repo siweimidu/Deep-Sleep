@@ -20,6 +20,7 @@ type MirrorBridge = {
   mirrorPut?: (id: string, body: string) => void
   mirrorRemove?: (id: string) => void
   mirrorDump?: () => string
+  mirrorIds?: () => string
 }
 
 const bridge = (): MirrorBridge | null => {
@@ -132,6 +133,72 @@ export const withMirrorMuted = async <T>(run: () => Promise<T>): Promise<T> => {
   } finally {
     muted = previous
   }
+}
+
+/** 只读 id：判断"哪些会话还没进镜像"时不能拿 dump，那会把几百 MB 全序列化一遍。 */
+export const readMirroredIds = (): Set<string> => {
+  const device = bridge()
+  if (!device?.mirrorIds) {
+    return new Set()
+  }
+  try {
+    const parsed: unknown = JSON.parse(device.mirrorIds() ?? '[]')
+    return new Set(
+      Array.isArray(parsed) ? parsed.filter((id): id is string => typeof id === 'string') : []
+    )
+  } catch {
+    return new Set()
+  }
+}
+
+const idle = (run: () => void): void => {
+  const scheduler = window as Window & {
+    requestIdleCallback?: (callback: () => void, options?: { timeout: number }) => number
+  }
+  if (scheduler.requestIdleCallback) {
+    scheduler.requestIdleCallback(run, { timeout: 2000 })
+    return
+  }
+  setTimeout(run, 200)
+}
+
+/**
+ * 启动回填。
+ *
+ * 镜像只在 saveSession 时写入，所以功能上线**之前**就存在的会话永远进不去——
+ * 而这批老数据恰恰最需要兜底（真正会因为清缓存而丢的就是它们）。
+ * 这里空闲时把缺口补齐：一次最多 3 个会话，绝不和聊天抢主线程。
+ */
+export const backfillMirror = (
+  ids: string[],
+  load: (id: string) => Promise<Session | undefined>
+): void => {
+  if (!bridge() || ids.length === 0) {
+    return
+  }
+  const have = readMirroredIds()
+  const missing = ids.filter((id) => !have.has(id))
+  if (missing.length === 0) {
+    return
+  }
+  let cursor = 0
+  const pump = (): void => {
+    for (let step = 0; step < 3 && cursor < missing.length; step += 1) {
+      const id = missing[cursor]
+      cursor += 1
+      void load(id)
+        .then((session) => {
+          if (session) {
+            mirrorSession(session)
+          }
+        })
+        .catch(() => undefined)
+    }
+    if (cursor < missing.length) {
+      idle(pump)
+    }
+  }
+  idle(pump)
 }
 
 /** 页面进入后台/关闭前立刻落盘，补上合并窗口内最后那一批。 */
