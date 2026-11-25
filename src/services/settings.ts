@@ -4,6 +4,7 @@ import type { TtsVoice } from './api/speech.js'
 import { normalizeLocation, type UserLocation } from './location.js'
 import { setOriginOverride } from './api/originStore.js'
 import { normalizeOrigin } from './api/endpoint.js'
+import { DEEPSEEK_BASE_URL, findProvider } from './api/providers.js'
 
 export type Locale = 'zh-CN' | 'en-US'
 export type LocalePreference = Locale | 'system'
@@ -32,6 +33,14 @@ type Settings = {
   accountName: string | null
   /** 自定义 API 地址（只存 origin）；null 表示用内置地址 */
   apiBaseUrl: string | null
+  /** 当前厂商预设 id（见 api/providers.ts）；'deepseek' 表示官方 */
+  providerId: string
+  /** 完整 OpenAI 兼容 base url（带路径），默认 DeepSeek 官方 */
+  providerBaseUrl: string
+  /** 选中的模型名；null 表示用应用自带的模型 */
+  providerModel: string | null
+  /** 已保存的模型 chips */
+  savedModels: string[]
 }
 
 const KEYS = {
@@ -50,6 +59,10 @@ const KEYS = {
   avatar: 'deepsleep:avatar',
   accountName: 'deepsleep:account-name',
   apiBaseUrl: 'replica:api-base-url',
+  providerId: 'replica:provider-id',
+  providerBaseUrl: 'replica:provider-base-url',
+  providerModel: 'replica:provider-model',
+  savedModels: 'replica:provider-models',
 } as const
 
 const read = (key: string) => {
@@ -131,6 +144,15 @@ const initialTtsVoice = (): TtsVoice => (read(KEYS.ttsVoice) === 'tide' ? 'tide'
 
 const initialApiBaseUrl = (): string | null => normalizeOrigin(read(KEYS.apiBaseUrl))
 
+const initialSavedModels = (): string[] => {
+  try {
+    const value: unknown = JSON.parse(read(KEYS.savedModels) ?? '[]')
+    return Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : []
+  } catch {
+    return []
+  }
+}
+
 export const useSettings = create<Settings>(() => ({
   apiKey: android ? android.readApiKey() : read(KEYS.apiKey),
   locale: resolveLocale(initialLocalePreference()),
@@ -148,6 +170,10 @@ export const useSettings = create<Settings>(() => ({
   avatar: read(KEYS.avatar),
   accountName: read(KEYS.accountName),
   apiBaseUrl: initialApiBaseUrl(),
+  providerId: read(KEYS.providerId) ?? 'deepseek',
+  providerBaseUrl: read(KEYS.providerBaseUrl) ?? DEEPSEEK_BASE_URL,
+  providerModel: read(KEYS.providerModel),
+  savedModels: initialSavedModels(),
 }))
 
 // 启动时把已保存的自定义地址同步给客户端：store 初始化后立刻生效，避免第一次请求走错地址
@@ -244,4 +270,43 @@ export const setApiBaseUrl = (value: string | null): boolean => {
   useSettings.setState({ apiBaseUrl: origin })
   setOriginOverride(origin)
   return true
+}
+/** 切换厂商预设：同时把完整 base url 与 Anthropic 通路的 origin 一起对齐。 */
+export const setProvider = (id: string): void => {
+  const preset = findProvider(id)
+  const baseUrl = preset?.baseUrl || DEEPSEEK_BASE_URL
+  write(KEYS.providerId, id)
+  write(KEYS.providerBaseUrl, baseUrl)
+  const origin = normalizeOrigin(baseUrl)
+  write(KEYS.apiBaseUrl, origin)
+  useSettings.setState({ providerId: id, providerBaseUrl: baseUrl, apiBaseUrl: origin })
+  setOriginOverride(origin)
+}
+
+/** 手填完整 base url（带路径），origin 同步给 Anthropic 通路。 */
+export const setProviderBaseUrl = (value: string): void => {
+  const trimmed = value.trim().replace(/\/+$/, '')
+  write(KEYS.providerBaseUrl, trimmed)
+  const origin = normalizeOrigin(trimmed)
+  write(KEYS.apiBaseUrl, origin)
+  useSettings.setState({ providerBaseUrl: trimmed, apiBaseUrl: origin })
+  setOriginOverride(origin)
+}
+
+export const setProviderModel = (model: string | null): void => {
+  const value = model?.trim() ? model.trim() : null
+  write(KEYS.providerModel, value)
+  useSettings.setState({ providerModel: value })
+}
+
+/** 保存/移除 chips 里的模型名，去重且保序。 */
+export const toggleSavedModel = (model: string): void => {
+  const value = model.trim()
+  if (!value) {
+    return
+  }
+  const current = useSettings.getState().savedModels
+  const next = current.includes(value) ? current.filter((item) => item !== value) : [...current, value]
+  write(KEYS.savedModels, JSON.stringify(next))
+  useSettings.setState({ savedModels: next })
 }
