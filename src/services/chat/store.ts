@@ -1164,18 +1164,20 @@ const streamReply = async (sessionId: string, initial: AssistantMessage, request
                   signal: controller.signal,
                 })
               ) as unknown as ReturnType<typeof streamMessage>)
-            : streamMessage(
-                providerState.apiKey ?? '',
-                {
-                  model: initial.model ?? MODEL,
+            : streamWithKeyRotation(providerState.providerId, (rotatingKey) =>
+                streamMessage(
+                  rotatingKey,
+                  {
+                    model: initial.model ?? MODEL,
                   system: systemPrompt,
                   messages,
                   thinking: { type: initial.thinking ? 'enabled' : 'disabled' },
                   safety_check: SAFETY_CHECK,
                   tools: serverTools(initial.search ?? false),
-                  ...(titleRequests.has(controller) ? { title: { enabled: true } } : {}),
-                },
-                controller.signal
+                    ...(titleRequests.has(controller) ? { title: { enabled: true } } : {}),
+                  },
+                  controller.signal
+                )
               )
         )
         const blockIndexes = new Map<number, number>()

@@ -82,6 +82,8 @@ const KEYS = {
   providerId: 'replica:provider-id',
   providerBaseUrl: 'replica:provider-base-url',
   providerModel: 'replica:provider-model',
+  /** 厂商 id → 上次用的模型名，切回来时恢复，省得每家都重选一遍 */
+  providerModelById: 'replica:provider-model-by-id',
   savedModels: 'replica:provider-models',
 } as const
 
@@ -163,6 +165,33 @@ const initialThemePreference = (): ThemePreference => {
 const initialTtsVoice = (): TtsVoice => (read(KEYS.ttsVoice) === 'tide' ? 'tide' : 'stella')
 
 const initialApiBaseUrl = (): string | null => normalizeOrigin(read(KEYS.apiBaseUrl))
+
+/** 厂商 id → 上次选的模型名。切厂商时用它恢复，避免顺手带走过别家的模型名。 */
+const readModelMap = (): Record<string, string> => {
+  try {
+    const value: unknown = JSON.parse(read(KEYS.providerModelById) ?? '{}')
+    if (!value || typeof value !== 'object') {
+      return {}
+    }
+    const map: Record<string, string> = {}
+    for (const [providerId, model] of Object.entries(value as Record<string, unknown>)) {
+      if (typeof model === 'string' && model.trim()) {
+        map[providerId] = model.trim()
+      }
+    }
+    return map
+  } catch {
+    return {}
+  }
+}
+
+const rememberModel = (providerId: string, model: string | null): void => {
+  const map = readModelMap()
+  const next = model
+    ? { ...map, [providerId]: model }
+    : Object.fromEntries(Object.entries(map).filter(([id]) => id !== providerId))
+  write(KEYS.providerModelById, JSON.stringify(next))
+}
 
 const initialSavedModels = (): string[] => {
   try {
@@ -400,22 +429,25 @@ export const setApiBaseUrl = (value: string | null): boolean => {
   setOriginOverride(origin)
   return true
 }
-/** 切换厂商预设：base url 与 Anthropic 通路的 origin 一起对齐，并清掉旧厂商的模型名。 */
+/**
+ * 切换厂商预设：base url 与 Anthropic 通路的 origin 一起对齐，
+ * 模型名换成这家上次用的那把（没有就是未选），绝不会把别家的模型名带过去。
+ */
 export const setProvider = (id: string): void => {
   const preset = findProvider(id)
   const baseUrl = preset?.baseUrl || DEEPSEEK_BASE_URL
+  const remembered = readModelMap()[id] ?? null
   write(KEYS.providerId, id)
   write(KEYS.providerBaseUrl, baseUrl)
   const origin = normalizeOrigin(baseUrl)
   write(KEYS.apiBaseUrl, origin)
-  // 模型名是厂商私有的：留着别的厂商的模型名，发出去只会是一个必然失败的请求。
-  write(KEYS.providerModel, null)
+  write(KEYS.providerModel, remembered)
   // 每家有自己的钥匙串，换厂商要连 Key 一起换过去；否则会拿上一家的 Key 去请求这一家。
   useSettings.setState({
     providerId: id,
     providerBaseUrl: baseUrl,
     apiBaseUrl: origin,
-    providerModel: null,
+    providerModel: remembered,
     apiKey: activeKeyOf(keyring, id),
     providerKeys: keysOf(keyring, id),
   })
@@ -457,6 +489,7 @@ export const setProviderBaseUrl = (value: string): void => {
 export const setProviderModel = (model: string | null): void => {
   const value = model?.trim() ? model.trim() : null
   write(KEYS.providerModel, value)
+  rememberModel(useSettings.getState().providerId, value)
   useSettings.setState({ providerModel: value })
 }
 

@@ -259,3 +259,23 @@ anthropic=TypeError  nvidia=TypeError  perplexity=TypeError  cloudflare=TypeErro
 单测 `scripts/test-keyring.mjs`（28 条）：迁移、去重、指定在用、删到空、轮换绕回、只有一把不轮换、
 替换在用那把、掩码，以及哪些错误该换 Key。
 
+
+### 模型按厂商记住 + 官方通路也走轮换
+
+上一轮为了修"切厂商带着别家模型名"的 bug，直接把模型清空了；代价是每家都要重选一遍。
+现在把 `厂商 id → 模型名` 存成一张表（`replica:provider-model-by-id`）：
+切厂商时读这张表恢复该家上次用的模型，没有就是未选择——既不带旧模型，也不用每次重选。
+
+真机（模拟器）验证，预置 `{agnes-cn: m2-agnes, csdn: m1-csdn}` 后来回切：
+
+```
+SWITCH_TO_AGNES  m2-agnes
+SWITCH_BACK_CSDN m1-csdn
+SWITCH_TO_GOOGLE null      ← 没存过的厂商仍然是未选择，不会带别家的名字
+```
+
+官方 DeepSeek 通路也接上了同一套轮换（`streamWithKeyRotation`）：单把 Key 时行为完全不变，
+多把时 401/402/403/429 会自动换下一把。
+**注意**：这条改动只做到"编译通过 + 与第三方通路共用同一个已真机验证的轮换实现"，
+没有用两把真 DeepSeek Key 跑通——手上没有可用的 DeepSeek Key。
+
