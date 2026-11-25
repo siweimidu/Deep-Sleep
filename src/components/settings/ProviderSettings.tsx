@@ -98,6 +98,15 @@ export const ProviderSettings = () => {
     if (text.startsWith('HTTP 401')) {
       return tr('API Key 无效或无权限（401）', 'Invalid key (401)')
     }
+    if (text.startsWith('HTTP 402')) {
+      return tr('余额不足，充值后再试（402）', 'Out of credit (402)')
+    }
+    if (text.startsWith('HTTP 429')) {
+      return tr('请求太频繁或已限流（429）', 'Rate limited (429)')
+    }
+    if (text.startsWith('HTTP 5')) {
+      return tr('对方服务端出错，稍后再试', 'Vendor server error')
+    }
     if (text.startsWith('HTTP 403')) {
       return tr('该 Key 无权访问（403）', 'No access (403)')
     }

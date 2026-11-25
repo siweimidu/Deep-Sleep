@@ -85,6 +85,8 @@ const KEYS = {
   /** 厂商 id → 上次用的模型名，切回来时恢复，省得每家都重选一遍 */
   providerModelById: 'replica:provider-model-by-id',
   savedModels: 'replica:provider-models',
+  /** 厂商 id → 该家收藏的模型名 */
+  savedModelsById: 'replica:provider-models-by-id',
 } as const
 
 const read = (key: string) => {
@@ -166,6 +168,29 @@ const initialTtsVoice = (): TtsVoice => (read(KEYS.ttsVoice) === 'tide' ? 'tide'
 
 const initialApiBaseUrl = (): string | null => normalizeOrigin(read(KEYS.apiBaseUrl))
 
+/** 厂商 id → 该家收藏的模型名。老版本是一个全局数组，首次升级时归给当前厂商。 */
+const readSavedModelsMap = (): Record<string, string[]> => {
+  try {
+    const value: unknown = JSON.parse(read(KEYS.savedModelsById) ?? '{}')
+    if (!value || typeof value !== 'object') {
+      return {}
+    }
+    const map: Record<string, string[]> = {}
+    for (const [providerId, list] of Object.entries(value as Record<string, unknown>)) {
+      if (!Array.isArray(list)) {
+        continue
+      }
+      const models = list.filter((item): item is string => typeof item === 'string' && item.trim().length > 0)
+      if (models.length > 0) {
+        map[providerId] = models
+      }
+    }
+    return map
+  } catch {
+    return {}
+  }
+}
+
 /** 厂商 id → 上次选的模型名。切厂商时用它恢复，避免顺手带走过别家的模型名。 */
 const readModelMap = (): Record<string, string> => {
   try {
@@ -223,6 +248,8 @@ const readKeyringRaw = (): string | null =>
 
 const startProvider = initialProvider()
 let keyring: Keyring = parseKeyring(readKeyringRaw(), startProvider.providerId)
+/** 当前厂商的模型收藏；没有存过就退回老版本那个全局数组 */
+const startSavedModels = readSavedModelsMap()[startProvider.providerId] ?? initialSavedModels()
 
 const persistKeyring = (next: Keyring): boolean => {
   const payload = serializeKeyring(next)
@@ -329,7 +356,7 @@ export const useSettings = create<Settings>(() => ({
   apiBaseUrl: initialApiBaseUrl(),
   ...startProvider,
   providerModel: read(KEYS.providerModel),
-  savedModels: initialSavedModels(),
+  savedModels: startSavedModels,
 }))
 
 // 启动时把已保存的自定义地址同步给客户端：store 初始化后立刻生效，避免第一次请求走错地址
@@ -448,6 +475,7 @@ export const setProvider = (id: string): void => {
     providerBaseUrl: baseUrl,
     apiBaseUrl: origin,
     providerModel: remembered,
+    savedModels: readSavedModelsMap()[id] ?? [],
     apiKey: activeKeyOf(keyring, id),
     providerKeys: keysOf(keyring, id),
   })
@@ -501,6 +529,9 @@ export const toggleSavedModel = (model: string): void => {
   }
   const current = useSettings.getState().savedModels
   const next = current.includes(value) ? current.filter((item) => item !== value) : [...current, value]
-  write(KEYS.savedModels, JSON.stringify(next))
+  // 模型名是厂商私有的，收藏也按厂商分开存，免得在别家的列表里看到用不了的模型
+  const map = readSavedModelsMap()
+  map[useSettings.getState().providerId] = next
+  write(KEYS.savedModelsById, JSON.stringify(map))
   useSettings.setState({ savedModels: next })
 }
