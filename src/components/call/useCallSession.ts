@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, type RefObject } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { transcribe } from '../../services/api/speech.js'
 import { setDraftText } from '../../services/chat/drafts.js'
 import { sendMessage, useChatStore } from '../../services/chat/store.js'
@@ -11,12 +11,8 @@ import {
   createLevelSmoother,
   createTurnDetector,
   nextPhase,
-  orbParams,
   PHASE_LISTENING,
   PHASE_MUTED,
-  PHASE_SPEAKING,
-  PHASE_THINKING,
-  TURN_END,
   EVENT_INTERRUPT,
   EVENT_LISTEN,
   EVENT_MUTE,
@@ -24,36 +20,33 @@ import {
   EVENT_SPOKEN,
   EVENT_THINK,
   EVENT_UNMUTE,
+  TURN_END,
 } from '../../rust-core/call.js'
 import { showToast } from '../base/toastState.js'
 
 export type CallPhase = 'listening' | 'thinking' | 'speaking' | 'muted'
 
-export const PHASE_CODE: Record<CallPhase, number> = {
-  listening: PHASE_LISTENING,
-  thinking: PHASE_THINKING,
-  speaking: PHASE_SPEAKING,
-  muted: PHASE_MUTED,
-}
-
 const PHASE_BY_CODE: CallPhase[] = ['listening', 'thinking', 'speaking', 'muted']
+
+/** 电平回传节流：球体靠 CSS 过渡插值，界面不需要 60fps 的重渲染 */
+const LEVEL_PUBLISH_MS = 60
 
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
 /**
  * 通话主循环：录一轮（静音判停）→ 转写 → 发消息 → 等回复 → 朗读 → 继续录。
- * 判停、包络、光球参数都来自 Rust（`call-rs`），这里只负责有副作用的那部分。
- * 用递增的 ticket 作废整轮，静音/挂断/离开页面时只需 +1 就能让所有 await 失效。
+ *
+ * 判停、包络、阶段迁移都走 Rust（`call-rs`），这里只负责有副作用的那部分：
+ * 录音、转写、TTS、渲染。用递增的 ticket 作废整轮，静音/挂断/离开页面时 +1 即可。
  */
 export const useCallSession = (active: boolean) => {
   const [phase, setPhase] = useState<CallPhase>('listening')
+  const [level, setLevel] = useState(0)
   const [seconds, setSeconds] = useState(0)
   const [round, setRound] = useState(0)
   const recording = useRef<Recording | null>(null)
   const playback = useRef<AbortController | null>(null)
   const loop = useRef(0)
-  // 逐帧电平放在 ref 里：球体由 rAF 直接读，不进 React 渲染，否则每秒 60 次重渲染必卡
-  const level = useRef(0)
   const phaseCode = useRef<number>(PHASE_LISTENING)
 
   const applyPhase = useCallback((code: number) => {
@@ -75,7 +68,7 @@ export const useCallSession = (active: boolean) => {
     recording.current = null
     playback.current?.abort()
     playback.current = null
-    level.current = 0
+    setLevel(0)
   }, [])
 
   useEffect(() => {
@@ -85,13 +78,13 @@ export const useCallSession = (active: boolean) => {
     const ticket = ++loop.current
     applyPhase(PHASE_LISTENING)
     setSeconds(0)
-    level.current = 0
+    setLevel(0)
 
     /** 录到用户停止说话，返回这段音频 */
     const recordTurn = () =>
       new Promise<Blob | null>((resolve) => {
         void (async () => {
-          // 先确保 Rust 核心在位：通话开始就加载，判停从第一帧起走 Rust
+          // 先确保 Rust 核心在位：判停从第一帧起就走 wasm
           await ensureCallCore()
           let current: Recording
           try {
@@ -111,6 +104,7 @@ export const useCallSession = (active: boolean) => {
           const detector = createTurnDetector()
           const smoother = createLevelSmoother()
           let lastAt = performance.now()
+          let publishedAt = 0
           const tick = () => {
             if (ticket !== loop.current || recording.current !== current) {
               resolve(null)
@@ -120,15 +114,19 @@ export const useCallSession = (active: boolean) => {
             // 真机验证用的注入口：只有调试包会用到（页面开 ?diag=1），生产里这个全局不存在
             const injected = (window as unknown as { __dshCallLevel?: number }).__dshCallLevel
             const raw = typeof injected === 'number' ? injected : (current.level?.() ?? 0)
-            // 判停用原始电平（要灵敏），球体用包络（要好看）
-            level.current = smoother.step(raw, now - lastAt)
+            // 判停用原始电平（要灵敏），界面用包络（要好看，不跟着麦克风抖）
+            const smoothed = smoother.step(raw, now - lastAt)
             lastAt = now
+            if (now - publishedAt >= LEVEL_PUBLISH_MS) {
+              publishedAt = now
+              setLevel(smoothed)
+            }
             if (detector.push(raw, now) === TURN_END) {
               // 记一笔，真机验证据此确认"判停真的走到了这里"
-              const stats = (window as unknown as { __dshCallStats?: { turns: number; at: number } })
+              const stats = window as unknown as { __dshCallStats?: { turns: number; at: number } }
               stats.__dshCallStats = { turns: (stats.__dshCallStats?.turns ?? 0) + 1, at: Math.round(now) }
               recording.current = null
-              level.current = 0
+              setLevel(0)
               void current
                 .stop()
                 .then((audio) => audio)
@@ -252,45 +250,7 @@ export const useCallSession = (active: boolean) => {
     setRound((value) => value + 1)
   }, [dispatch])
 
-  return { phase, level: level, seconds, toggleMute, interrupt, endCall: stopAll }
-}
-
-/**
- * 光球脉冲：每帧把 Rust 算出来的形状参数写进 CSS 变量。
- * 刻意不进 React：60fps 的 setState 会把主线程吃满，写 CSS 变量只触发合成。
- */
-export const useOrbPulse = (
-  ref: RefObject<HTMLElement | null>,
-  phase: CallPhase,
-  level: { readonly current: number },
-  active: boolean
-) => {
-  useEffect(() => {
-    const element = ref.current
-    // active 必须在依赖里：关闭时组件先渲染成 null，ref 还是空的；
-    // 少了它会「只在关闭状态跑过一次」，打开后变量永远停在样式表默认值。
-    if (!active || !element) {
-      return
-    }
-    const code = PHASE_CODE[phase] ?? PHASE_LISTENING
-    let frame = 0
-    let start = performance.now()
-    const tick = (now: number) => {
-      const params = orbParams(level.current, code, now - start)
-      element.style.setProperty('--orb-core', params.core.toFixed(4))
-      element.style.setProperty('--orb-glow', params.glow.toFixed(4))
-      element.style.setProperty('--orb-halo', params.halo.toFixed(4))
-      element.style.setProperty('--orb-spin', params.spin.toFixed(4))
-      element.style.setProperty('--orb-breathe', params.breathe.toFixed(4))
-      element.dataset.speaking = level.current > 0.06 ? 'true' : 'false'
-      frame = requestAnimationFrame(tick)
-    }
-    frame = requestAnimationFrame(tick)
-    return () => {
-      cancelAnimationFrame(frame)
-      start = 0
-    }
-  }, [ref, phase, level, active])
+  return { phase, level, seconds, toggleMute, interrupt, endCall: stopAll }
 }
 
 export { formatDuration } from '../../rust-core/call.js'

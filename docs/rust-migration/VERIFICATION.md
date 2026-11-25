@@ -621,3 +621,39 @@ CANVAS     {"page":true,"canvas":true,"fallback":"no"}
 3. **effect 依赖里放回调 → 上下文被自己弄丢**：父组件每次重渲染都生成新的 `onFallback` 闭包，
    effect 反复重建，而清理时调了 `loseContext()`，同一个 canvas 下一次拿到的是**已丢失的上下文**，
    表现同样是"编译失败 + 空日志"。把回调放进 ref、并去掉 `loseContext()` 才修好。
+
+
+### 回滚：UI 回到重构前的版本，Rust 后端保留
+
+用户看过两轮界面后判定"几乎全是 bug"，要求**把 UI 改回去**（重构前的版本），但**后端逻辑继续用 Rust**。
+照做：
+
+| | 处理 |
+| --- | --- |
+| `VoiceCallScreen.tsx` / `.module.css` | 从 `1d44003`（重构前的提交）按字节还原 |
+| `LiquidOrb.tsx`（WebGL 液态玻璃球） | 删除 |
+| `CallSettingsSheet.module.css`（我拆出去的那份） | 删除，弹层样式随屏幕样式一起回来了 |
+| `rust/call-rs` + `src/rust-core/call.ts` | **保留**，判停/包络/阶段迁移/时长仍然走 wasm |
+| `useCallSession.ts` | 保留 Rust 版本，但把 `level` 改回**数值**（老 UI 要用它驱动 `--level`），
+并按 60ms 节流更新，避免每帧 `setState`；时长格式化也改成用 Rust 的 `formatDuration` |
+
+还原后真机复验（OnePlus PJE110）：
+
+```
+T0  phase=listening  orb=[150,150]  rust=true
+T1  注入电平 0.6 → speaking="true"  orb=[164,164]     ← 球体跟着电平涨，且是 Rust 的包络算的
+T2  电平归零      → speaking=null   orb=[151,151]
+TURNS 1                                                ← 判停真的触发了
+BACK  active=true x=54                                 ← 预测性返回正常
+SHEET {sheet:1, backdrop:1}                            ← 朗读音色弹层正常
+CLOSED true                                            ← 挂断正常
+```
+
+教训记在这里：**未经验证的"重做"要按可回滚的方式做**。这次能一条命令回到 `1d44003`，
+是因为 UI 与后端是分两次提交的；如果揉在一起，就回不去了。
+
+另外两个顺手踩到的坑：
+1. `git show <rev>:<file> > file` 在 PowerShell 里写出的是 **UTF-16**，编辑器会把文件当成二进制；
+   用 node 读 `git show` 的 Buffer 直接落盘才是字节级还原。
+2. 判断弹层"没打开"之前要先确认点到了正确的元素 —— 我第一次按坐标点，落在两个按钮中间，
+   差点又误判成 bug（实际 `sheet:1, backdrop:1` 一直是好的）。
