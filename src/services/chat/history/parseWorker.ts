@@ -74,7 +74,10 @@ const parseInline = (text: string): { session: Session; images: Map<string, stri
 
 /**
  * 解析一条会话 JSON。大于 8KB 且 worker 可用时在后台线程做，否则就地解析。
- * 抛出的错误与主线程路径完全一致（BackupError），调用方不用区分。
+ *
+ * **worker 只是加速路径，不能成为失败点**：它崩了、超时了、被系统回收了，都必须退回主线程解析。
+ * 导入是用户唯一无法自行补救的操作（数据在文件里，但应用报错就结束），所以这里宁可慢一点也不能失败。
+ * 唯一仍然抛出的错误来自主线程解析本身——那是数据真的坏了，与加速无关。
  */
 export const parseSessionText = async (
   text: string
@@ -87,29 +90,41 @@ export const parseSessionText = async (
     return parseInline(text)
   }
   const id = ++sequence
-  return new Promise((resolve, reject) => {
-    const timer = setTimeout(() => {
-      pending.delete(id)
-      reject(new Error('parse worker timeout'))
-    }, REQUEST_TIMEOUT_MS)
-    pending.set(id, {
-      resolve: (value) => {
+  try {
+    return await new Promise<{ session: Session; images: Map<string, string> }>((resolve, reject) => {
+      const timer = setTimeout(() => {
+        pending.delete(id)
+        reject(new Error('parse worker timeout'))
+      }, REQUEST_TIMEOUT_MS)
+      pending.set(id, {
+        resolve: (value) => {
+          clearTimeout(timer)
+          resolve(value)
+        },
+        reject: (error) => {
+          clearTimeout(timer)
+          reject(error)
+        },
+      })
+      try {
+        instance.postMessage({ id, text })
+      } catch (error) {
         clearTimeout(timer)
-        resolve(value)
-      },
-      reject: (error) => {
-        clearTimeout(timer)
-        reject(error)
-      },
+        pending.delete(id)
+        reject(error instanceof Error ? error : new Error(String(error)))
+      }
     })
-    try {
-      instance.postMessage({ id, text })
-    } catch (error) {
-      clearTimeout(timer)
-      pending.delete(id)
-      reject(error instanceof Error ? error : new Error(String(error)))
+  } catch {
+    // 加速路径失败：标记降级并就地解析，导入继续
+    broken = true
+    worker?.terminate()
+    worker = null
+    for (const entry of pending.values()) {
+      entry.reject(new Error('parse worker disposed'))
     }
-  })
+    pending.clear()
+    return parseInline(text)
+  }
 }
 
 /** 导入结束时释放 worker（一次导入一个实例，避免常驻内存） */
