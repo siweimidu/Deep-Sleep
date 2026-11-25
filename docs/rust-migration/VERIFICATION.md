@@ -467,3 +467,48 @@ ROOT_MID    stages=[page] active x=49 ← 回到首页后再手势，才滑整�
 ```
 
 截图里左边是完整的设置首页，右边「账号管理」带圆角与投影滑出。
+
+
+## 对齐原项目：搜索片段与高级 API 设置
+
+### 先说结论：搜索本来就已经是「消息级」
+
+对比后发现我这边**不缺**内容搜索：`SessionSearchPage` 已经按消息逐条出结果、带片段、
+点击后 `requestScrollToMessage` 跳到那条消息，`MessageList` 还会用 `CSS.highlights`
+把命中的词标出来。真正的差距只有片段窗口与边界处理：
+
+| | 原项目 | 改前 | 改后 |
+| --- | --- | --- | --- |
+| 片段长度 | 96 字符 | 46 字符 | 96 字符 |
+| 前导 | 10 字符 | 14 字符 | 10 字符 |
+| 代理对（emoji） | 安全 | 可能切半 | 退一格，不切半 |
+| 高亮区间 | 有 | 有（按词再切） | 有（函数直接给区间） |
+
+新增 `services/chat/searchSnippet.ts` + `scripts/test-search-snippet.mjs`（12 条）。
+
+### 高级 API 设置
+
+原项目 `AdvancedApiSettings` 提供「模型名 / 协议 / 端点 / 端点 Key / 重置」。我这边原本只有厂商切换
+（协议是按 `providerId === 'deepseek'` 硬判断的）。现在补上协议与端点：
+
+- `providerProtocol`：auto / openai / anthropic，**按厂商分别记**
+  （有的厂商两种协议都提供，或者 OpenAI 兼容那条地址不通但 Anthropic 那条通）
+- `providerEndpoint`：完整 URL 覆盖，按厂商分别记；留空则按协议自动拼
+- `resolveChatTarget()`：端点覆盖 > 厂商 base url；auto 时官方 Anthropic、别家 OpenAI 兼容
+- 端点覆盖会把 origin 同步给 Anthropic 通路，切厂商互不污染
+- 「恢复默认」一键回到 auto + 不覆盖
+
+单测 `scripts/test-chat-target.mjs` 14 条，覆盖：默认推导、手动指定、按厂商记忆、切走再切回、
+端点覆盖与 origin 同步、恢复默认。
+
+桌面 Chromium（Android 桥打桩）实测：
+
+```
+ADV_ROWS          ["服务协议","协议自动","端点覆盖未覆盖","恢复默认"]
+PROTOCOL_OPTIONS  ["自动","OpenAI兼容","Anthropic兼容"]
+PICK              true → PROTOCOL_VALUE "Anthropic 兼容"
+RESET             true → protocol 自动 / endpoint 未覆盖
+```
+
+搜索片段的真机复验待补（Chromium 那份 profile 里没有历史会话，搜不出结果；
+手机当时又掉线了）。
