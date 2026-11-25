@@ -12,10 +12,13 @@ import { streamOpenAiChat } from '../../services/api/openaiChat.js'
 import {
   addProviderKey,
   removeProviderKey,
+  resetAdvancedSettings,
   selectProviderKey,
   setProvider,
   setProviderBaseUrl,
+  setProviderEndpoint,
   setProviderModel,
+  setProviderProtocol,
   toggleSavedModel,
   useSettings,
   withKeyRotation,
@@ -56,13 +59,17 @@ export const ProviderSettings = () => {
   const providerId = useSettings((state) => state.providerId)
   const providerBaseUrl = useSettings((state) => state.providerBaseUrl)
   const providerModel = useSettings((state) => state.providerModel)
+  const providerProtocol = useSettings((state) => state.providerProtocol)
+  const providerEndpoint = useSettings((state) => state.providerEndpoint)
   const savedModels = useSettings((state) => state.savedModels)
   const apiKey = useSettings((state) => state.apiKey)
   const providerKeys = useSettings((state) => state.providerKeys)
   const locale = useSettings((state) => (state as { locale?: string }).locale ?? 'zh')
   const tr = (zh: string, en: string) => (locale === 'en' ? en : zh)
+  const protocolText = (value: 'auto' | 'openai' | 'anthropic') =>
+    value === 'auto' ? tr('自动', 'Auto') : value === 'openai' ? 'OpenAI 兼容' : 'Anthropic 兼容'
 
-  const [open, setOpen] = useState<'' | 'provider' | 'key' | 'url' | 'model'>('')
+  const [open, setOpen] = useState<'' | 'provider' | 'key' | 'url' | 'model' | 'protocol' | 'endpoint'>('')
   const [reveal, setReveal] = useState(false)
   const [models, setModels] = useState<RemoteModel[]>([])
   const [busy, setBusy] = useState<'models' | 'conn' | 'perf' | ''>('')
@@ -462,6 +469,67 @@ export const ProviderSettings = () => {
             value={busy === 'perf' ? tr('测试中…', 'testing…') : speed}
             onClick={() => void testPerformance()}
           />
+        </div>
+      </section>
+
+      <p className={styles.note}>
+        {tr('高级：两种协议都提供的厂商，可以手动指定走哪条', 'Advanced: pick the protocol or override the endpoint')}
+      </p>
+      <section className={settingsStyles.group}>
+        <div className={settingsStyles.card}>
+          <Row
+            label={tr('协议', 'Protocol')}
+            value={protocolText(providerProtocol)}
+            active={open === 'protocol'}
+            onClick={() => toggle('protocol')}
+          />
+          {open === 'protocol' ? (
+            <div className={styles.editor}>
+              {(['auto', 'openai', 'anthropic'] as const).map((item) => (
+                <button
+                  key={item}
+                  type="button"
+                  className={styles.option}
+                  data-current={providerProtocol === item ? '' : undefined}
+                  onClick={() => setProviderProtocol(item)}
+                >
+                  <span>{protocolText(item)}</span>
+                  {providerProtocol === item ? <IconCheckOutline16 /> : null}
+                </button>
+              ))}
+              <p className={styles.note}>
+                {tr(
+                  '自动：官方走 Anthropic 兼容、别家走 OpenAI 兼容',
+                  'Auto: Anthropic for DeepSeek, OpenAI-compatible otherwise'
+                )}
+              </p>
+            </div>
+          ) : null}
+
+          <Row
+            label={tr('端点覆盖', 'Endpoint override')}
+            value={providerEndpoint || tr('未覆盖', 'auto')}
+            active={open === 'endpoint'}
+            onClick={() => toggle('endpoint')}
+          />
+          {open === 'endpoint' ? (
+            <div className={styles.editor}>
+              <input
+                className={styles.field}
+                value={providerEndpoint}
+                autoComplete="off"
+                spellCheck={false}
+                placeholder={`${providerBaseUrl}/chat/completions`}
+                onChange={(event) => setProviderEndpoint(event.target.value)}
+              />
+              <p className={styles.note}>
+                {tr('留空 = 按协议自动拼；要覆盖就填完整地址，例如 ', 'Empty = derived; else a full URL, e.g. ')}
+                {providerBaseUrl}/chat/completions
+              </p>
+            </div>
+          ) : null}
+
+          <Row label={tr('恢复默认', 'Reset advanced')} value="" onClick={resetAdvancedSettings} />
         </div>
       </section>
 

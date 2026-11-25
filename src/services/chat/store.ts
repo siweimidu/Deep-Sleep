@@ -4,7 +4,7 @@ import { ApiError, streamMessage } from '../api/client.js'
 import type { ChatModel, CreateMessageRequest } from '../api/types.js'
 import { extractFileIds, getFileErrorCode, isRetryableApiError } from '../api/errors.js'
 import { cancelUpload, describeUploadError, uploadAttachment, useUploads } from '../attachments.js'
-import { streamWithKeyRotation, useSettings } from '../settings.js'
+import { resolveChatTarget, streamWithKeyRotation, useSettings } from '../settings.js'
 import { planContext } from './context/budget.js'
 import { ensureAnchor, withAnchor } from './context/anchor.js'
 import { streamThirdPartyChat } from '../api/openaiChat.js'
@@ -1147,7 +1147,10 @@ const streamReply = async (sessionId: string, initial: AssistantMessage, request
         // 选厂商但没选模型时不算第三方——否则会拿着空模型名发请求。
         const providerState = useSettings.getState()
         const thirdPartyModel = providerState.providerModel
-        const useThirdParty = providerState.providerId !== 'deepseek' && Boolean(thirdPartyModel)
+        // 协议由「高级」设置决定：auto 时官方走 Anthropic、别家走 OpenAI 兼容；
+        // 端点覆盖优先于厂商 base url。选厂商但没选模型时不算第三方——否则会拿空模型名发请求。
+        const target = resolveChatTarget()
+        const useThirdParty = target.protocol === 'openai' && Boolean(thirdPartyModel)
         const systemPrompt = withMemory(
           withAnchor(SYSTEM_PROMPT, getSession(sessionId)?.anchor?.text),
           getSession(sessionId)?.memory
@@ -1156,7 +1159,7 @@ const streamReply = async (sessionId: string, initial: AssistantMessage, request
           useThirdParty
             ? (streamWithKeyRotation(providerState.providerId, (apiKey) =>
                 streamThirdPartyChat({
-                  baseUrl: providerState.providerBaseUrl,
+                  baseUrl: target.baseUrl,
                   apiKey,
                   model: thirdPartyModel as string,
                   system: systemPrompt,

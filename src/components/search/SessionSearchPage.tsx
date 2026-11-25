@@ -6,6 +6,7 @@ import { loadSession } from '../../services/chat/db.js'
 import { buildReplyView } from '../../services/chat/view.js'
 import { selectSession, useChatStore } from '../../services/chat/store.js'
 import { requestScrollToMessage } from '../../services/chat/scrollTarget.js'
+import { buildSearchSnippet } from '../../services/chat/searchSnippet.js'
 import styles from './SessionSearchPage.module.css'
 
 type SearchState = {
@@ -29,7 +30,6 @@ type Hit = {
   updatedAt: number
 }
 
-const SNIPPET_LIMIT = 46
 const BATCH = 8
 
 type MessageLike = { role: string } & Record<string, unknown>
@@ -138,17 +138,16 @@ export const SessionSearchPage = () => {
           }
           const titleHit = summary.title.toLocaleLowerCase().includes(term)
           for (const [index, row] of rows.entries()) {
-            const at = row.text.toLocaleLowerCase().indexOf(term)
-            if (at < 0) {
+            const built = buildSearchSnippet(row.text, term)
+            if (!built) {
               continue
             }
-            const snippet = `${at > 14 ? '…' : ''}${row.text.slice(Math.max(0, at - 14), at + SNIPPET_LIMIT)}`
             found.push({
               id: `${summary.id}-${index}`,
               sessionId: summary.id,
               messageId: row.id,
               title: summary.title,
-              snippet: snippet.replace(/\s+/g, ' ').trim(),
+              snippet: built.snippet,
               updatedAt: summary.updatedAt,
             })
           }

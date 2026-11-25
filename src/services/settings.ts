@@ -20,6 +20,9 @@ import {
   type Keyring,
 } from './api/keyring.js'
 
+/** 聊天协议：auto 表示官方走 Anthropic 兼容、别家走 OpenAI 兼容 */
+export type ChatProtocol = 'auto' | 'openai' | 'anthropic'
+
 export type Locale = 'zh-CN' | 'en-US'
 export type LocalePreference = Locale | 'system'
 
@@ -53,6 +56,10 @@ type Settings = {
   providerBaseUrl: string
   /** 选中的模型名；null 表示用应用自带的模型 */
   providerModel: string | null
+  /** 当前厂商聊天走哪种协议；auto = 官方 Anthropic、别家 OpenAI 兼容 */
+  providerProtocol: ChatProtocol
+  /** 覆盖推导出来的完整端点；空串表示按协议自动拼 */
+  providerEndpoint: string
   /** 已保存的模型 chips */
   savedModels: string[]
   /** 当前厂商存的所有 Key（在用的那把就是 apiKey） */
@@ -84,6 +91,8 @@ const KEYS = {
   providerId: 'replica:provider-id',
   providerBaseUrl: 'replica:provider-base-url',
   providerBaseUrlById: 'replica:provider-base-url-by-id',
+  providerProtocolById: 'replica:provider-protocol-by-id',
+  providerEndpointById: 'replica:provider-endpoint-by-id',
   providerModel: 'replica:provider-model',
   /** 厂商 id → 上次用的模型名，切回来时恢复，省得每家都重选一遍 */
   providerModelById: 'replica:provider-model-by-id',
@@ -226,17 +235,17 @@ const readModelMap = (): Record<string, string> => {
   }
 }
 
-/** 厂商 id → 该家的完整 base url。以前只有一份全局地址，换厂商会留着上一家的域名。 */
-const readBaseUrlMap = (): Record<string, string> => {
+/** 厂商 id → 字符串（base url / 协议 / 端点覆盖共用同一套存法） */
+const readStringMap = (key: string): Record<string, string> => {
   try {
-    const value: unknown = JSON.parse(read(KEYS.providerBaseUrlById) ?? '{}')
+    const value: unknown = JSON.parse(read(key) ?? '{}')
     if (!value || typeof value !== 'object') {
       return {}
     }
     const map: Record<string, string> = {}
-    for (const [providerId, url] of Object.entries(value as Record<string, unknown>)) {
-      if (typeof url === 'string' && url.trim()) {
-        map[providerId] = url.trim()
+    for (const [providerId, entry] of Object.entries(value as Record<string, unknown>)) {
+      if (typeof entry === 'string' && entry.trim()) {
+        map[providerId] = entry.trim()
       }
     }
     return map
@@ -245,11 +254,23 @@ const readBaseUrlMap = (): Record<string, string> => {
   }
 }
 
-const rememberBaseUrl = (providerId: string, baseUrl: string) => {
-  const map = readBaseUrlMap()
-  map[providerId] = baseUrl
-  write(KEYS.providerBaseUrlById, JSON.stringify(map))
+const rememberString = (key: string, providerId: string, value: string) => {
+  const kept = Object.entries(readStringMap(key)).filter(([id]) => id !== providerId)
+  // 清空就是把这项拿掉，别留一个空串
+  const next = value ? { ...Object.fromEntries(kept), [providerId]: value } : Object.fromEntries(kept)
+  write(key, JSON.stringify(next))
 }
+
+/** 厂商 id → 该家的完整 base url。以前只有一份全局地址，换厂商会留着上一家的域名。 */
+const readBaseUrlMap = (): Record<string, string> => readStringMap(KEYS.providerBaseUrlById)
+const rememberBaseUrl = (providerId: string, baseUrl: string) =>
+  rememberString(KEYS.providerBaseUrlById, providerId, baseUrl)
+const readProtocolMap = (): Record<string, string> => readStringMap(KEYS.providerProtocolById)
+const rememberProtocol = (providerId: string, protocol: string) =>
+  rememberString(KEYS.providerProtocolById, providerId, protocol)
+const readEndpointMap = (): Record<string, string> => readStringMap(KEYS.providerEndpointById)
+const rememberEndpoint = (providerId: string, endpoint: string) =>
+  rememberString(KEYS.providerEndpointById, providerId, endpoint)
 
 /** 主机相同才算同一个服务；空串或非法串都当不同，让调用方退回预置 */
 const sameHost = (left: string, right: string): boolean => {
@@ -421,6 +442,8 @@ export const useSettings = create<Settings>(() => ({
   apiBaseUrl: initialApiBaseUrl(),
   ...startProvider,
   providerModel: read(KEYS.providerModel),
+  providerProtocol: (readProtocolMap()[startProvider.providerId] ?? 'auto') as ChatProtocol,
+  providerEndpoint: readEndpointMap()[startProvider.providerId] ?? '',
   savedModels: startSavedModels,
 }))
 
@@ -535,16 +558,20 @@ export const setProvider = (id: string): void => {
   const preset = findProvider(id)
   const baseUrl = preset?.baseUrl || DEEPSEEK_BASE_URL
   const remembered = readModelMap()[id] ?? null
+  const protocol = (readProtocolMap()[id] ?? 'auto') as ChatProtocol
+  const endpoint = readEndpointMap()[id] ?? ''
   write(KEYS.providerId, id)
   write(KEYS.providerBaseUrl, baseUrl)
   rememberBaseUrl(id, baseUrl)
-  const origin = normalizeOrigin(baseUrl)
+  const origin = normalizeOrigin(endpoint || baseUrl)
   write(KEYS.apiBaseUrl, origin)
   write(KEYS.providerModel, remembered)
   // 每家有自己的钥匙串，换厂商要连 Key 一起换过去；否则会拿上一家的 Key 去请求这一家。
   useSettings.setState({
     providerId: id,
     providerBaseUrl: baseUrl,
+    providerProtocol: protocol,
+    providerEndpoint: endpoint,
     apiBaseUrl: origin,
     providerModel: remembered,
     savedModels: readSavedModelsMap()[id] ?? [],
@@ -592,6 +619,50 @@ export const setProviderModel = (model: string | null): void => {
   write(KEYS.providerModel, value)
   rememberModel(useSettings.getState().providerId, value)
   useSettings.setState({ providerModel: value })
+}
+
+/**
+ * 聊天协议：auto 时官方走 Anthropic 兼容、别家走 OpenAI 兼容。
+ * 有些厂商两种协议都提供，或者 OpenAI 兼容的地址被墙了但 Anthropic 那条通，所以要能手动指定。
+ */
+export const setProviderProtocol = (protocol: ChatProtocol): void => {
+  const { providerId } = useSettings.getState()
+  rememberProtocol(providerId, protocol === 'auto' ? '' : protocol)
+  useSettings.setState({ providerProtocol: protocol })
+}
+
+/** 覆盖端点：填完整 URL（含 /v1），清空则回到按协议自动拼 */
+export const setProviderEndpoint = (value: string): void => {
+  const { providerId, providerBaseUrl } = useSettings.getState()
+  const trimmed = value.trim().replace(/\/+$/, '')
+  rememberEndpoint(providerId, trimmed)
+  const origin = normalizeOrigin(trimmed || providerBaseUrl)
+  write(KEYS.apiBaseUrl, origin)
+  useSettings.setState({ providerEndpoint: trimmed, apiBaseUrl: origin })
+  setOriginOverride(origin)
+}
+
+/** 高级设置恢复默认：协议跟着厂商自动、端点不覆盖 */
+export const resetAdvancedSettings = (): void => {
+  const { providerId, providerBaseUrl } = useSettings.getState()
+  rememberProtocol(providerId, '')
+  rememberEndpoint(providerId, '')
+  const origin = normalizeOrigin(providerBaseUrl)
+  write(KEYS.apiBaseUrl, origin)
+  useSettings.setState({ providerProtocol: 'auto', providerEndpoint: '', apiBaseUrl: origin })
+  setOriginOverride(origin)
+}
+
+/** 发请求时真正用的协议与 base：端点覆盖优先，其次按厂商/协议推导 */
+export const resolveChatTarget = (): { protocol: 'openai' | 'anthropic'; baseUrl: string } => {
+  const state = useSettings.getState()
+  const protocol =
+    state.providerProtocol === 'auto'
+      ? state.providerId === 'deepseek'
+        ? 'anthropic'
+        : 'openai'
+      : state.providerProtocol
+  return { protocol, baseUrl: state.providerEndpoint || state.providerBaseUrl }
 }
 
 /** 保存/移除 chips 里的模型名，去重且保序。 */
