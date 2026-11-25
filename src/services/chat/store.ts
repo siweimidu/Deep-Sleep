@@ -7,7 +7,7 @@ import { cancelUpload, describeUploadError, uploadAttachment, useUploads } from 
 import { useSettings } from '../settings.js'
 import { planContext } from './context/budget.js'
 import { ensureAnchor, withAnchor } from './context/anchor.js'
-import { backfillMirror } from './nativeMirror.js'
+import { backfillMirror, sweepMirrorFiles } from './nativeMirror.js'
 import { ensureMemoryBlock, withMemory } from './context/memory.js'
 import { appendBranch, getVisibleMessages, normalizeSession, selectVersion } from './branches.js'
 import * as db from './db.js'
@@ -311,6 +311,12 @@ export const initChat = (): Promise<void> => {
         backfillMirror(
           summaries.map((summary) => summary.id),
           db.loadSession
+        )
+        // 附件单独一轮：与上面的会话回填互不影响，中途被杀下次从游标续跑
+        void sweepMirrorFiles(
+          summaries.map((summary) => summary.id),
+          db.loadSession,
+          db.loadFile
         )
       }
     } catch (error) {

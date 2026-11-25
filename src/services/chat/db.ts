@@ -3,7 +3,10 @@ import { toSessionSummary, type Session, type SessionSummary } from './types.js'
 import { mergeSessionDeep } from './mergeSessions.js'
 import {
   forgetMirroredSession,
+  mirrorIsMuted,
   mirrorSession,
+  mirrorSessionFiles,
+  readMirroredFiles,
   readMirroredSessions,
   withMirrorMuted,
 } from './nativeMirror.js'
@@ -93,27 +96,62 @@ export const loadSessionSummaries = async (): Promise<SessionSummary[]> => {
     return summaries
   }
   await withMirrorMuted(async () => {
-    const referenced = new Set<string>()
+    let referenced = 0
+    let restored = 0
     for (const session of mirrored) {
-      for (const message of session.messages) {
-        for (const file of message.role === 'user' ? message.files : []) {
-          referenced.add(file.id)
-        }
-      }
       await saveSession(session)
+      const files = await restoreSessionFiles(session)
+      referenced += files.referenced
+      restored += files.restored
     }
-    // 镜像只存会话文本，不含附件 blob：恢复后可能有消息引用到已不存在的文件。
+    // 补齐之后仍然缺的，是镜像里也没有的（例如超过 12MB 没备份的文件）。
     // 与其让图片静默变成空白，不如把缺口数量记下来让界面明确告诉用户。
-    const database = await getDB()
-    let missing = 0
-    for (const id of referenced) {
-      if ((await database.getKey('files', id)) === undefined) {
-        missing += 1
-      }
-    }
-    rememberMissing(missing)
+    rememberMissing(Math.max(0, referenced - restored))
   })
   return (await (await getDB()).getAll('sessionSummaries')).map(toSessionSummary)
+}
+
+/**
+ * 从镜像补齐一条会话引用到的附件，返回 `{ referenced, restored }`。
+ * MIME 从消息里的 FileAttachment 取——镜像只存字节，类型由会话本身提供。
+ */
+const restoreSessionFiles = async (
+  session: Session
+): Promise<{ referenced: number; restored: number }> => {
+  const types = new Map<string, string>()
+  for (const message of session.messages) {
+    if (message.role !== 'user') {
+      continue
+    }
+    for (const file of message.files) {
+      types.set(file.id, file.mimeType || 'application/octet-stream')
+    }
+  }
+  if (types.size === 0) {
+    return { referenced: 0, restored: 0 }
+  }
+  const database = await getDB()
+  const missing: string[] = []
+  for (const id of types.keys()) {
+    if ((await database.getKey('files', id)) === undefined) {
+      missing.push(id)
+    }
+  }
+  if (missing.length === 0) {
+    return { referenced: types.size, restored: 0 }
+  }
+  const bytes = readMirroredFiles(missing)
+  const stored: StoredFile[] = []
+  for (const [id, data] of bytes) {
+    stored.push({
+      id,
+      blob: new Blob([data], { type: types.get(id) ?? 'application/octet-stream' }),
+    })
+  }
+  if (stored.length > 0) {
+    await saveFiles(stored)
+  }
+  return { referenced: types.size, restored: stored.length }
 }
 
 /**
@@ -158,7 +196,10 @@ export const loadSession = async (id: string): Promise<Session | undefined> => {
   if (!mirrored) {
     return undefined
   }
-  await withMirrorMuted(() => saveSession(mirrored))
+  await withMirrorMuted(async () => {
+    await saveSession(mirrored)
+    await restoreSessionFiles(mirrored)
+  })
   return mirrored
 }
 
@@ -181,6 +222,9 @@ export const saveSession = async (session: Session, files: StoredFile[] = []): P
     tx.done,
   ])
   mirrorSession(session)
+  if (!mirrorIsMuted()) {
+    mirrorSessionFiles(session, loadFile)
+  }
 }
 export const renameSession = async (id: string, title: string): Promise<void> => {
   let renamed: Session | undefined
