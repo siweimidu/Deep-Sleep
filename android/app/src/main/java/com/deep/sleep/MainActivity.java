@@ -499,7 +499,7 @@ public final class MainActivity extends Activity {
                     "default-src 'none'; script-src 'self' 'wasm-unsafe-eval'; "
                     + "style-src 'self' 'unsafe-inline'; "
                     + "img-src 'self' https: data: blob:; font-src 'self' data:; "
-                    + "media-src 'self' blob:; connect-src 'self' https://api.deepseek.com "
+                    + "media-src 'self' blob:; connect-src 'self' https: "
                     + "https://*.myhuaweicloud.com; worker-src 'self' blob:; "
                     + "frame-src 'none'; base-uri 'none'; form-action 'none';");
                 try {
