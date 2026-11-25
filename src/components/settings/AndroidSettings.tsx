@@ -218,7 +218,8 @@ const Choice = <T extends string>({
 export const AndroidSettings = () => {
   const open = useSettingsDialog((state) => state.open)
   const section = useSettingsDialog((state) => state.section)
-  return open ? <Settings start={section === 'data' ? 'account' : 'root'} key={section} /> : null
+  const start: Page = section === 'endpoint' ? 'endpoint' : section === 'data' ? 'account' : 'root'
+  return open ? <Settings start={start} key={section} /> : null
 }
 
 const Settings = ({ start }: { start: Page }) => {

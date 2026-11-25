@@ -125,7 +125,7 @@ export const AssistantMessage = memo(function AssistantMessage({
                 <button
                   type="button"
                   className={styles.noticeAction}
-                  onClick={() => openSettings('data')}
+                  onClick={() => openSettings('endpoint')}
                 >
                   {t('changeApiKey')}
                 </button>

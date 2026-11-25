@@ -25,6 +25,8 @@ export type OpenAiChatOptions = {
   /** 只要首段就够时（例如"测试性能"）可传 1，收到即结束 */
   maxTokens?: number
   temperature?: number
+  /** 让厂商在最后一帧带上 usage，测速要用；不支持的厂商会直接忽略这个字段 */
+  includeUsage?: boolean
 }
 
 export type OpenAiDelta = {
@@ -34,6 +36,8 @@ export type OpenAiDelta = {
   reasoning: string
   /** 结束原因（finish_reason），最后一段才有 */
   finishReason?: string
+  /** 用量：只有开了 `stream_options.include_usage` 且厂商支持时才有 */
+  usage?: { completionTokens: number }
 }
 
 /** 多久没有任何增量就认定连接已死。推理模型会持续发 reasoning_content，所以不会误伤。 */
@@ -87,6 +91,12 @@ export const parseOpenAiFrame = (frame: string): OpenAiDelta | null => {
     }
     try {
       const parsed: unknown = JSON.parse(payload)
+      // usage 单独一帧到达（choices 是空数组），测速要靠它算 token 速度，
+      // 所以必须在拿不到 delta 时也把它带出去。
+      const usageRaw = (parsed as { usage?: { completion_tokens?: unknown } })?.usage
+      const completionTokens =
+        typeof usageRaw?.completion_tokens === 'number' ? usageRaw.completion_tokens : 0
+      const usage = completionTokens > 0 ? { completionTokens } : undefined
       const delta = (parsed as {
         choices?: {
           delta?: { content?: unknown; reasoning_content?: unknown }
@@ -94,6 +104,9 @@ export const parseOpenAiFrame = (frame: string): OpenAiDelta | null => {
         }[]
       })?.choices?.[0]
       if (!delta) {
+        if (usage) {
+          return { text: '', reasoning: '', usage }
+        }
         continue
       }
       const text = typeof delta.delta?.content === 'string' ? delta.delta.content : ''
@@ -102,10 +115,10 @@ export const parseOpenAiFrame = (frame: string): OpenAiDelta | null => {
       const reasoning =
         typeof delta.delta?.reasoning_content === 'string' ? delta.delta.reasoning_content : ''
       const finishReason = typeof delta.finish_reason === 'string' ? delta.finish_reason : undefined
-      if (!text && !reasoning && !finishReason) {
+      if (!text && !reasoning && !finishReason && !usage) {
         continue
       }
-      return { text, reasoning, finishReason }
+      return { text, reasoning, finishReason, usage }
     } catch {
       // 单帧解析失败不影响后续帧
     }
@@ -120,7 +133,7 @@ export const parseOpenAiFrame = (frame: string): OpenAiDelta | null => {
 export const streamOpenAiChat = async (
   options: OpenAiChatOptions,
   onDelta?: (delta: OpenAiDelta) => void
-): Promise<{ text: string; finishReason?: string }> => {
+): Promise<{ text: string; finishReason?: string; usage?: { completionTokens: number } }> => {
   const root = trimBase(options.baseUrl)
   if (!options.apiKey.trim()) {
     throw new Error('missing api key')
@@ -138,6 +151,9 @@ export const streamOpenAiChat = async (
   }
   if (typeof options.temperature === 'number') {
     body.temperature = options.temperature
+  }
+  if (options.includeUsage) {
+    body.stream_options = { include_usage: true }
   }
   // 连不通的域名既不返回也不拒绝：没有看门狗的话这条流会永远挂着。
   const controller = new AbortController()
@@ -185,6 +201,7 @@ export const streamOpenAiChat = async (
   let buffer = ''
   let text = ''
   let finishReason: string | undefined
+  let usage: { completionTokens: number } | undefined
   try {
     for (;;) {
       const { value, done } = await reader.read()
@@ -199,6 +216,9 @@ export const streamOpenAiChat = async (
         buffer = buffer.slice(boundary + 2)
         const delta = parseOpenAiFrame(frame)
         if (delta) {
+          if (delta.usage) {
+            usage = delta.usage
+          }
           if (delta.text) {
             text += delta.text
           }
@@ -218,6 +238,7 @@ export const streamOpenAiChat = async (
     if (buffer.trim()) {
       const delta = parseOpenAiFrame(buffer)
       if (delta) {
+        usage = delta.usage ?? usage
         text += delta.text
         finishReason = delta.finishReason ?? finishReason
         if (delta.text || delta.reasoning) {
@@ -230,7 +251,7 @@ export const streamOpenAiChat = async (
     options.signal?.removeEventListener('abort', relayAbort)
     reader.releaseLock()
   }
-  return { text, finishReason }
+  return { text, finishReason, usage }
 }
 /**
  * 把 OpenAI 兼容的流适配成应用内部那套 Anthropic 风格事件。

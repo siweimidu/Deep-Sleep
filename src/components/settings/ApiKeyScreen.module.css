@@ -67,6 +67,15 @@
   font-size: 14px;
 }
 
+.form .skip {
+  min-height: 0;
+  padding: 6px;
+  border: 0;
+  background: none;
+  color: var(--dsw-alias-label-secondary, #8a8f98);
+  font-size: 14px;
+}
+
 .error {
   font-size: 14px;
   color: var(--dsw-alias-state-error-primary);

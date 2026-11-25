@@ -3,6 +3,7 @@ import { useTranslate } from '../../i18n/index.js'
 import { useApiKeyForm } from './useApiKeyForm.js'
 import styles from './ApiKeyScreen.module.css'
 import { secretInput } from '../../app/secretInput.js'
+import { dismissOnboarding } from '../../services/settings.js'
 
 export const ApiKeyScreen = () => {
   const t = useTranslate()
@@ -36,6 +37,9 @@ export const ApiKeyScreen = () => {
           {t(form.verifying ? 'apiKeyVerifying' : 'confirm')}
         </button>
         <a href="https://platform.deepseek.com/api_keys">{t('apiKeyGet')}</a>
+        <button type="button" className={styles.skip} onClick={dismissOnboarding}>
+          {t('apiKeySkip')}
+        </button>
       </form>
     </main>
   )

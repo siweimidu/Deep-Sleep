@@ -50,6 +50,8 @@ export const App = () => {
   // 设置开着的时候不弹首次引导：否则用户在输入框里清空旧 Key 准备粘贴新 Key 的那一刻，
   // apiKey 短暂为空就会把整个界面换成引导页，正在编辑的内容也就丢了。
   const settingsOpen = useSettingsDialog((state) => state.open)
+  // 用户点过「先看看」之后就不再拿引导页堵着，让他先进界面自己找设置
+  const onboardingDismissed = useSettings((state) => state.onboardingDismissed)
   const drawerOpen = useMobileSider((state) => state.open)
   const locale = useSettings((state) => state.locale)
   const fontSize = useSettings((state) => state.fontSize)
@@ -129,7 +131,7 @@ export const App = () => {
     return () => window.removeEventListener('android-back', onBack)
   }, [])
 
-  if (android && !anyKey && !settingsOpen) {
+  if (android && !anyKey && !onboardingDismissed && !settingsOpen) {
     return <ApiKeyScreen />
   }
 

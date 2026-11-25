@@ -165,6 +165,7 @@ export const zh = {
   avatarMenuSettingsDialogThemeSelectSystemOption: '跟随系统',
   apiKeyStart: '输入 API Key 开始使用',
   apiKeyGet: '获取 API Key',
+  apiKeySkip: '先看看，稍后再填',
   apiKeyEdit: '修改 API Key',
   apiKeyPlaceholder: '请输入 API Key',
   apiKeyVerifying: '正在验证...',

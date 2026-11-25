@@ -39,11 +39,32 @@ check('DONE 帧忽略', parseOpenAiFrame('data: [DONE]') === null)
 check('心跳/注释帧忽略', parseOpenAiFrame(': keep-alive') === null)
 check('坏 JSON 不抛', parseOpenAiFrame('data: {oops') === null)
 check('空 choices 忽略', parseOpenAiFrame('data: {"choices":[]}') === null)
+check(
+  'usage 帧单独到达也解析得出来',
+  parseOpenAiFrame('data: {"choices":[],"usage":{"completion_tokens":12}}')?.usage?.completionTokens === 12
+)
+check(
+  'usage 帧不该被当成正文',
+  parseOpenAiFrame('data: {"choices":[],"usage":{"completion_tokens":12}}')?.text === ''
+)
+check(
+  '没有 usage 时字段不出现',
+  parseOpenAiFrame('data: {"choices":[{"delta":{"content":"a"}}]}')?.usage === undefined
+)
+check(
+  '正文帧也带 usage 时不丢',
+  parseOpenAiFrame('data: {"choices":[{"delta":{"content":"a"}}],"usage":{"completion_tokens":5}}')?.usage
+    ?.completionTokens === 5
+)
 
 // ── 流式聚合 ────────────────────────────────────────────────────────────────
 const encoder = new TextEncoder()
+let sentBody = null
 const stubStream = (chunks) => {
-  globalThis.fetch = async () => ({
+  sentBody = null
+  globalThis.fetch = async (_url, init) => {
+    sentBody = JSON.parse(init.body)
+    return {
     ok: true,
     status: 200,
     body: {
@@ -55,7 +76,8 @@ const stubStream = (chunks) => {
         }
       },
     },
-  })
+    }
+  }
 }
 
 stubStream([
@@ -72,6 +94,23 @@ const result = await streamOpenAiChat(
 check('聚合文本正确', result.text === '你好', result.text)
 check('finish_reason 透传', result.finishReason === 'stop')
 check('逐段回调', deltas.join('|') === '你|好', deltas.join('|'))
+
+// 测速：include_usage 要真的写进请求体，usage 也要从末帧收上来
+stubStream([
+  'data: {"choices":[{"delta":{"content":"一"}}]}\n\n',
+  'data: {"choices":[{"delta":{},"finish_reason":"stop"}]}\n\n',
+  'data: {"choices":[],"usage":{"completion_tokens":9}}\n\n',
+])
+const perf = await streamOpenAiChat({
+  baseUrl: 'https://a.com/v1',
+  apiKey: 'k',
+  model: 'm',
+  messages: [],
+  includeUsage: true,
+})
+check('include_usage 写进请求体', sentBody?.stream_options?.include_usage === true)
+check('usage 聚合到返回值', perf.usage?.completionTokens === 9, JSON.stringify(perf.usage))
+check('usage 帧不混进正文', perf.text === '一', perf.text)
 
 // 最后一帧没有空行结尾也要收
 stubStream(['data: {"choices":[{"delta":{"content":"尾"}}]}'])

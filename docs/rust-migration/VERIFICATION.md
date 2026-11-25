@@ -279,3 +279,43 @@ SWITCH_TO_GOOGLE null      ← 没存过的厂商仍然是未选择，不会带�
 **注意**：这条改动只做到"编译通过 + 与第三方通路共用同一个已真机验证的轮换实现"，
 没有用两把真 DeepSeek Key 跑通——手上没有可用的 DeepSeek Key。
 
+
+
+### 首次引导页可以跳过 + 没 Key 时直接落到第三方模型页
+
+两处都会把用户丢进设置，但落到哪一页以前是错的。真机（OnePlus PJE110 / Android 15）实测：
+
+| 断言 | 结果 |
+| --- | --- |
+| 清空 Key 后启动出现引导页 | `GATE shown` |
+| 点「先看看，稍后再填」进入主界面 | `MAIN true` |
+| 重载后不再被引导页拦住（记住选择） | `PERSIST ok main=true` |
+| 没 Key 时点发送 | `SEND {"x":318,"y":447,"disabled":"false"}` → `ENDPOINT ok` |
+
+跳过状态存 `replica:onboarding-dismissed`；`ensureApiKey()` 由 `openSettings('data')` 改成 `openSettings('endpoint')`，
+`SettingsSection` 增加 `'endpoint'`：安卓端直接落到 `endpoint` 页，桌面弹窗落到 API Key 那一栏。
+判据仍看「当前厂商有没有 Key」而不是「任意厂商有没有」——后者会让发送直接死在缺 Key 上，而不是把人带去填 Key。
+
+### 测试模型性能 → 测试模型速度（tok/s）
+
+原来量的是首字延迟（`maxTokens: 1`，只看第一个增量），这对"模型快不快"几乎没意义：建连和排队占了大头。
+现在量首个增量到最后一个增量的区间，并用 `stream_options: { include_usage: true }` 要 `usage.completion_tokens`。
+真机实测（CSDN / deepseek-ai/DeepSeek-V4-Flash）：
+
+```
+BEFORE
+AFTER 约 38.4 tok/s · 189 tokens / 4.9s
+```
+
+厂商不回 usage 时退化成按字符粗估，文案里写明「（估算）」，不冒充实测 token 数。
+单测 `scripts/test-openai-chat.mjs` 新增 6 条：usage 帧单独到达能解析、usage 帧不混进正文、没有 usage 时字段不出现、
+正文帧带 usage 不丢、`include_usage` 真写进请求体、usage 聚合到返回值。
+
+### 已保存的模型按厂商分开（真机）
+
+```
+CSDN 2 / AGNES 0 / BACK_CSDN 2
+```
+
+这一项之前一直报 `row-missing`：脚本按 `button` 去找那行，而「已保存的模型」是 `div` + `label/value` 两个 `span`
+（不是可点按钮）；读不出「2」则是因为手机上跑的还是加这个功能之前的 APK。两件都是验证脚本/打包环节的问题，不是应用 bug。

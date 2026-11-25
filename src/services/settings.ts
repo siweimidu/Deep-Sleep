@@ -59,6 +59,8 @@ type Settings = {
   providerKeys: string[]
   /** 任意厂商存过 Key；用来决定要不要弹首次引导页 */
   anyKey: boolean
+  /** 用户跳过了首次 Key 引导页；之后即使没配 Key 也不再拦着 */
+  onboardingDismissed: boolean
 }
 
 const KEYS = {
@@ -87,6 +89,7 @@ const KEYS = {
   savedModels: 'replica:provider-models',
   /** 厂商 id → 该家收藏的模型名 */
   savedModelsById: 'replica:provider-models-by-id',
+  onboardingDismissed: 'replica:onboarding-dismissed',
 } as const
 
 const read = (key: string) => {
@@ -345,6 +348,7 @@ export const useSettings = create<Settings>(() => ({
   themePreference: initialThemePreference(),
   ttsVoice: initialTtsVoice(),
   autoRead: read(KEYS.autoRead) === 'true',
+  onboardingDismissed: read(KEYS.onboardingDismissed) === 'true',
   thinking: read(KEYS.thinking) === 'true',
   search: (read(KEYS.search) ?? (android ? 'true' : 'false')) === 'true',
   siderCollapsed: read(KEYS.siderCollapsed) === 'true',
@@ -411,6 +415,12 @@ export const setTtsVoice = (ttsVoice: TtsVoice) => {
 export const setAutoRead = (autoRead: boolean) => {
   write(KEYS.autoRead, String(autoRead))
   useSettings.setState({ autoRead })
+}
+
+/** 首次引导页上的「先看看」：记下来，之后没配 Key 也不再拦着进主界面。 */
+export const dismissOnboarding = () => {
+  write(KEYS.onboardingDismissed, 'true')
+  useSettings.setState({ onboardingDismissed: true })
 }
 
 /**

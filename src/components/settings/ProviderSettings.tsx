@@ -67,6 +67,8 @@ export const ProviderSettings = () => {
   const [models, setModels] = useState<RemoteModel[]>([])
   const [busy, setBusy] = useState<'models' | 'conn' | 'perf' | ''>('')
   const [status, setStatus] = useState('')
+  // 测速结果单独放：它要显示在那一行右侧，混进底部状态栏用户看不到
+  const [speed, setSpeed] = useState('')
   // Key 用草稿：存盘要过 AndroidKeyStore 加密，逐字符写既慢又会让 store 出现空值，
   // 而 store 一空主界面就会切到首次引导页。
   const [keyDraft, setKeyDraft] = useState('')
@@ -165,28 +167,54 @@ export const ProviderSettings = () => {
       return
     }
     setBusy('perf')
-    setStatus(tr('正在测首字延迟…', 'Measuring…'))
-    const started = performance.now()
+    setStatus(tr('正在测速…', 'Measuring…'))
     commitKey()
-    // 首字延迟要量"第一个增量到达"，不是整条流跑完；推理模型尤其会把总时长拉得很长。
-    let firstTokenAt = 0
+    // 测「速度」要量首个增量到最后一个增量的区间：把建连和首字等待扣掉，
+    // 否则连一个只会吐 20 个 token 的模型都能被测成很慢。
+    let firstAt = 0
+    let lastAt = 0
+    let chars = 0
     try {
-      await streamOpenAiChat(
+      const result = await streamOpenAiChat(
         {
           baseUrl: providerBaseUrl,
           apiKey: useSettings.getState().apiKey ?? '',
           model,
-          messages: [{ role: 'user', content: 'ping' }],
-          maxTokens: 1,
+          messages: [{ role: 'user', content: '数到二十，用中文数字，只输出数字。' }],
+          maxTokens: 200,
+          includeUsage: true,
         },
-        () => {
-          firstTokenAt ||= performance.now()
+        (delta) => {
+          const now = performance.now()
+          firstAt ||= now
+          lastAt = now
+          chars += delta.text.length + delta.reasoning.length
         }
       )
-      const elapsed = Math.round((firstTokenAt || performance.now()) - started)
-      setStatus(tr(`首字延迟约 ${elapsed}ms`, `First token ~${elapsed}ms`))
+      const seconds = (lastAt - firstAt) / 1000
+      const tokens = result.usage?.completionTokens ?? 0
+      setStatus('')
+      if (tokens > 0 && seconds > 0.05) {
+        setSpeed(
+          tr(
+            `约 ${(tokens / seconds).toFixed(1)} tok/s · ${tokens} tokens / ${seconds.toFixed(1)}s`,
+            `~${(tokens / seconds).toFixed(1)} tok/s · ${tokens} tokens / ${seconds.toFixed(1)}s`
+          )
+        )
+      } else if (chars > 0 && seconds > 0.05) {
+        // 厂商不回 usage：按字符粗估，必须标明是估算，不能假装是实测 token 数
+        const estimate = chars / 1.7
+        setSpeed(
+          tr(
+            `约 ${(estimate / seconds).toFixed(1)} tok/s（估算）· ${chars} 字符 / ${seconds.toFixed(1)}s`,
+            `~${(estimate / seconds).toFixed(1)} tok/s (est.) · ${chars} chars / ${seconds.toFixed(1)}s`
+          )
+        )
+      } else {
+        setSpeed(tr('没吐内容，测不出', 'Nothing to measure'))
+      }
     } catch (error) {
-      setStatus(tr('性能测试失败：', 'Failed: ') + describe(error))
+      setStatus(tr('测速失败：', 'Failed: ') + describe(error))
     } finally {
       setBusy('')
     }
@@ -430,8 +458,8 @@ export const ProviderSettings = () => {
             onClick={() => void testConnection()}
           />
           <Row
-            label={tr('测试模型性能', 'Test performance')}
-            value={busy === 'perf' ? tr('测试中…', 'testing…') : ''}
+            label={tr('测试模型速度', 'Test token speed')}
+            value={busy === 'perf' ? tr('测试中…', 'testing…') : speed}
             onClick={() => void testPerformance()}
           />
         </div>
