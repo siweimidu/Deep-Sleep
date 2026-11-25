@@ -75,8 +75,9 @@ const afterReplace = replaceActiveKey(replaced, 'z', 'new1')
 check('替换只动在用的那把', keysOf(afterReplace, 'z').join(',') === 'new1,old2', keysOf(afterReplace, 'z').join(','))
 check('替换后新的在用', activeKeyOf(afterReplace, 'z') === 'new1')
 
-// 展示
-check('掩码只露头尾', maskKey('sk-zaEoF694y9E82RXGH8GPfpS814hcDkSQxJsL8GMtZdEBj9rK') === 'sk-…j9rK', maskKey('sk-zaEoF694y9E82RXGH8GPfpS814hcDkSQxJsL8GMtZdEBj9rK'))
+// 展示（用合成的串，真 Key 一律不进仓库）
+const sample = 'sk-0123456789abcdefghijklmnopqrstuvwxyzABCDEF'
+check('掩码只露头尾', maskKey(sample) === 'sk-…CDEF', maskKey(sample))
 check('短串不泄露', maskKey('short') === '••••')
 
 // 哪些错误值得换 Key
