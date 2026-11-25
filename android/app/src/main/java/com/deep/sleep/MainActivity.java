@@ -769,6 +769,37 @@ public final class MainActivity extends Activity {
             return chatStorage == null ? "[]" : chatStorage.ids();
         }
 
+        /** 附件镜像：base64 写入，恢复时连图片一起带回来。 */
+        @JavascriptInterface
+        public void mirrorPutFile(String id, String body) {
+            if (chatStorage != null) {
+                chatStorage.putFile(id, body);
+            }
+        }
+
+        @JavascriptInterface
+        public void mirrorRemoveFile(String id) {
+            if (chatStorage != null) {
+                chatStorage.removeFile(id);
+            }
+        }
+
+        @JavascriptInterface
+        public String mirrorFileIds() {
+            return chatStorage == null ? "[]" : chatStorage.fileIds();
+        }
+
+        /** 只取指定 id 的附件，避免一次把上百 MB 序列化给 JS。 */
+        @JavascriptInterface
+        public String mirrorDumpFiles(String idsJson) {
+            return chatStorage == null ? "[]" : chatStorage.dumpFiles(idsJson);
+        }
+
+        @JavascriptInterface
+        public int mirrorFileCount() {
+            return chatStorage == null ? 0 : chatStorage.fileCount();
+        }
+
         @JavascriptInterface
         public void requestRecentPhotos() { runOnUiThread(() -> showRecentPhotos()); }
 

@@ -24,10 +24,16 @@ for (const file of files) {
   const out = []
 
   for (const line of lines) {
+    const previous = out.length > 0 ? out[out.length - 1].trim() : ''
     // dvh：先给一条 vh 的等价声明
     if (line.includes('dvh') && line.includes(':')) {
-      out.push(line.replaceAll('dvh', 'vh'))
-      dvhCount += 1
+      const fallback = line.replaceAll('dvh', 'vh')
+      // 幂等：上一条已经是同一个兜底就不再插。
+      // 之前没这个判断，每跑一次 build 就往源文件里多塞一条，跑几次后满屏重复声明。
+      if (previous !== fallback.trim()) {
+        out.push(fallback)
+        dvhCount += 1
+      }
     }
     // color-mix：先给一条同 alpha 的中性灰兜底
     if (line.includes('color-mix(')) {
@@ -35,7 +41,7 @@ for (const file of files) {
         const alpha = Math.round((Number(percent) / 100) * 1000) / 1000
         return `rgba(127, 127, 127, ${alpha})`
       })
-      if (fallback !== line) {
+      if (fallback !== line && previous !== fallback.trim()) {
         out.push(fallback)
         mixCount += 1
       }

@@ -24,24 +24,34 @@ import java.util.List;
  */
 final class ChatStorage extends SQLiteOpenHelper {
     private static final String DB_NAME = "chat-mirror.db";
-    private static final int DB_VERSION = 1;
+    private static final int DB_VERSION = 2;
     private static final String TABLE = "session_mirror";
+    /** 附件镜像：base64 存在 SQLite 里，恢复时能连图片一起带回来 */
+    private static final String TABLE_FILES = "file_mirror";
 
     ChatStorage(Context context) {
         super(context.getApplicationContext(), DB_NAME, null, DB_VERSION);
     }
 
-    @Override
-    public void onCreate(SQLiteDatabase db) {
+    private static void createTables(SQLiteDatabase db) {
         db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE
+            + " (id TEXT PRIMARY KEY NOT NULL, body TEXT NOT NULL, updated INTEGER NOT NULL)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_FILES
             + " (id TEXT PRIMARY KEY NOT NULL, body TEXT NOT NULL, updated INTEGER NOT NULL)");
     }
 
     @Override
+    public void onCreate(SQLiteDatabase db) {
+        createTables(db);
+    }
+
+    @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        // 镜像只是缓存，结构变了直接重建即可，不需要迁移
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE);
-        onCreate(db);
+        // 只做加法：v1 -> v2 是新增附件表。
+        // **绝不能用 DROP TABLE 重建**——会话表里是用户真实对话的唯一兜底副本，
+        // 升级一次就清空等于把数据安全变成零。
+        db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_FILES
+            + " (id TEXT PRIMARY KEY NOT NULL, body TEXT NOT NULL, updated INTEGER NOT NULL)");
     }
 
     @Override
@@ -140,5 +150,90 @@ final class ChatStorage extends SQLiteOpenHelper {
         }
         out.append('"');
         return out.toString();
+    }
+
+    // ── 附件镜像 ────────────────────────────────────────────────────────────
+
+    /** 写入/覆盖一个附件（前端已转成 base64）。 */
+    synchronized void putFile(String id, String body) {
+        if (id == null || id.isEmpty() || body == null) {
+            return;
+        }
+        try {
+            ContentValues values = new ContentValues(3);
+            values.put("id", id);
+            values.put("body", body);
+            values.put("updated", System.currentTimeMillis());
+            getWritableDatabase().insertWithOnConflict(TABLE_FILES, null, values,
+                SQLiteDatabase.CONFLICT_REPLACE);
+        } catch (RuntimeException ignored) {
+            // 同上：镜像失败不影响主流程
+        }
+    }
+
+    synchronized void removeFile(String id) {
+        if (id == null || id.isEmpty()) {
+            return;
+        }
+        try {
+            getWritableDatabase().delete(TABLE_FILES, "id = ?", new String[]{id});
+        } catch (RuntimeException ignored) {
+            // 同上
+        }
+    }
+
+    /** 已有附件的 id（回填时判断缺口）。返回 ["id", ...]。 */
+    synchronized String fileIds() {
+        List<String> ids = new ArrayList<>();
+        try (Cursor cursor = getReadableDatabase()
+            .query(TABLE_FILES, new String[]{"id"}, null, null, null, null, "updated ASC")) {
+            while (cursor.moveToNext()) {
+                ids.add(quote(cursor.getString(0)));
+            }
+        } catch (RuntimeException error) {
+            return "[]";
+        }
+        return "[" + String.join(",", ids) + "]";
+    }
+
+    /** 按 id 取附件，返回 [[id, base64], ...]。只取需要的，避免一次吐出上百 MB。 */
+    synchronized String dumpFiles(String idsJson) {
+        List<String> pairs = new ArrayList<>();
+        String[] ids;
+        try {
+            org.json.JSONArray array = new org.json.JSONArray(idsJson == null ? "[]" : idsJson);
+            ids = new String[array.length()];
+            for (int index = 0; index < array.length(); index++) {
+                ids[index] = array.getString(index);
+            }
+        } catch (Exception error) {
+            return "[]";
+        }
+        if (ids.length == 0) {
+            return "[]";
+        }
+        StringBuilder where = new StringBuilder("id IN (");
+        for (int index = 0; index < ids.length; index++) {
+            where.append(index == 0 ? "?" : ",?");
+        }
+        where.append(')');
+        try (Cursor cursor = getReadableDatabase().query(TABLE_FILES, new String[]{"id", "body"},
+            where.toString(), ids, null, null, null)) {
+            while (cursor.moveToNext()) {
+                pairs.add("[" + quote(cursor.getString(0)) + "," + quote(cursor.getString(1)) + "]");
+            }
+        } catch (RuntimeException error) {
+            return "[]";
+        }
+        return "[" + String.join(",", pairs) + "]";
+    }
+
+    synchronized int fileCount() {
+        try (Cursor cursor = getReadableDatabase()
+            .rawQuery("SELECT COUNT(*) FROM " + TABLE_FILES, null)) {
+            return cursor.moveToFirst() ? cursor.getInt(0) : 0;
+        } catch (RuntimeException error) {
+            return 0;
+        }
     }
 }
