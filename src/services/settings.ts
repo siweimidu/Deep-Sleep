@@ -83,6 +83,7 @@ const KEYS = {
   apiBaseUrl: 'replica:api-base-url',
   providerId: 'replica:provider-id',
   providerBaseUrl: 'replica:provider-base-url',
+  providerBaseUrlById: 'replica:provider-base-url-by-id',
   providerModel: 'replica:provider-model',
   /** 厂商 id → 上次用的模型名，切回来时恢复，省得每家都重选一遍 */
   providerModelById: 'replica:provider-model-by-id',
@@ -169,7 +170,19 @@ const initialThemePreference = (): ThemePreference => {
 /** 未保存过时使用服务端默认音色 stella（海星） */
 const initialTtsVoice = (): TtsVoice => (read(KEYS.ttsVoice) === 'tide' ? 'tide' : 'stella')
 
-const initialApiBaseUrl = (): string | null => normalizeOrigin(read(KEYS.apiBaseUrl))
+/**
+ * Anthropic 通路用的 origin。它和厂商 base url 是同一件事的两半，但历史上分开存过，
+ * 所以老数据里可能是上一家留下的域名 —— 那样官方通路会去请求别家，表现成"网络异常"。
+ * 主机对不上就以当前厂商地址为准。
+ */
+const initialApiBaseUrl = (): string | null => {
+  const stored = normalizeOrigin(read(KEYS.apiBaseUrl))
+  const fromProvider = normalizeOrigin(startProvider.providerBaseUrl)
+  if (!stored) {
+    return fromProvider
+  }
+  return sameHost(stored, startProvider.providerBaseUrl) ? stored : fromProvider
+}
 
 /** 厂商 id → 该家收藏的模型名。老版本是一个全局数组，首次升级时归给当前厂商。 */
 const readSavedModelsMap = (): Record<string, string[]> => {
@@ -213,6 +226,40 @@ const readModelMap = (): Record<string, string> => {
   }
 }
 
+/** 厂商 id → 该家的完整 base url。以前只有一份全局地址，换厂商会留着上一家的域名。 */
+const readBaseUrlMap = (): Record<string, string> => {
+  try {
+    const value: unknown = JSON.parse(read(KEYS.providerBaseUrlById) ?? '{}')
+    if (!value || typeof value !== 'object') {
+      return {}
+    }
+    const map: Record<string, string> = {}
+    for (const [providerId, url] of Object.entries(value as Record<string, unknown>)) {
+      if (typeof url === 'string' && url.trim()) {
+        map[providerId] = url.trim()
+      }
+    }
+    return map
+  } catch {
+    return {}
+  }
+}
+
+const rememberBaseUrl = (providerId: string, baseUrl: string) => {
+  const map = readBaseUrlMap()
+  map[providerId] = baseUrl
+  write(KEYS.providerBaseUrlById, JSON.stringify(map))
+}
+
+/** 主机相同才算同一个服务；空串或非法串都当不同，让调用方退回预置 */
+const sameHost = (left: string, right: string): boolean => {
+  try {
+    return new URL(left).host === new URL(right).host
+  } catch {
+    return false
+  }
+}
+
 const rememberModel = (providerId: string, model: string | null): void => {
   const map = readModelMap()
   const next = model
@@ -239,7 +286,21 @@ const initialProvider = (): { providerId: string; providerBaseUrl: string } => {
   if (!preset) {
     return { providerId: 'deepseek', providerBaseUrl: DEEPSEEK_BASE_URL }
   }
-  return { providerId: preset.id, providerBaseUrl: read(KEYS.providerBaseUrl) ?? preset.baseUrl }
+  // 这一家自己存过地址（用户手填或切换时记下的）就以它为准
+  const own = readBaseUrlMap()[preset.id]
+  if (own) {
+    return { providerId: preset.id, providerBaseUrl: own }
+  }
+  // 老数据里只有一份全局地址，可能是上一家留下的：主机对不上就用预置，
+  // 否则官方通路会去请求别家的 /anthropic/v1/messages，表现成"网络异常"。
+  const legacy = read(KEYS.providerBaseUrl)
+  if (!preset.baseUrl) {
+    return { providerId: preset.id, providerBaseUrl: legacy ?? '' }
+  }
+  return {
+    providerId: preset.id,
+    providerBaseUrl: legacy && sameHost(legacy, preset.baseUrl) ? legacy : preset.baseUrl,
+  }
 }
 
 /**
@@ -476,6 +537,7 @@ export const setProvider = (id: string): void => {
   const remembered = readModelMap()[id] ?? null
   write(KEYS.providerId, id)
   write(KEYS.providerBaseUrl, baseUrl)
+  rememberBaseUrl(id, baseUrl)
   const origin = normalizeOrigin(baseUrl)
   write(KEYS.apiBaseUrl, origin)
   write(KEYS.providerModel, remembered)
@@ -518,6 +580,7 @@ export const selectProviderKey = (apiKey: string): boolean => {
 export const setProviderBaseUrl = (value: string): void => {
   const trimmed = value.trim().replace(/\/+$/, '')
   write(KEYS.providerBaseUrl, trimmed)
+  rememberBaseUrl(useSettings.getState().providerId, trimmed)
   const origin = normalizeOrigin(trimmed)
   write(KEYS.apiBaseUrl, origin)
   useSettings.setState({ providerBaseUrl: trimmed, apiBaseUrl: origin })
