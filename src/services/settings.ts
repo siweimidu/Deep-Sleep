@@ -282,7 +282,7 @@ export const setApiBaseUrl = (value: string | null): boolean => {
   setOriginOverride(origin)
   return true
 }
-/** 切换厂商预设：同时把完整 base url 与 Anthropic 通路的 origin 一起对齐。 */
+/** 切换厂商预设：base url 与 Anthropic 通路的 origin 一起对齐，并清掉旧厂商的模型名。 */
 export const setProvider = (id: string): void => {
   const preset = findProvider(id)
   const baseUrl = preset?.baseUrl || DEEPSEEK_BASE_URL
@@ -290,7 +290,9 @@ export const setProvider = (id: string): void => {
   write(KEYS.providerBaseUrl, baseUrl)
   const origin = normalizeOrigin(baseUrl)
   write(KEYS.apiBaseUrl, origin)
-  useSettings.setState({ providerId: id, providerBaseUrl: baseUrl, apiBaseUrl: origin })
+  // 模型名是厂商私有的：留着别的厂商的模型名，发出去只会是一个必然失败的请求。
+  write(KEYS.providerModel, null)
+  useSettings.setState({ providerId: id, providerBaseUrl: baseUrl, apiBaseUrl: origin, providerModel: null })
   setOriginOverride(origin)
 }
 

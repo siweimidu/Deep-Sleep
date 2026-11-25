@@ -31,6 +31,7 @@ export const PROVIDERS: ProviderPreset[] = [
     id: 'google',
     label: 'Google AI Studio',
     baseUrl: 'https://generativelanguage.googleapis.com/v1beta/openai',
+    note: '需要代理',
   },
   { id: 'dashscope', label: '阿里云百炼', baseUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1' },
   { id: 'zhipu', label: '智谱 AI（国内版）', baseUrl: 'https://open.bigmodel.cn/api/paas/v4' },
@@ -78,6 +79,7 @@ export const PROVIDERS: ProviderPreset[] = [
   { id: 'atomgit', label: 'AtomGit', baseUrl: '', note: '请填写官方 OpenAI 兼容地址' },
   { id: 'agnes-intl', label: 'Agnes（国际）', baseUrl: 'https://apihub.agnes-ai.com/v1' },
   { id: 'agnes-cn', label: 'Agnes（中国）', baseUrl: 'https://api.agnes-ai.cn/v1' },
+  { id: 'csdn', label: 'CSDN（GitCode）', baseUrl: 'https://api-ai.gitcode.com/v1' },
 ]
 
 export const findProvider = (id: string): ProviderPreset | undefined =>
@@ -106,6 +108,32 @@ export type RemoteModel = { id: string; ownedBy?: string }
  * 各家实现细节不一：有的返回 `{ data: [...] }`、有的 `owned_by` 缺失、有的混入非对话模型。
  * 这里只做"挑出 id"这一件事，过滤与排序规则写死，出问题好定位。
  */
+/**
+ * 带超时的 fetch。连不通的域名往往既不返回也不拒绝（被黑洞掉），
+ * 不设超时界面就会永远停在「正在获取模型…」。
+ */
+export const fetchWithTimeout = async (
+  url: string,
+  init: RequestInit,
+  timeoutMs = 20000
+): Promise<Response> => {
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), timeoutMs)
+  const relay = () => controller.abort()
+  init.signal?.addEventListener('abort', relay, { once: true })
+  try {
+    return await fetch(url, { ...init, signal: controller.signal })
+  } catch (error) {
+    if (controller.signal.aborted && !init.signal?.aborted) {
+      throw new Error('request timed out')
+    }
+    throw error
+  } finally {
+    clearTimeout(timer)
+    init.signal?.removeEventListener('abort', relay)
+  }
+}
+
 export const fetchProviderModels = async (
   baseUrl: string,
   apiKey: string,
@@ -118,7 +146,7 @@ export const fetchProviderModels = async (
   if (!apiKey.trim()) {
     throw new Error('missing api key')
   }
-  const response = await fetch(`${root}/models`, {
+  const response = await fetchWithTimeout(`${root}/models`, {
     method: 'GET',
     headers: { authorization: `Bearer ${apiKey.trim()}`, accept: 'application/json' },
     signal,

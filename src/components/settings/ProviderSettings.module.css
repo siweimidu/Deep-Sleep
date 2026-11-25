@@ -98,6 +98,10 @@
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+  /* 有的厂商会返回几百个模型：全渲染但自己滚，别把整页顶长 */
+  max-height: 42vh;
+  overflow-y: auto;
+  padding-right: 2px;
 }
 
 .chip {

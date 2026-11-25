@@ -186,3 +186,43 @@ OpenAI 兼容的，而手机里那枚 `sk-2…` 正是 DeepSeek 的 Key（对 Ag
 代价与现状：验证过程中我先把手机里的 DeepSeek Key 清掉了（早期脚本用「点行标题收起编辑区」
 来失焦，那时的空草稿还是会落盘），**现在手机里没有 Key**，需要你在引导页重新粘贴一次。
 
+
+### 四家第三方端点的真机实测（2026-11-25，用户提供的 Key）
+
+完整走界面：选厂商 → 输 Key → 拉模型 → 选模型 → 发消息，判据是每次随机 token 在对话里出现两次
+（问题一次、回答一次），避免被历史回复误判。
+
+| 厂商 | 模型数 | 选中模型 | 结果 | 用时 |
+| --- | --- | --- | --- | --- |
+| Agnes（中国） | 12 | `agnes-2.5-flash` | PASS | 12s |
+| Agnes（国际） | 13 | `agnes-3.0-flash` | PASS | 2s |
+| CSDN（GitCode） | 3 | `deepseek-ai/DeepSeek-V4-Flash` | PASS | 8s |
+| Google AI Studio | 65 | `models/gemini-flash-lite-latest` | PASS（需代理） | 2s |
+
+上一轮 Agnes 报 401 的真正原因是手机里存的是 DeepSeek 的 Key，不是 Agnes 的——两枚 Agnes Key 都是好的。
+
+本轮修掉的三个问题：
+
+1. **模型列表被截断到 40 个**（`models.slice(0, 40)`，而且是按字母排序后截）。Google 有 65 个，
+   `gemini-*` 全在 40 名之外，用户根本选不到能用的模型。现在全量渲染，容器自己滚（`max-height: 42vh`）。
+2. **换厂商后旧模型名还留着**：`setProvider` 没清 `providerModel`，切到 Google 后仍带着 CSDN 的
+   `deepseek-ai/DeepSeek-V4-Flash`，发出去必然是失败请求。现在切厂商即清空模型。
+3. **请求没有超时**：被黑洞掉的域名既不返回也不拒绝，界面永远停在「正在获取模型…」。
+   现在拉模型 20 秒超时、对话 60 秒无增量超时，并给出中文提示「请求超时：连不上这个地址，检查网络或代理」。
+
+另外新增 CSDN（GitCode）预设，并给 Google AI Studio 标上「需要代理」（预设 note + 列表徽章）。
+
+境外厂商连通性实测（手机页面内 fetch，故意用无效 Key；401/200 表示网络通，TypeError 表示
+浏览器这一侧拿不到——可能是跨域被拒，也可能是不通）：
+
+```
+openai=401  google=400  groq=401  mistral=401  cerebras=401  together=401
+fireworks=401  huggingface=200  openrouter=200  zhipu-intl=401  agnes-intl=200
+anthropic=TypeError  nvidia=TypeError  perplexity=TypeError  cloudflare=TypeError
+```
+
+所以除 Google 之外没有再给别家标「需要代理」：多数在用户当前代理下是通的，而 TypeError 那几家的
+原因无法只凭一次探测区分（跨域 vs 不通），不写没有依据的标注。
+
+测试后应用停在可用的配置上：Google AI Studio + `models/gemini-flash-lite-latest`。
+

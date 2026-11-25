@@ -101,6 +101,12 @@ export const ProviderSettings = () => {
     if (text === 'unexpected response') {
       return tr('不是 OpenAI 兼容格式', 'Not OpenAI-compatible')
     }
+    if (text === 'request timed out') {
+      return tr('请求超时：连不上这个地址，检查网络或代理', 'Timed out — check the network or proxy')
+    }
+    if (/failed to fetch|networkerror|load failed/i.test(text)) {
+      return tr('连不上这个地址，检查网络或代理', 'Cannot reach this address')
+    }
     return text
   }
 
@@ -201,6 +207,7 @@ export const ProviderSettings = () => {
                 >
                   <span>{item.label}</span>
                   {item.baseUrl ? null : <em className={styles.badge}>{tr('需自填', 'enter URL')}</em>}
+                  {item.baseUrl && item.note ? <em className={styles.badge}>{item.note}</em> : null}
                   {item.id === providerId ? <IconCheckOutline16 /> : null}
                 </button>
               ))}
@@ -288,7 +295,7 @@ export const ProviderSettings = () => {
               </div>
               {models.length > 0 ? (
                 <div className={styles.chips}>
-                  {models.slice(0, 40).map((item) => (
+                  {models.map((item) => (
                     <button
                       key={item.id}
                       type="button"

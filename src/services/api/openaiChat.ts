@@ -36,6 +36,9 @@ export type OpenAiDelta = {
   finishReason?: string
 }
 
+/** 多久没有任何增量就认定连接已死。推理模型会持续发 reasoning_content，所以不会误伤。 */
+const IDLE_TIMEOUT_MS = 60000
+
 const trimBase = (raw: string): string => {
   const value = (raw ?? '').trim().replace(/\/+$/, '')
   if (!value || !/^https?:\/\//i.test(value)) {
@@ -136,6 +139,23 @@ export const streamOpenAiChat = async (
   if (typeof options.temperature === 'number') {
     body.temperature = options.temperature
   }
+  // 连不通的域名既不返回也不拒绝：没有看门狗的话这条流会永远挂着。
+  const controller = new AbortController()
+  let stalled = false
+  let watchdog = setTimeout(() => {
+    stalled = true
+    controller.abort()
+  }, IDLE_TIMEOUT_MS)
+  const touch = (): void => {
+    clearTimeout(watchdog)
+    watchdog = setTimeout(() => {
+      stalled = true
+      controller.abort()
+    }, IDLE_TIMEOUT_MS)
+  }
+  const relayAbort = (): void => controller.abort()
+  options.signal?.addEventListener('abort', relayAbort, { once: true })
+
   const response = await fetch(`${root}/chat/completions`, {
     method: 'POST',
     headers: {
@@ -144,10 +164,13 @@ export const streamOpenAiChat = async (
       accept: 'text/event-stream',
     },
     body: JSON.stringify(body),
-    signal: options.signal,
+    signal: controller.signal,
   }).catch((error: unknown) => {
     if (options.signal?.aborted) {
       throw error
+    }
+    if (stalled) {
+      throw new ApiError('network', 'request timed out')
     }
     throw new ApiError('network', error instanceof Error ? error.message : String(error))
   })
@@ -168,6 +191,7 @@ export const streamOpenAiChat = async (
       if (done) {
         break
       }
+      touch()
       buffer += decoder.decode(value, { stream: true })
       let boundary = buffer.indexOf('\n\n')
       while (boundary >= 0) {
@@ -202,6 +226,8 @@ export const streamOpenAiChat = async (
       }
     }
   } finally {
+    clearTimeout(watchdog)
+    options.signal?.removeEventListener('abort', relayAbort)
     reader.releaseLock()
   }
   return { text, finishReason }

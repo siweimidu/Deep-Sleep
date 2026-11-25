@@ -46,9 +46,10 @@ const required = [
   'modelscope', 'openrouter', 'groq', 'mistral', 'hunyuan', 'qianfan', 'minimax', 'stepfun', 'yi',
   'baichuan', 'kunlun', 'nvidia', 'together', 'fireworks', 'cerebras', 'perplexity', 'xfyun',
   'sensetime', 'longcat', 'so360', 'amd', 'huggingface', 'cloudflare', 'atomgit', 'agnes-intl', 'agnes-cn',
+  'csdn',
 ]
 const missing = required.filter((id) => !findProvider(id))
-check('点名的 33 家都在表里', missing.length === 0, missing.join(','))
+check('点名的 34 家都在表里', missing.length === 0, missing.join(','))
 
 // ── normalizeBaseUrl ───────────────────────────────────────────────────────
 check('去尾部斜杠', normalizeBaseUrl('https://a.com/v1/') === 'https://a.com/v1')
