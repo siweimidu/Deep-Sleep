@@ -319,3 +319,98 @@ CSDN 2 / AGNES 0 / BACK_CSDN 2
 
 这一项之前一直报 `row-missing`：脚本按 `button` 去找那行，而「已保存的模型」是 `div` + `label/value` 两个 `span`
 （不是可点按钮）；读不出「2」则是因为手机上跑的还是加这个功能之前的 APK。两件都是验证脚本/打包环节的问题，不是应用 bug。
+
+
+## 动效：统一基座 + 预测性返回重做（真机 OnePlus PJE110 / Android 15）
+
+### 基座
+
+`src/app/motion.css` 里的弹簧曲线是 `scripts/make-springs.py` 生成的，不手改；
+手感放在新的 `src/app/motion-kit.css`：
+
+- 所有 `button` / `[role=button]` / `tab` / `option` 默认就有按压反馈：
+  按下 90ms 到位（不能让人等弹簧），松手走 `--motion-press` 弹回。
+  选择器用 `:where()` 保持 0 特异性，组件里任何一条自己的规则都能盖掉它。
+- 投影放在 `::after` 上只动 `opacity`：`box-shadow` 每帧重算会把整层重绘一遍。
+- 不用 `overflow: hidden` 裁剪圆角：裁剪整棵子树会让每帧都在重新裁剪。
+
+**一个隐患**：触摸时 Chrome 会把 `:active` 推迟约 300ms（它在等你是不是要滚动），
+表现就是"按下去没反应"。`webviewCompat.ts` 里注册一个空的 `touchstart` 监听后浏览器才立刻给 `:active`。
+
+### 预测性返回
+
+以前各页面自己写 `transform`，只有 4 处有位移、其余 4 处（通话页、图片查看器、裁切页、会话搜索）
+根本没有可视反馈。现在统一成舞台：hook 挂载时给元素打 `data-back-stage`，
+手势期间发布 `--back-progress`，位移/缩放/圆角/投影由 CSS 一处决定。
+
+真机上量到的（设置页）：
+
+```
+AT_REST   x=0   w=360  radius=0px
+MID  p=0.55  x=51  w=336  radius=12.1px
+FAR  p=0.95  x=89  w=319  radius=20.9px
+AFTER_CANCEL x=0 radius=0px      （弹簧归位）
+INVOKE_CLOSED true               （提交后真的关掉）
+```
+
+顺带修掉抽屉返回的两个问题：
+
+1. **方向反了**：`translateX(calc((--drawer-progress - 1 + --back-progress) * 100%))` 里的加号
+   会把抽屉继续往右推，于是左侧露出一片空背景。改成减法。
+2. **主卡片不跟手**：返程时聊天卡片仍停在右边，抽屉一撤中间就是空的。现在卡片与遮罩都按
+   `--drawer-progress - --back-progress` 一起回位，且手势期间禁用过渡（否则追不上手指）。
+
+修复后同一手势的截图：抽屉左滑、聊天卡片带圆角从右侧滑回，中间不再有空洞。
+
+### 其余
+
+- 设置页换页（`key={page}` 重新挂载）加落位动画；行尾箭头按下时右移 3px。
+- 弹窗 / 下拉菜单补入场动画，下拉箭头展开时翻转。
+- `Button` / `IconButton` 按压分级（实心按钮悬停抬起 1px，仅指针设备）。
+- 消息列表只让新挂载的最后一条入场，切会话不会整屏一起跳。
+
+### 按压态实证
+
+合成 `Input.dispatchTouchEvent` 不会让 WebView 进入 `:active`（CDP 限制，不是应用问题）。
+用真实指针序列验证：
+
+```
+drawer-button (mouse) {"hitActive":true,"btnActive":true,"transform":"matrix(0.972, 0, 0, 0.972, 0, 0)"}
+drawer-button (touch) {"hitActive":false,"btnActive":false,"transform":"none"}   ← 合成 touch 的限制
+```
+
+## 厂商预置：用真实密钥逐个校验
+
+从 `freellmapi-keys.json`（203 条）里按 platform / 主机名匹配到 19 个预置，逐个打 `/models`：
+
+```
+200  dashscope / zhipu / zhipu-intl / moonshot / siliconflow / modelscope /
+     stepfun / nvidia / longcat / agnes-intl / csdn
+401  agnes-cn（该 Key 失效）      403  groq（Key 无权）
+ERR  google / openrouter / mistral / cerebras / huggingface（本机无代理，直连不通）
+```
+
+没有一条是"预置地址写错"，失败都落在网络或密钥本身。
+
+### 官方 DeepSeek 通路首次真机跑通
+
+之前这条路径只有编译级证据（手上没有可用 DeepSeek Key）。这次用真 Key 走完整链路，
+并在这个过程中挖出两个真 bug：
+
+| 现象 | 根因 | 修法 |
+| --- | --- | --- |
+| 厂商已是「DeepSeek（官方）」，Base URL 还是上一家的 `api-ai.gitcode.com` | base url 只有一份全局存储，切厂商只改 id | 改成按厂商存 `replica:provider-base-url-by-id`；老数据主机对不上就退回预置 |
+| 修完上面仍报「网络异常」 | Anthropic 通路的 origin（`replica:api-base-url`）是另一份独立存储，同样留着旧域名 | 启动时按主机校一次，对不上就以当前厂商地址为准 |
+
+修完真机结果：
+
+```
+BASE api.deepseek.com
+MODELS 2 [deepseek-flash, deepseek-v4-pro]
+MODEL deepseek-flash
+SPEED 约 188.6 tok/s · 200 tokens / 1.1s
+REPLY PASS
+```
+
+回归测试 `scripts/test-provider-baseurl.mjs`（8 条）覆盖：外来域名不跟着跑、手填地址被记住且按厂商分开、
+切走再切回不串地址、Anthropic origin 跟着对齐。

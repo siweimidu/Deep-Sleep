@@ -33,9 +33,17 @@
   position: absolute;
   inset: 0;
   background: #000;
-  opacity: calc(0.28 * var(--drawer-progress));
+  opacity: calc(0.28 * (var(--drawer-progress) - var(--back-progress, 0)));
   transition: opacity 200ms ease-out;
   pointer-events: none;
+}
+
+/* 返回手势跟手期间，卡片和遮罩都不能再走过渡，否则会"追不上"手指 */
+[data-android] .main[data-back],
+[data-android] .main[data-back]::after,
+html[data-back-active] [data-android] .main,
+html[data-back-active] [data-android] .main::after {
+  transition: none;
 }
 
 [data-android] .frame[data-drawer-open='true'] {
@@ -63,7 +71,13 @@
   padding-top: var(--android-status-inset, 0px);
   background: var(--dsw-alias-bg-base);
   transform-origin: left center;
-  transform: translateX(calc(var(--drawer-width, var(--drawer-edge)) * var(--drawer-progress)));
+  /* 返回手势期间要跟着手指滑回来，否则抽屉一撤左边只剩一片空背景 */
+  transform: translateX(
+    calc(
+      var(--drawer-width, var(--drawer-edge)) *
+        (var(--drawer-progress) - var(--back-progress, 0))
+    )
+  );
   border-radius: 0;
   transition: transform var(--card-transition, var(--motion-card));
   /* 抽屉拖动时这一层每帧都在位移：提前提升为独立合成层，避免每帧重绘整页 */
@@ -86,7 +100,7 @@
   z-index: 21;
   border-radius: inherit;
   background: var(--dsw-alias-bg-base);
-  opacity: calc(0.24 * var(--drawer-progress));
+  opacity: calc(0.24 * (var(--drawer-progress) - var(--back-progress, 0)));
   transition: opacity 200ms ease-out;
   pointer-events: none;
 }

@@ -271,8 +271,11 @@
   border-right: 1px solid rgb(255 255 255 / 8%);
   /* 纵向滚动留给列表，横向留给「左滑关闭」 */
   touch-action: pan-y;
-  /* 位置完全由 --drawer-progress 决定，拖动时改它就同时带动卡片 */
-  transform: translateX(calc((var(--drawer-progress) - 1 + var(--back-progress, 0)) * 100%));
+  /* 位置完全由 --drawer-progress 决定，拖动时改它就同时带动卡片。
+     返回手势是在"关抽屉"，所以 back-progress 要减：加号会把它继续往右推，反而露出左边一片空背景。 */
+  transform: translateX(
+    calc((var(--drawer-progress) - 1 - var(--back-progress, 0)) * 100%)
+  );
   transition: transform var(--drawer-transition);
   /* 边缘抽屉是"抽出来的一块"，不是浮起的卡片：不要圆角，投影由 motion-kit 按进度给 */
   border-radius: 0;

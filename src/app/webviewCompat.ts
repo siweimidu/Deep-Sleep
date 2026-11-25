@@ -144,11 +144,24 @@ const patchInert = (): void => {
   })
 }
 
+/**
+ * 触摸时 Chrome 会把 :active 推迟约 300ms（它在等你是不是要滚动），
+ * 结果所有按压反馈都慢半拍、看起来像"没反应"。
+ * 只要页面上存在 touchstart 监听，浏览器就会立刻给 :active —— 这里是那位"占位监听"。
+ */
+const patchInstantActive = (): void => {
+  if (typeof document === 'undefined') {
+    return
+  }
+  document.addEventListener('touchstart', () => {}, { passive: true })
+}
+
 export const installWebViewCompat = (): void => {
   patchAbortSignal()
   patchArray()
   patchMisc()
   patchInert()
+  patchInstantActive()
 }
 
 // 模块体里立刻执行：配合在入口处"第一行 import"，保证任何业务模块求值前补丁已经就位。
