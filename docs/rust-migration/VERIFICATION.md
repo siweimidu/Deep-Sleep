@@ -432,6 +432,6 @@ REPLY PASS
 
 搜索页的截图里能直接看到：搜索面板带着圆角右滑，露出后面的抽屉 —— 这一层以前是"手一划界面直接消失"。
 
-**没验到的**：图片查看器。这台手机上当前几条会话里没有可点开的大图（点了 8 个 `img`
-都没打开查看器），所以只做到代码级：`ImageViewer` 已接 `usePredictiveBack`，
-样式由 `[data-back-stage]` 统一给，与上面三层同一条代码路径。
+**没验到的**：图片查看器。它只能从附件卡片打开（`openImageViewer` 的唯一调用点在 `MessageFile.tsx`），
+而这台手机当前数据里 `fileCards=0`（早期误清 IndexedDB 丢过附件），所以够不到入口。
+代码路径与上面三层完全一致：`ImageViewer` 已接 `usePredictiveBack`，样式由 `[data-back-stage]` 统一给。
