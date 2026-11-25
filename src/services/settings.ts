@@ -153,6 +153,18 @@ const initialSavedModels = (): string[] => {
   }
 }
 
+/**
+ * 存下来的厂商 id 可能已经不存在（预设改名或拆档，例如 agnes 拆成国内外两条）。
+ * 认不出来就干脆退回官方：否则界面上会直接把原始 id 当厂商名显示出来。
+ */
+const initialProvider = (): { providerId: string; providerBaseUrl: string } => {
+  const preset = findProvider(read(KEYS.providerId) ?? '')
+  if (!preset) {
+    return { providerId: 'deepseek', providerBaseUrl: DEEPSEEK_BASE_URL }
+  }
+  return { providerId: preset.id, providerBaseUrl: read(KEYS.providerBaseUrl) ?? preset.baseUrl }
+}
+
 export const useSettings = create<Settings>(() => ({
   apiKey: android ? android.readApiKey() : read(KEYS.apiKey),
   locale: resolveLocale(initialLocalePreference()),
@@ -170,8 +182,7 @@ export const useSettings = create<Settings>(() => ({
   avatar: read(KEYS.avatar),
   accountName: read(KEYS.accountName),
   apiBaseUrl: initialApiBaseUrl(),
-  providerId: read(KEYS.providerId) ?? 'deepseek',
-  providerBaseUrl: read(KEYS.providerBaseUrl) ?? DEEPSEEK_BASE_URL,
+  ...initialProvider(),
   providerModel: read(KEYS.providerModel),
   savedModels: initialSavedModels(),
 }))

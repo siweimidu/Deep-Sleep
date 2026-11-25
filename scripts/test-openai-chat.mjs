@@ -1,6 +1,6 @@
 // OpenAI 兼容客户端：消息转换、SSE 帧解析、流式聚合（fetch 用桩，不联网）。
-// 运行：node --experimental-transform-types --no-warnings --import ./rust/register-ts.mjs scripts/test-openai-chat.mjs
-import { toOpenAiMessages, parseOpenAiFrame, streamOpenAiChat } from '../src/services/api/openaiChat.ts'
+// 运行：node --experimental-transform-types --no-warnings --import ./rust/record-shim.mjs --import ./rust/register-ts.mjs scripts/test-openai-chat.mjs
+import { toOpenAiMessages, parseOpenAiFrame, streamOpenAiChat, streamThirdPartyChat } from '../src/services/api/openaiChat.ts'
 
 let failed = 0
 const check = (name, ok, extra = '') => {
@@ -77,15 +77,46 @@ check('逐段回调', deltas.join('|') === '你|好', deltas.join('|'))
 stubStream(['data: {"choices":[{"delta":{"content":"尾"}}]}'])
 check('无结尾空行时仍收到末帧', (await streamOpenAiChat({ baseUrl: 'https://a.com/v1', apiKey: 'k', model: 'm', messages: [] })).text === '尾')
 
-// 错误路径
+// 错误路径：必须是 ApiError，界面才会给出「API Key 无效」这类提示，
+// 而不是把上游 JSON 原文当成回答贴进对话。
 globalThis.fetch = async () => ({ ok: false, status: 401, text: async () => 'unauthorized' })
-let threw = ''
+let failure = null
 try {
   await streamOpenAiChat({ baseUrl: 'https://a.com/v1', apiKey: 'k', model: 'm', messages: [] })
 } catch (error) {
-  threw = String(error.message)
+  failure = error
 }
-check('HTTP 错误带状态码与正文', threw === 'HTTP 401 unauthorized', threw)
+check(
+  'HTTP 错误抛 ApiError 并带状态码',
+  failure?.name === 'ApiError' && failure.status === 401 && failure.message === 'unauthorized',
+  `${failure?.name} ${failure?.message}`,
+)
+
+globalThis.fetch = async () => ({
+  ok: false,
+  status: 401,
+  text: async () => JSON.stringify({ error: { message: 'Invalid API key', type: 'AgnesAI_error' } }),
+})
+failure = null
+try {
+  await streamOpenAiChat({ baseUrl: 'https://a.com/v1', apiKey: 'k', model: 'm', messages: [] })
+} catch (error) {
+  failure = error
+}
+check('上游 error.message 被取出来', failure?.message === 'Invalid API key', String(failure?.message))
+
+globalThis.fetch = async () => {
+  throw new TypeError('Failed to fetch')
+}
+failure = null
+try {
+  await streamOpenAiChat({ baseUrl: 'https://a.com/v1', apiKey: 'k', model: 'm', messages: [] })
+} catch (error) {
+  failure = error
+}
+check('断网归为 network', failure?.kind === 'network', `${failure?.kind} ${failure?.message}`)
+
+let threw = ''
 
 for (const [name, options, expected] of [
   ['空 baseUrl', { baseUrl: '', apiKey: 'k', model: 'm', messages: [] }, 'invalid base url'],
@@ -100,6 +131,85 @@ for (const [name, options, expected] of [
   }
   check(name + ' 抛错', threw === expected, threw)
 }
+
+// ── 适配器：块的顺序、思考增量、stop_reason ─────────────────────────────────
+const collect = async (chunks) => {
+  stubStream(chunks)
+  const events = []
+  for await (const event of streamThirdPartyChat({
+    baseUrl: 'https://a.com/v1',
+    apiKey: 'k',
+    model: 'm',
+    system: '',
+    history: [{ role: 'user', content: 'hi' }],
+  })) {
+    events.push(event)
+  }
+  return events.map((event) => {
+    if (event.type === 'content_block_start') return `start:${event.index}:${event.content_block.type}`
+    if (event.type === 'content_block_delta') return `delta:${event.index}:${event.delta.type}`
+    if (event.type === 'content_block_stop') return `stop:${event.index}`
+    if (event.type === 'message_delta') return `message_delta:${event.delta.stop_reason}`
+    return event.type
+  })
+}
+
+const reasoningShape = await collect([
+  'data: {"choices":[{"delta":{"reasoning_content":"想"}}]}\n\n',
+  'data: {"choices":[{"delta":{"reasoning_content":"一下"}}]}\n\n',
+  'data: {"choices":[{"delta":{"content":"答案"}}]}\n\n',
+  'data: {"choices":[{"delta":{},"finish_reason":"length"}]}\n\n',
+  'data: [DONE]\n\n',
+])
+check(
+  '思考块在正文之前，length 映成 max_tokens',
+  reasoningShape.join(' ') ===
+    'start:0:thinking delta:0:thinking_delta delta:0:thinking_delta stop:0 start:1:text delta:1:text_delta stop:1 message_delta:max_tokens message_stop',
+  reasoningShape.join(' ')
+)
+
+const textOnlyShape = await collect([
+  'data: {"choices":[{"delta":{"content":"你好"}}]}\n\n',
+  'data: {"choices":[{"delta":{},"finish_reason":"stop"}]}\n\n',
+  'data: [DONE]\n\n',
+])
+check(
+  '纯正文不带空的思考块',
+  textOnlyShape.join(' ') === 'start:0:text delta:0:text_delta stop:0 message_delta:end_turn message_stop',
+  textOnlyShape.join(' ')
+)
+
+const reasoningOnlyShape = await collect([
+  'data: {"choices":[{"delta":{"reasoning_content":"只想不说"}}]}\n\n',
+  'data: {"choices":[{"delta":{},"finish_reason":"length"}]}\n\n',
+  'data: [DONE]\n\n',
+])
+check(
+  '只有思考时不发正文块',
+  reasoningOnlyShape.join(' ') ===
+    'start:0:thinking delta:0:thinking_delta stop:0 message_delta:max_tokens message_stop',
+  reasoningOnlyShape.join(' ')
+)
+
+const early = []
+stubStream([
+  'data: {"choices":[{"delta":{"content":"第一段"}}]}\n\n',
+  'data: {"choices":[{"delta":{},"finish_reason":"stop"}]}\n\n',
+  'data: [DONE]\n\n',
+])
+const failureMidStream = (async () => {
+  for await (const event of streamThirdPartyChat({
+    baseUrl: 'https://a.com/v1',
+    apiKey: 'k',
+    model: 'm',
+    system: '',
+    history: [{ role: 'user', content: 'hi' }],
+  })) {
+    early.push(event.type)
+  }
+})()
+await failureMidStream
+check('正常流以 message_stop 收尾', early.at(-1) === 'message_stop' && early[0] === 'content_block_start', early.join(','))
 
 console.log(failed === 0 ? '\n全部通过' : '\n失败 ' + failed + ' 项')
 process.exit(failed === 0 ? 0 : 1)

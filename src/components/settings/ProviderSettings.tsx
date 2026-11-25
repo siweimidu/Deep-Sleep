@@ -127,15 +127,23 @@ export const ProviderSettings = () => {
     setBusy('perf')
     setStatus(tr('正在测首字延迟…', 'Measuring…'))
     const started = performance.now()
+    // 首字延迟要量"第一个增量到达"，不是整条流跑完；推理模型尤其会把总时长拉得很长。
+    let firstTokenAt = 0
     try {
-      await streamOpenAiChat({
-        baseUrl: providerBaseUrl,
-        apiKey: apiKey ?? '',
-        model,
-        messages: [{ role: 'user', content: 'ping' }],
-        maxTokens: 1,
-      })
-      setStatus(tr(`首字延迟约 ${Math.round(performance.now() - started)}ms`, `First token ~${Math.round(performance.now() - started)}ms`))
+      await streamOpenAiChat(
+        {
+          baseUrl: providerBaseUrl,
+          apiKey: apiKey ?? '',
+          model,
+          messages: [{ role: 'user', content: 'ping' }],
+          maxTokens: 1,
+        },
+        () => {
+          firstTokenAt ||= performance.now()
+        }
+      )
+      const elapsed = Math.round((firstTokenAt || performance.now()) - started)
+      setStatus(tr(`首字延迟约 ${elapsed}ms`, `First token ~${elapsed}ms`))
     } catch (error) {
       setStatus(tr('性能测试失败：', 'Failed: ') + describe(error))
     } finally {

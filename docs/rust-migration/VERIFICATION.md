@@ -124,3 +124,32 @@ test-budget-parity  → TS 与 wasm 完全一致（10 例）
 > 提示：Android 5 的 AOSP 镜像自带 WebView 约 Chromium 37，远低于本项目的 95 下限；
 > 那种环境下应用**会白屏**，属于已知不支持范围（真实设备通常已通过 Play 商店更新过 WebView）。
 > 要覆盖 Chrome 37 需要把整条工具链降到 ES5 并加一整套 polyfill，那是另一个量级的工程。
+---
+
+## 第三方模型 switcher（真机，2026-11-25）
+
+设备 OnePlus PJE110 / Android 15 / WebView 157。装机版本：`a71e3e3` + 本轮修复。
+
+| 项目 | 结果 | 证据 |
+| --- | --- | --- |
+| 厂列表 | 36 条全部渲染，含 Agnes（国际）/（中国） | 页面按钮导出 |
+| 选厂商 | 落到 `agnes-cn`，`replica:provider-id` 已写盘 | localStorage |
+| 手填模型 | `agnes-chat` 写入 `replica:provider-model`，出现已保存 chip | localStorage + 截图 |
+| 拉模型 | 请求到达厂商并返回 401，页面提示「API Key 无效或无权限（401）」 | 页面状态行 |
+| 发送通路 | 走 OpenAI 兼容分支（错误来自 Agnes 的 401），不是官方通路 | 对话内容 |
+| 错误呈现 | 「API Key 无效或已被删除，请更换后重试」+ 更换 API Key 按钮，无上游 JSON 原文 | `RAW_JSON_IN_CHAT false` |
+
+本轮修掉的三个问题：
+
+1. **上游错误原文被当成回答贴进对话** → 改为抛 `ApiError`（复用官方通路的同一个错误类型），
+   401 由 `describeReply` 映射成提示 + 操作按钮。断网也归到 `network`，不再显示 `Failed to fetch`。
+2. **预设 id 失效时界面直接显示原始 id**（`agnes` 拆档后残留）→ 初始化时校验，认不出就退回官方。
+3. **「首字延迟」实际量的是整条流时长** → 改为量第一个增量到达。
+
+推理模型：`reasoning_content` 现在映射成内部思考块（先于正文块），
+`finish_reason: length` 也不再被当成正常结束（映成 `max_tokens`）。
+Agnes 上一轮在 `max_tokens: 16` 下正文为空就是这个原因——预算被思考吃掉了。
+
+未完成：**成功回复的流式渲染**。手机里存的那枚 Agnes Key 已失效（401），
+需要一枚有效 Key 才能跑通这一步。
+

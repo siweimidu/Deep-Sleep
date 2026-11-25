@@ -7,9 +7,11 @@
  * 只做必要的事：
  *   · 消息转换：system 单独一条，历史按 role 平铺；
  *   · SSE 增量：按 `\n\n` 切帧、`data:` 取负载、`[DONE]` 收尾；
- *   · 错误：HTTP 非 2xx 抛出含状态码的错误，正文截断后带进消息，便于界面直接显示。
+ *   · 错误：复用 Anthropic 通路的 ApiError，界面才会用同一套提示（401 提示换 Key），
+ *     而不是把上游的 JSON 原文当成回答贴进对话。
  */
 
+import { ApiError, readErrorResponse } from './client.js'
 import type { MessageParam } from './types.js'
 
 export type OpenAiMessage = { role: 'system' | 'user' | 'assistant'; content: string }
@@ -28,6 +30,8 @@ export type OpenAiChatOptions = {
 export type OpenAiDelta = {
   /** 本段正文 */
   text: string
+  /** 本段思考过程（推理模型才有），对应 `reasoning_content` */
+  reasoning: string
   /** 结束原因（finish_reason），最后一段才有 */
   finishReason?: string
 }
@@ -80,17 +84,25 @@ export const parseOpenAiFrame = (frame: string): OpenAiDelta | null => {
     }
     try {
       const parsed: unknown = JSON.parse(payload)
-      const choice = (parsed as { choices?: { delta?: { content?: unknown }; finish_reason?: unknown }[] })
-        ?.choices?.[0]
-      if (!choice) {
+      const delta = (parsed as {
+        choices?: {
+          delta?: { content?: unknown; reasoning_content?: unknown }
+          finish_reason?: unknown
+        }[]
+      })?.choices?.[0]
+      if (!delta) {
         continue
       }
-      const text = typeof choice.delta?.content === 'string' ? choice.delta.content : ''
-      const finishReason = typeof choice.finish_reason === 'string' ? choice.finish_reason : undefined
-      if (!text && !finishReason) {
+      const text = typeof delta.delta?.content === 'string' ? delta.delta.content : ''
+      // 推理模型把思考放在 reasoning_content：小 max_tokens 下正文可能整段为空，
+      // 丢掉它用户就只看到一条空回复。
+      const reasoning =
+        typeof delta.delta?.reasoning_content === 'string' ? delta.delta.reasoning_content : ''
+      const finishReason = typeof delta.finish_reason === 'string' ? delta.finish_reason : undefined
+      if (!text && !reasoning && !finishReason) {
         continue
       }
-      return { text, finishReason }
+      return { text, reasoning, finishReason }
     } catch {
       // 单帧解析失败不影响后续帧
     }
@@ -133,10 +145,14 @@ export const streamOpenAiChat = async (
     },
     body: JSON.stringify(body),
     signal: options.signal,
+  }).catch((error: unknown) => {
+    if (options.signal?.aborted) {
+      throw error
+    }
+    throw new ApiError('network', error instanceof Error ? error.message : String(error))
   })
   if (!response.ok) {
-    const detail = await response.text().catch(() => '')
-    throw new Error(`HTTP ${response.status}${detail ? ' ' + detail.slice(0, 200) : ''}`)
+    throw await readErrorResponse(response)
   }
   if (!response.body) {
     throw new Error('no response body')
@@ -165,9 +181,9 @@ export const streamOpenAiChat = async (
           if (delta.finishReason) {
             finishReason = delta.finishReason
           }
-          // 只回调有正文的帧：结束帧的 finish_reason 已经由返回值给出，
-          // 再回调一次空文本会让调用方多渲染一次"空增量"。
-          if (delta.text) {
+          // 只回调有内容的帧：结束帧的 finish_reason 已经由返回值给出，
+          // 再回调一次空增量会让调用方多渲染一次"空增量"。
+          if (delta.text || delta.reasoning) {
             onDelta?.(delta)
           }
         }
@@ -180,7 +196,7 @@ export const streamOpenAiChat = async (
       if (delta) {
         text += delta.text
         finishReason = delta.finishReason ?? finishReason
-        if (delta.text) {
+        if (delta.text || delta.reasoning) {
           onDelta?.(delta)
         }
       }
@@ -195,14 +211,31 @@ export const streamOpenAiChat = async (
  *
  * 为什么用适配器而不是在发送链路里写第二个循环：消费侧（store.ts）那段循环还要处理
  * 思考块、工具块、重试、停止、用量、标题请求等一整套逻辑，复制一份出来只会让两条协议越走越远。
- * 这里只把"文本增量"翻译成 `content_block_*` 事件，其余保持不变。
+ * 这里把"正文增量"和"思考增量"翻译成 `content_block_*` 事件，其余保持不变。
  */
 export type ThirdPartyEvent =
   | { type: 'content_block_start'; index: number; content_block: { type: 'text'; text: string } }
+  | {
+      type: 'content_block_start'
+      index: number
+      content_block: { type: 'thinking'; thinking: string; signature: string }
+    }
   | { type: 'content_block_delta'; index: number; delta: { type: 'text_delta'; text: string } }
+  | { type: 'content_block_delta'; index: number; delta: { type: 'thinking_delta'; thinking: string } }
   | { type: 'content_block_stop'; index: number }
   | { type: 'message_delta'; delta: { stop_reason: string } }
   | { type: 'message_stop' }
+
+/** OpenAI 的 finish_reason 翻成内部那套 stop_reason；`length` 必须保留，否则截断会被当成正常结束。 */
+const toStopReason = (finishReason: string | undefined): string => {
+  if (finishReason === 'length') {
+    return 'max_tokens'
+  }
+  if (finishReason === 'tool_calls') {
+    return 'tool_use'
+  }
+  return 'end_turn'
+}
 
 export async function* streamThirdPartyChat(options: {
   baseUrl: string
@@ -213,7 +246,8 @@ export async function* streamThirdPartyChat(options: {
   signal?: AbortSignal
 }): AsyncGenerator<ThirdPartyEvent> {
   // 真正的流式：worker 写到队列，消费者边到边取，绝不攒完再发。
-  const queue: string[] = []
+  const queue: OpenAiDelta[] = []
+  let finishReason: string | undefined
   let wake: (() => void) | null = null
   let finished = false
   let failure: unknown = null
@@ -231,11 +265,13 @@ export async function* streamThirdPartyChat(options: {
       signal: options.signal,
     },
     (delta) => {
-      queue.push(delta.text)
+      finishReason = delta.finishReason ?? finishReason
+      queue.push(delta)
       kick()
     }
   )
-    .then(() => {
+    .then((result) => {
+      finishReason = result.finishReason ?? finishReason
       finished = true
       kick()
     })
@@ -245,10 +281,52 @@ export async function* streamThirdPartyChat(options: {
       kick()
     })
 
-  yield { type: 'content_block_start', index: 0, content_block: { type: 'text', text: '' } }
+  // 块按需打开：思考块在前、正文在后，索引按出现顺序递增，
+  // 这样界面既能先看到思考，又不必为只有正文的厂商多发一个空块。
+  let thinkingIndex = -1
+  let textIndex = -1
+  let nextIndex = 0
   for (;;) {
     while (queue.length > 0) {
-      yield { type: 'content_block_delta', index: 0, delta: { type: 'text_delta', text: queue.shift() ?? '' } }
+      const item = queue.shift()
+      if (!item) {
+        break
+      }
+      if (item.reasoning) {
+        if (thinkingIndex < 0) {
+          thinkingIndex = nextIndex
+          nextIndex += 1
+          yield {
+            type: 'content_block_start',
+            index: thinkingIndex,
+            content_block: { type: 'thinking', thinking: '', signature: '' },
+          }
+        }
+        yield {
+          type: 'content_block_delta',
+          index: thinkingIndex,
+          delta: { type: 'thinking_delta', thinking: item.reasoning },
+        }
+      }
+      if (item.text) {
+        if (thinkingIndex >= 0 && textIndex < 0) {
+          yield { type: 'content_block_stop', index: thinkingIndex }
+        }
+        if (textIndex < 0) {
+          textIndex = nextIndex
+          nextIndex += 1
+          yield {
+            type: 'content_block_start',
+            index: textIndex,
+            content_block: { type: 'text', text: '' },
+          }
+        }
+        yield {
+          type: 'content_block_delta',
+          index: textIndex,
+          delta: { type: 'text_delta', text: item.text },
+        }
+      }
     }
     if (finished) {
       break
@@ -264,7 +342,12 @@ export async function* streamThirdPartyChat(options: {
   if (failure) {
     throw failure instanceof Error ? failure : new Error(String(failure))
   }
-  yield { type: 'content_block_stop', index: 0 }
-  yield { type: 'message_delta', delta: { stop_reason: 'end_turn' } }
+  if (thinkingIndex >= 0 && textIndex < 0) {
+    yield { type: 'content_block_stop', index: thinkingIndex }
+  }
+  if (textIndex >= 0) {
+    yield { type: 'content_block_stop', index: textIndex }
+  }
+  yield { type: 'message_delta', delta: { stop_reason: toStopReason(finishReason) } }
   yield { type: 'message_stop' }
 }
