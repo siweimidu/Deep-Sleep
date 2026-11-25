@@ -295,6 +295,16 @@ dvh 那一半本来就是好的（产物里 100vh 确实在 100dvh 之前）。
 avigation_mode=2，手势导航；--android-nav-inset 未定义，应用只设了 --android-status-inset: 40px）
 - db input tap 与按住 150ms 均无效；DOM.querySelector('input[accept*="zip"]') 始终为 0，说明数据页从未挂载
 
+**更正**：设置页其实**是可达的**。我之前判定"点不开"是探测时机问题——页面里存在两个
+`aria-label="设置"`：一个是底部按钮，另一个是**已经打开的设置页 section 本身**。
+按"设置按钮 → 数据管理"两步点击（Input.dispatchTouchEvent，按下 110ms 再抬起）后，
+数据页正常打开，导入用的 input[accept*="zip"] 确实挂载（`zip: 1`）。
+
+真正的卡点是**工具限制**：DOM.setFileInputFiles 需要合法 nodeId，而
+`DOM.querySelector` 返回 0、`DOM.requestNode` 也返回 0——CDP 的 DOM 域在这个
+自定义 scheme（`appassets.androidplatform.net`）的 WebView 里无法解析节点。
+页面 JS 又读不到 `/sdcard`，所以没法用 DataTransfer 伪造。
+
 **待办**：人工点一次「设置 → 数据 → 导入 → deepseek_data-2026-11-24.zip」即可闭环
 （该归档 7 个会话全部已存在，预期"新增 0、更新 7"、总数仍 539）。
 顺手值得查的：抽屉底部的设置入口离手势感应区只有 16px，建议给抽屉列表加底部安全内边距。
