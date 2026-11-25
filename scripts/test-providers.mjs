@@ -45,7 +45,7 @@ const required = [
   'openai', 'anthropic', 'google', 'dashscope', 'zhipu', 'zhipu-intl', 'moonshot', 'siliconflow',
   'modelscope', 'openrouter', 'groq', 'mistral', 'hunyuan', 'qianfan', 'minimax', 'stepfun', 'yi',
   'baichuan', 'kunlun', 'nvidia', 'together', 'fireworks', 'cerebras', 'perplexity', 'xfyun',
-  'sensetime', 'longcat', 'so360', 'amd', 'huggingface', 'cloudflare', 'atomgit', 'agnes',
+  'sensetime', 'longcat', 'so360', 'amd', 'huggingface', 'cloudflare', 'atomgit', 'agnes-intl', 'agnes-cn',
 ]
 const missing = required.filter((id) => !findProvider(id))
 check('点名的 33 家都在表里', missing.length === 0, missing.join(','))

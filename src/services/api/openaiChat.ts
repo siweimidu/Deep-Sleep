@@ -190,3 +190,81 @@ export const streamOpenAiChat = async (
   }
   return { text, finishReason }
 }
+/**
+ * 把 OpenAI 兼容的流适配成应用内部那套 Anthropic 风格事件。
+ *
+ * 为什么用适配器而不是在发送链路里写第二个循环：消费侧（store.ts）那段循环还要处理
+ * 思考块、工具块、重试、停止、用量、标题请求等一整套逻辑，复制一份出来只会让两条协议越走越远。
+ * 这里只把"文本增量"翻译成 `content_block_*` 事件，其余保持不变。
+ */
+export type ThirdPartyEvent =
+  | { type: 'content_block_start'; index: number; content_block: { type: 'text'; text: string } }
+  | { type: 'content_block_delta'; index: number; delta: { type: 'text_delta'; text: string } }
+  | { type: 'content_block_stop'; index: number }
+  | { type: 'message_delta'; delta: { stop_reason: string } }
+  | { type: 'message_stop' }
+
+export async function* streamThirdPartyChat(options: {
+  baseUrl: string
+  apiKey: string
+  model: string
+  system: string
+  history: MessageParam[]
+  signal?: AbortSignal
+}): AsyncGenerator<ThirdPartyEvent> {
+  // 真正的流式：worker 写到队列，消费者边到边取，绝不攒完再发。
+  const queue: string[] = []
+  let wake: (() => void) | null = null
+  let finished = false
+  let failure: unknown = null
+  const kick = (): void => {
+    const resolve = wake
+    wake = null
+    resolve?.()
+  }
+  const pump = streamOpenAiChat(
+    {
+      baseUrl: options.baseUrl,
+      apiKey: options.apiKey,
+      model: options.model,
+      messages: toOpenAiMessages(options.system, options.history),
+      signal: options.signal,
+    },
+    (delta) => {
+      queue.push(delta.text)
+      kick()
+    }
+  )
+    .then(() => {
+      finished = true
+      kick()
+    })
+    .catch((error: unknown) => {
+      failure = error
+      finished = true
+      kick()
+    })
+
+  yield { type: 'content_block_start', index: 0, content_block: { type: 'text', text: '' } }
+  for (;;) {
+    while (queue.length > 0) {
+      yield { type: 'content_block_delta', index: 0, delta: { type: 'text_delta', text: queue.shift() ?? '' } }
+    }
+    if (finished) {
+      break
+    }
+    await new Promise<void>((resolve) => {
+      wake = resolve
+      if (finished || queue.length > 0) {
+        resolve()
+      }
+    })
+  }
+  await pump
+  if (failure) {
+    throw failure instanceof Error ? failure : new Error(String(failure))
+  }
+  yield { type: 'content_block_stop', index: 0 }
+  yield { type: 'message_delta', delta: { stop_reason: 'end_turn' } }
+  yield { type: 'message_stop' }
+}

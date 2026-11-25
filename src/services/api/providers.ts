@@ -76,7 +76,8 @@ export const PROVIDERS: ProviderPreset[] = [
   { id: 'huggingface', label: 'Hugging Face', baseUrl: 'https://router.huggingface.co/v1' },
   { id: 'amd', label: 'AMD', baseUrl: '', note: '请填写官方 OpenAI 兼容地址' },
   { id: 'atomgit', label: 'AtomGit', baseUrl: '', note: '请填写官方 OpenAI 兼容地址' },
-  { id: 'agnes', label: 'Agnes', baseUrl: '', note: '请填写官方 OpenAI 兼容地址' },
+  { id: 'agnes-intl', label: 'Agnes（国际）', baseUrl: 'https://apihub.agnes-ai.com/v1' },
+  { id: 'agnes-cn', label: 'Agnes（中国）', baseUrl: 'https://api.agnes-ai.cn/v1' },
 ]
 
 export const findProvider = (id: string): ProviderPreset | undefined =>

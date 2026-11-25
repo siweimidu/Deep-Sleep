@@ -7,6 +7,7 @@ import { cancelUpload, describeUploadError, uploadAttachment, useUploads } from 
 import { useSettings } from '../settings.js'
 import { planContext } from './context/budget.js'
 import { ensureAnchor, withAnchor } from './context/anchor.js'
+import { streamThirdPartyChat } from '../api/openaiChat.js'
 import { backfillMirror, sweepMirrorFiles } from './nativeMirror.js'
 import { ensureMemoryBlock, withMemory } from './context/memory.js'
 import { appendBranch, getVisibleMessages, normalizeSession, selectVersion } from './branches.js'
@@ -1142,21 +1143,38 @@ const streamReply = async (sessionId: string, initial: AssistantMessage, request
           initial.thinking ?? false,
           latestReminder
         )
-        const events = streamMessage(
-          useSettings.getState().apiKey ?? '',
-          {
-            model: initial.model ?? MODEL,
-            system: withMemory(
-              withAnchor(SYSTEM_PROMPT, getSession(sessionId)?.anchor?.text),
-              getSession(sessionId)?.memory
-            ),
-            messages,
-            thinking: { type: initial.thinking ? 'enabled' : 'disabled' },
-            safety_check: SAFETY_CHECK,
-            tools: serverTools(initial.search ?? false),
-            ...(titleRequests.has(controller) ? { title: { enabled: true } } : {}),
-          },
-          controller.signal
+        // 第三方厂商走 OpenAI 兼容通路；其余情况仍用 DeepSeek 的 Anthropic 通路。
+        // 选厂商但没选模型时不算第三方——否则会拿着空模型名发请求。
+        const providerState = useSettings.getState()
+        const thirdPartyModel = providerState.providerModel
+        const useThirdParty = providerState.providerId !== 'deepseek' && Boolean(thirdPartyModel)
+        const systemPrompt = withMemory(
+          withAnchor(SYSTEM_PROMPT, getSession(sessionId)?.anchor?.text),
+          getSession(sessionId)?.memory
+        )
+        const events = (
+          useThirdParty
+            ? (streamThirdPartyChat({
+                baseUrl: providerState.providerBaseUrl,
+                apiKey: providerState.apiKey ?? '',
+                model: thirdPartyModel as string,
+                system: systemPrompt,
+                history: messages,
+                signal: controller.signal,
+              }) as unknown as ReturnType<typeof streamMessage>)
+            : streamMessage(
+                providerState.apiKey ?? '',
+                {
+                  model: initial.model ?? MODEL,
+                  system: systemPrompt,
+                  messages,
+                  thinking: { type: initial.thinking ? 'enabled' : 'disabled' },
+                  safety_check: SAFETY_CHECK,
+                  tools: serverTools(initial.search ?? false),
+                  ...(titleRequests.has(controller) ? { title: { enabled: true } } : {}),
+                },
+                controller.signal
+              )
         )
         const blockIndexes = new Map<number, number>()
         for await (const event of events) {
