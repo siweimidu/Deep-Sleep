@@ -512,3 +512,19 @@ RESET             true → protocol 自动 / endpoint 未覆盖
 
 搜索片段的真机复验待补（Chromium 那份 profile 里没有历史会话，搜不出结果；
 手机当时又掉线了）。
+
+
+### 真机复验（OnePlus PJE110 / Android 15）
+
+```
+子页返回      stack active x=49（p=0.45）· under=设置首页 · BACK_TO_ROOT true · 首页才滑整层
+高级设置      ADV_ROWS=[协议自动, 端点覆盖未覆盖, 恢复默认]
+              PROTOCOL_OPTIONS=[自动, OpenAI兼容, Anthropic兼容]
+              选 Anthropic → 协议值变成「Anthropic 兼容」；恢复默认 → 自动 / 未覆盖
+搜索片段      ROWS 5 条，每条都带高亮（marks=1），MAX_LEN=26（短消息不截断，长消息见单测）
+```
+
+搜索这条踩了两个坑，都是脚本问题不是应用问题：
+1. 抽屉和搜索页各有一个「搜索对话内容」输入框，脚本一直往**被压在下面**的那个里填词；
+2. 高亮用的是 `<b class="mark">` 而不是 `<mark>`，断言数错了元素。
+改成「取可见面积最大的输入框」+ 数 `b, mark` 之后一次通过。
