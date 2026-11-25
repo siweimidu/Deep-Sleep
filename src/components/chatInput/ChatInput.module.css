@@ -229,6 +229,9 @@
     max-height: calc(var(--app-viewport-height, 100vh) - 120px);
     max-height: calc(var(--app-viewport-height, 100vh) - 120px);
     max-height: calc(var(--app-viewport-height, 100vh) - 120px);
+    max-height: calc(var(--app-viewport-height, 100vh) - 120px);
+    max-height: calc(var(--app-viewport-height, 100vh) - 120px);
+    max-height: calc(var(--app-viewport-height, 100vh) - 120px);
     max-height: calc(var(--app-viewport-height, 100dvh) - 120px);
   }
 
@@ -352,6 +355,9 @@
   border-color: rgba(127, 127, 127, 0.07);
   border-color: rgba(127, 127, 127, 0.07);
   border-color: rgba(127, 127, 127, 0.07);
+  border-color: rgba(127, 127, 127, 0.07);
+  border-color: rgba(127, 127, 127, 0.07);
+  border-color: rgba(127, 127, 127, 0.07);
   border-color: color-mix(in srgb, currentColor 7%, transparent);
   border-radius: 30px;
   font-size: 16.75px;
@@ -469,6 +475,9 @@
     background: rgba(127, 127, 127, 0.04);
     background: rgba(127, 127, 127, 0.04);
     background: rgba(127, 127, 127, 0.04);
+    background: rgba(127, 127, 127, 0.04);
+    background: rgba(127, 127, 127, 0.04);
+    background: rgba(127, 127, 127, 0.04);
     background: color-mix(in srgb, currentColor 4%, transparent);
   }
 }
@@ -551,6 +560,9 @@
   border-bottom: 1px solid rgba(127, 127, 127, 0.06);
   border-bottom: 1px solid rgba(127, 127, 127, 0.06);
   border-bottom: 1px solid rgba(127, 127, 127, 0.06);
+  border-bottom: 1px solid rgba(127, 127, 127, 0.06);
+  border-bottom: 1px solid rgba(127, 127, 127, 0.06);
+  border-bottom: 1px solid rgba(127, 127, 127, 0.06);
   border-bottom: 1px solid color-mix(in srgb, currentColor 6%, transparent);
   padding: 0;
   background: transparent;
@@ -575,6 +587,9 @@
   background: rgba(127, 127, 127, 0.1);
   background: rgba(127, 127, 127, 0.1);
   background: rgba(127, 127, 127, 0.1);
+  background: rgba(127, 127, 127, 0.1);
+  background: rgba(127, 127, 127, 0.1);
+  background: rgba(127, 127, 127, 0.1);
   background: color-mix(in srgb, currentColor 10%, transparent);
   color: inherit;
   font: inherit;
@@ -582,6 +597,9 @@
   white-space: nowrap;
 
   &:active {
+    background: rgba(127, 127, 127, 0.18);
+    background: rgba(127, 127, 127, 0.18);
+    background: rgba(127, 127, 127, 0.18);
     background: rgba(127, 127, 127, 0.18);
     background: rgba(127, 127, 127, 0.18);
     background: rgba(127, 127, 127, 0.18);

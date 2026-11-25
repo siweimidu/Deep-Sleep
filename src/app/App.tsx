@@ -11,6 +11,7 @@ import {
   useChatStore,
 } from '../services/chat/store.js'
 import { ImportStatusBar } from '../components/base/ImportStatusBar.js'
+import { takeMissingAttachments } from '../services/chat/db.js'
 import { ImageViewer } from '../components/files/ImageViewer.js'
 import { VoiceCallScreen } from '../components/call/VoiceCallScreen.js'
 import { SearchPanel } from '../components/search/SearchPanel.js'
@@ -36,6 +37,13 @@ import styles from './App.module.css'
 
 export const App = () => {
   const t = useTranslate()
+  // 镜像恢复只带回对话文本：附件缺失必须让用户知道，而不是让图片静默空白
+  useEffect(() => {
+    const missing = takeMissingAttachments()
+    if (missing > 0) {
+      showToast(t('restoreMissingAttachments', { count: missing }), { duration: 8000 })
+    }
+  }, [t])
   const isMobile = useIsMobile()
   const apiKey = useSettings((state) => state.apiKey)
   const drawerOpen = useMobileSider((state) => state.open)

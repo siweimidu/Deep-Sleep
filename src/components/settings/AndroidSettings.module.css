@@ -368,6 +368,9 @@ a.row:active,
   height: min(690px, 70vh);
   height: min(690px, 70vh);
   height: min(690px, 70vh);
+  height: min(690px, 70vh);
+  height: min(690px, 70vh);
+  height: min(690px, 70vh);
   height: min(690px, 70dvh);
   border-radius: 21px 21px 0 0;
   background: var(--settings-card);
@@ -561,6 +564,9 @@ a.row:active,
     background: rgba(127, 127, 127, 0.12);
     background: rgba(127, 127, 127, 0.12);
     background: rgba(127, 127, 127, 0.12);
+    background: rgba(127, 127, 127, 0.12);
+    background: rgba(127, 127, 127, 0.12);
+    background: rgba(127, 127, 127, 0.12);
     background: color-mix(in srgb, var(--settings-muted) 12%, transparent);
   }
 }
@@ -573,6 +579,9 @@ a.row:active,
   height: 50px;
   border-radius: 50%;
   overflow: hidden;
+  background: rgba(127, 127, 127, 0.22);
+  background: rgba(127, 127, 127, 0.22);
+  background: rgba(127, 127, 127, 0.22);
   background: rgba(127, 127, 127, 0.22);
   background: rgba(127, 127, 127, 0.22);
   background: rgba(127, 127, 127, 0.22);
@@ -645,6 +654,9 @@ a.row:active,
 .importTrack {
   height: 4px;
   border-radius: 999px;
+  background: rgba(127, 127, 127, 0.26);
+  background: rgba(127, 127, 127, 0.26);
+  background: rgba(127, 127, 127, 0.26);
   background: rgba(127, 127, 127, 0.26);
   background: rgba(127, 127, 127, 0.26);
   background: rgba(127, 127, 127, 0.26);

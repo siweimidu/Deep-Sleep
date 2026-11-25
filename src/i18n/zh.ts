@@ -85,6 +85,7 @@ export const zh = {
   copyFailed: '复制失败，请长按或选中文本后复制',
   copyDone: '已复制',
   contextSummary: '上下文摘要',
+  restoreMissingAttachments: '有 {count} 个附件未能恢复（镜像只备份对话文本）',
   contextSummaryAnchor: '开头存档',
   contextSummaryMemory: '条记忆',
   contextSummaryExpand: '展开',

@@ -363,6 +363,9 @@
   background: rgba(127, 127, 127, 0.1);
   background: rgba(127, 127, 127, 0.1);
   background: rgba(127, 127, 127, 0.1);
+  background: rgba(127, 127, 127, 0.1);
+  background: rgba(127, 127, 127, 0.1);
+  background: rgba(127, 127, 127, 0.1);
   background: color-mix(in srgb, var(--dsw-alias-label-primary) 10%, transparent);
   color: var(--dsw-alias-label-primary);
   cursor: pointer;
@@ -457,6 +460,9 @@
     background-color: rgba(127, 127, 127, 0.11);
     background-color: rgba(127, 127, 127, 0.11);
     background-color: rgba(127, 127, 127, 0.11);
+    background-color: rgba(127, 127, 127, 0.11);
+    background-color: rgba(127, 127, 127, 0.11);
+    background-color: rgba(127, 127, 127, 0.11);
     background-color: color-mix(in srgb, var(--dsw-alias-label-primary) 11%, transparent);
     transform: scale(0.985);
   }
@@ -470,7 +476,13 @@
   background: rgba(127, 127, 127, 0.14);
   background: rgba(127, 127, 127, 0.14);
   background: rgba(127, 127, 127, 0.14);
+  background: rgba(127, 127, 127, 0.14);
+  background: rgba(127, 127, 127, 0.14);
+  background: rgba(127, 127, 127, 0.14);
   background: color-mix(in srgb, var(--dsw-alias-label-primary) 14%, transparent);
+  color: rgba(127, 127, 127, 0.78);
+  color: rgba(127, 127, 127, 0.78);
+  color: rgba(127, 127, 127, 0.78);
   color: rgba(127, 127, 127, 0.78);
   color: rgba(127, 127, 127, 0.78);
   color: rgba(127, 127, 127, 0.78);

@@ -89,6 +89,7 @@ export const en = {
   copyFailed: 'Copy failed. Please long-press or select the text to copy.',
   copyDone: 'Copied',
   contextSummary: 'Context',
+  restoreMissingAttachments: '{count} attachments could not be restored (the mirror stores text only)',
   contextSummaryAnchor: 'Archived opening',
   contextSummaryMemory: 'memory blocks',
   contextSummaryExpand: 'Show',

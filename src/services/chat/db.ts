@@ -93,11 +93,59 @@ export const loadSessionSummaries = async (): Promise<SessionSummary[]> => {
     return summaries
   }
   await withMirrorMuted(async () => {
+    const referenced = new Set<string>()
     for (const session of mirrored) {
+      for (const message of session.messages) {
+        for (const file of message.role === 'user' ? message.files : []) {
+          referenced.add(file.id)
+        }
+      }
       await saveSession(session)
     }
+    // 镜像只存会话文本，不含附件 blob：恢复后可能有消息引用到已不存在的文件。
+    // 与其让图片静默变成空白，不如把缺口数量记下来让界面明确告诉用户。
+    const database = await getDB()
+    let missing = 0
+    for (const id of referenced) {
+      if ((await database.getKey('files', id)) === undefined) {
+        missing += 1
+      }
+    }
+    rememberMissing(missing)
   })
   return (await (await getDB()).getAll('sessionSummaries')).map(toSessionSummary)
+}
+
+/**
+ * 上次从镜像恢复时缺失的附件数（镜像不含 blob）；0 表示完整。
+ * 存在 localStorage 里而不是内存：恢复发生在启动早期，界面还没挂载，
+ * 存下来才能在渲染后可靠地提示一次。
+ */
+const MISSING_KEY = 'replica:missing-attachments'
+
+const rememberMissing = (count: number): void => {
+  try {
+    if (count > 0) {
+      localStorage.setItem(MISSING_KEY, String(count))
+    }
+  } catch {
+    // 存不下就只能在本次会话里失去这条提示
+  }
+}
+
+/** 读取并清除缺口提示（只提示一次）。 */
+export const takeMissingAttachments = (): number => {
+  try {
+    const raw = localStorage.getItem(MISSING_KEY)
+    if (!raw) {
+      return 0
+    }
+    localStorage.removeItem(MISSING_KEY)
+    const value = Number(raw)
+    return Number.isFinite(value) && value > 0 ? value : 0
+  } catch {
+    return 0
+  }
 }
 
 export const loadSession = async (id: string): Promise<Session | undefined> => {
