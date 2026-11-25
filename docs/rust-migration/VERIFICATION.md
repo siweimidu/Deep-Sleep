@@ -455,4 +455,15 @@ REPLY PASS
   MID  stackX=77 active=true（p=0.5）  FAR stackX=138 active=true（p=0.9）  CANCEL stackX=0
 截图：左侧完整露出设置首页，右侧「账号管理」带圆角与投影滑出。
 
-真机复验待补：改完时手机从 adb 掉线（adb devices 为空），接回后重跑 probe-subpage-back。
+真机复验（OnePlus PJE110 / Android 15，这一版 APK）：
+
+```
+ROOT        stages=[page]            under=无
+ACCOUNT     stages=[stack]           under=设置/账户/账号管理/第三方模型/数据管理/应用/语言…（首页）
+SUB_MID     stack active x=49        ← p=0.45：滑的是子页，设置层不动
+SUB_CANCEL  stack x=0
+BACK_TO_ROOT true                    ← 提交后回到设置首页，不是关掉设置
+ROOT_MID    stages=[page] active x=49 ← 回到首页后再手势，才滑整块设置层去露出聊天页
+```
+
+截图里左边是完整的设置首页，右边「账号管理」带圆角与投影滑出。
