@@ -435,3 +435,24 @@ REPLY PASS
 **没验到的**：图片查看器。它只能从附件卡片打开（`openImageViewer` 的唯一调用点在 `MessageFile.tsx`），
 而这台手机当前数据里 `fileCards=0`（早期误清 IndexedDB 丢过附件），所以够不到入口。
 代码路径与上面三层完全一致：`ImageViewer` 已接 `usePredictiveBack`，样式由 `[data-back-stage]` 统一给。
+
+子页返回时揭开的是设置首页，不是聊天页
+
+用户报的：在「账号管理」里做预测性返回，滑出来的是首页聊天界面。
+
+根因：设置里所有子页共用同一个可返回层，手势滑走的是整个设置层，
+揭开自然就是它下面的聊天页。
+
+- 页面体抽成 renderBody(shown)，子页时渲染两层：
+  .under（被压住的上一页，静止、不可点）+ .stack（当前子页，滑走的是它）
+- backGesture 用互补 active 挂两个 hook：首页滑整块设置层，子页只滑 .stack
+- 子页返回落到 back()，回到首页而不是关掉设置
+- 顺手修掉 .under/.stack 被误写进 .scroll {} 里、编译成 .scroll .stack 而不生效的问题
+  （子页背景透明，手势中会透出首页）
+
+在真实 Chromium（Android 桥打桩、同一份构建产物）里量到：
+  REST stackX=0 / stackBg=rgb(22,22,22) / underHasRoot=true / stackHasAvatar=true
+  MID  stackX=77 active=true（p=0.5）  FAR stackX=138 active=true（p=0.9）  CANCEL stackX=0
+截图：左侧完整露出设置首页，右侧「账号管理」带圆角与投影滑出。
+
+真机复验待补：改完时手机从 adb 掉线（adb devices 为空），接回后重跑 probe-subpage-back。

@@ -339,7 +339,11 @@ const Settings = ({ start }: { start: Page }) => {
 
   // 预测性返回：手势期间整页跟随位移，松手完成后再真正回退
   const pageRef = useRef<HTMLElement>(null)
-  usePredictiveBack(pageRef, back)
+  // 子页要滑的是「子页那层」，露出下面压着的上一页；只有首页才滑整块设置层去露出聊天页
+  const stackRef = useRef<HTMLDivElement>(null)
+  const parentPage: Page = page === 'export' ? 'data' : 'root'
+  usePredictiveBack(pageRef, back, page === 'root')
+  usePredictiveBack(stackRef, back, page !== 'root')
 
   const runExportAction = async (action: () => Promise<void>) => {
     setBusy(true)
@@ -382,13 +386,7 @@ const Settings = ({ start }: { start: Page }) => {
     }
   }
 
-  return (
-    <section
-      ref={pageRef}
-      className={styles.page}
-      role="region"
-      aria-label={labels[page]}
-    >
+  const renderHeader = (title: string) => (
       <header className={styles.header}>
         <button
           type="button"
@@ -398,10 +396,14 @@ const Settings = ({ start }: { start: Page }) => {
         >
           <IconChevronRightOutline14 />
         </button>
-        <h1>{labels[page]}</h1>
+        <h1>{title}</h1>
       </header>
-      <div className={styles.scroll} key={page} data-nav={navDir}>
-        {page === 'root' ? (
+  )
+
+  // 把页面体做成函数：子页返回时要在下面压着上一页，只滑走上面那层才看得见"回去"
+  const renderBody = (shown: Page) => (
+    <>
+        {shown === 'root' ? (
           <>
             <Group label={tr('账户', 'Account')}>
               <Row label={labels.account} icon={<Profile />} onClick={() => setPage('account')} />
@@ -491,7 +493,7 @@ const Settings = ({ start }: { start: Page }) => {
             </Group>
           </>
         ) : null}
-        {page === 'account' ? (
+        {shown === 'account' ? (
           <>
             <Group label={tr('账户', 'Account')}>
               <button
@@ -549,9 +551,9 @@ const Settings = ({ start }: { start: Page }) => {
             </Group>
           </>
         ) : null}
-        {page === 'endpoint' ? <ProviderSettings /> : null}
+        {shown === 'endpoint' ? <ProviderSettings /> : null}
 
-        {page === 'data' ? (
+        {shown === 'data' ? (
           <>
             <p className={styles.caption}>
               {tr(
@@ -639,7 +641,7 @@ const Settings = ({ start }: { start: Page }) => {
             ) : null}
           </>
         ) : null}
-        {page === 'export' ? (
+        {shown === 'export' ? (
           <>
             <Group>
               <Row
@@ -672,7 +674,7 @@ const Settings = ({ start }: { start: Page }) => {
             </p>
           </>
         ) : null}
-        {page === 'font' ? (
+        {shown === 'font' ? (
           <div
             className={styles.preview}
             style={{
@@ -691,7 +693,7 @@ const Settings = ({ start }: { start: Page }) => {
             </p>
           </div>
         ) : null}
-        {page === 'personalization' ? (
+        {shown === 'personalization' ? (
           <>
             <Group>
               <Row
@@ -713,7 +715,7 @@ const Settings = ({ start }: { start: Page }) => {
             </p>
           </>
         ) : null}
-        {page === 'agreements' ? (
+        {shown === 'agreements' ? (
           <Group>
             <Row
               label={tr('用户协议', 'Terms of use')}
@@ -733,7 +735,7 @@ const Settings = ({ start }: { start: Page }) => {
             />
           </Group>
         ) : null}
-        {page === 'help' ? (
+        {shown === 'help' ? (
           <Group>
             <Row
               label={tr('开放平台帮助', 'API help')}
@@ -741,7 +743,27 @@ const Settings = ({ start }: { start: Page }) => {
             />
           </Group>
         ) : null}
-      </div>
+    </>
+  )
+
+  return (
+    <section
+      ref={pageRef}
+      className={styles.page}
+      role="region"
+      aria-label={labels[page]}
+    >
+      {page === 'root' ? null : (
+        <div className={styles.under} aria-hidden="true">
+          {renderHeader(labels[parentPage])}
+          <div className={styles.scroll}>{renderBody(parentPage)}</div>
+        </div>
+      )}
+      <div className={styles.stack} ref={stackRef}>
+        {renderHeader(labels[page])}
+        <div className={styles.scroll} key={page} data-nav={navDir}>
+          {renderBody(page)}
+        </div>
       {page === 'font' ? (
         <div className={styles.fontPanel}>
           <Row
@@ -771,6 +793,7 @@ const Settings = ({ start }: { start: Page }) => {
           />
         </div>
       ) : null}
+      </div>
       {popup === 'locale' ? (
         <Choice
           title={language}
