@@ -28,6 +28,7 @@ import {
   IconCloseOutline16,
   IconDataOutline16,
   IconGlobeLanguageOutline14,
+  IconLinkOutline14,
   IconLightOutline16,
   IconLinkOutline16,
   IconSettingsOutline16,
@@ -398,7 +399,7 @@ const Settings = ({ start }: { start: Page }) => {
               <Row label={labels.account} icon={<Profile />} onClick={() => setPage('account')} />
               <Row
                 label={tr('第三方模型', 'Third-party models')}
-                icon={<Info glyph="@" />}
+                icon={<IconLinkOutline14 />}
                 onClick={() => setPage('endpoint')}
               />
               <Row

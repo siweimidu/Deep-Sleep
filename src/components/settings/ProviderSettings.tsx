@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
+import { IconChevronRightOutline14, IconCheckOutline16 } from '../base/icons.js'
 import {
   PROVIDERS,
   DEEPSEEK_BASE_URL,
@@ -15,15 +16,37 @@ import {
   toggleSavedModel,
   useSettings,
 } from '../../services/settings.js'
+import settingsStyles from './AndroidSettings.module.css'
 import styles from './ProviderSettings.module.css'
 
 /**
- * 第三方模型设置页。
+ * 第三方模型设置。
  *
- * 版式对齐 DeepSeek 官方平台的 API 配置页：字段标签在上、下方是深色输入区、
- * 模型用 chips 展示、高级项折叠、底部两个胶囊测试按钮。用项目已有的设计 token 落地，
- * 所以深色/浅色主题都跟着走。
+ * 版式跟官方 **APP** 对齐，而不是跟网页控制台对齐：设置页是「分组卡片 + 行」的结构，
+ * 点一行展开编辑区，和「字体大小 / 个性化」那些页面同一种语言。
+ * 结构类直接复用 AndroidSettings.module.css（group / card / row / rowLabel / arrow / caption），
+ * 保证与设置里其它页完全一致；只有输入框、chips、状态条用本模块自己的样式。
  */
+const Row = ({
+  label,
+  value,
+  onClick,
+  active,
+}: {
+  label: string
+  value: ReactNode
+  onClick?: () => void
+  active?: boolean
+}) => (
+  <button type="button" className={settingsStyles.row} data-active={active ? '' : undefined} onClick={onClick}>
+    <span className={settingsStyles.rowLabel}>{label}</span>
+    <span className={styles.rowValue}>{value}</span>
+    <span className={settingsStyles.arrow}>
+      <IconChevronRightOutline14 />
+    </span>
+  </button>
+)
+
 export const ProviderSettings = () => {
   const providerId = useSettings((state) => state.providerId)
   const providerBaseUrl = useSettings((state) => state.providerBaseUrl)
@@ -33,59 +56,55 @@ export const ProviderSettings = () => {
   const locale = useSettings((state) => (state as { locale?: string }).locale ?? 'zh')
   const tr = (zh: string, en: string) => (locale === 'en' ? en : zh)
 
+  const [open, setOpen] = useState<'' | 'provider' | 'key' | 'url' | 'model'>('')
   const [reveal, setReveal] = useState(false)
   const [models, setModels] = useState<RemoteModel[]>([])
   const [busy, setBusy] = useState<'models' | 'conn' | 'perf' | ''>('')
   const [status, setStatus] = useState('')
-  const [advanced, setAdvanced] = useState(false)
 
   const preset = findProvider(providerId)
-  const isDeepSeek = providerId === 'deepseek'
-
-  const loadModels = async (report: (text: string) => void) => {
-    setBusy('models')
-    report(tr('正在获取模型…', 'Fetching models…'))
-    try {
-      const list = await fetchProviderModels(providerBaseUrl, apiKey ?? '')
-      setModels(list)
-      report(
-        list.length
-          ? tr(`获取到 ${list.length} 个模型`, `${list.length} models found`)
-          : tr('没有返回任何模型', 'No models returned')
-      )
-    } catch (error) {
-      report(tr('获取失败：', 'Failed: ') + describe(error))
-    } finally {
-      setBusy('')
-    }
-  }
+  const toggle = (section: typeof open) => setOpen((current) => (current === section ? '' : section))
 
   const describe = (error: unknown): string => {
     const text = error instanceof Error ? error.message : String(error)
     if (text === 'invalid base url') {
-      return tr('Base URL 不合法（需要 http(s):// 开头）', 'Invalid base URL')
+      return tr('Base URL 不合法', 'Invalid base URL')
     }
     if (text === 'missing api key') {
       return tr('请先填写 API Key', 'API key required')
     }
     if (text.startsWith('HTTP 401')) {
-      return tr('API Key 无效或没有权限（401）', 'Invalid key or no permission (401)')
+      return tr('API Key 无效或无权限（401）', 'Invalid key (401)')
     }
     if (text.startsWith('HTTP 403')) {
-      return tr('该 Key 无权访问此模型（403）', 'Key cannot access this model (403)')
+      return tr('该 Key 无权访问（403）', 'No access (403)')
     }
     if (text.startsWith('HTTP 404')) {
-      return tr('接口地址不存在（404），检查 Base URL 是否带 /v1', 'Endpoint not found (404)')
+      return tr('接口不存在（404），检查是否少了 /v1', 'Not found (404)')
     }
     if (text === 'unexpected response') {
-      return tr('返回格式不是 OpenAI 兼容格式', 'Response is not OpenAI-compatible')
+      return tr('不是 OpenAI 兼容格式', 'Not OpenAI-compatible')
     }
     return text
   }
 
+  const loadModels = async () => {
+    setBusy('models')
+    setStatus(tr('正在获取模型…', 'Fetching…'))
+    try {
+      const list = await fetchProviderModels(providerBaseUrl, apiKey ?? '')
+      setModels(list)
+      setStatus(list.length ? tr(`${list.length} 个模型可用`, `${list.length} models`) : tr('没有返回模型', 'No models'))
+    } catch (error) {
+      setStatus(tr('获取失败：', 'Failed: ') + describe(error))
+    } finally {
+      setBusy('')
+    }
+  }
+
   const testConnection = async () => {
     setBusy('conn')
-    setStatus(tr('正在测试连接…', 'Testing connection…'))
+    setStatus(tr('正在测试连接…', 'Testing…'))
     const started = performance.now()
     try {
       const list = await fetchProviderModels(providerBaseUrl, apiKey ?? '')
@@ -102,11 +121,11 @@ export const ProviderSettings = () => {
   const testPerformance = async () => {
     const model = providerModel ?? models[0]?.id ?? ''
     if (!model) {
-      setStatus(tr('先选一个模型再测性能', 'Pick a model first'))
+      setStatus(tr('先选一个模型', 'Pick a model first'))
       return
     }
     setBusy('perf')
-    setStatus(tr('正在测首字延迟…', 'Measuring first-token latency…'))
+    setStatus(tr('正在测首字延迟…', 'Measuring…'))
     const started = performance.now()
     try {
       await streamOpenAiChat({
@@ -116,8 +135,7 @@ export const ProviderSettings = () => {
         messages: [{ role: 'user', content: 'ping' }],
         maxTokens: 1,
       })
-      const ms = Math.round(performance.now() - started)
-      setStatus(tr(`首字延迟约 ${ms}ms（模型 ${model}）`, `First token ~${ms}ms (${model})`))
+      setStatus(tr(`首字延迟约 ${Math.round(performance.now() - started)}ms`, `First token ~${Math.round(performance.now() - started)}ms`))
     } catch (error) {
       setStatus(tr('性能测试失败：', 'Failed: ') + describe(error))
     } finally {
@@ -125,189 +143,200 @@ export const ProviderSettings = () => {
     }
   }
 
+  const host = providerBaseUrl.replace(/^https?:\/\//, '').split('/')[0] || tr('未填写', 'not set')
+
   return (
     <div className={styles.page}>
-      <section className={styles.section}>
-        <span className={styles.label}>{tr('配置名称', 'Profile')}</span>
-        <div className={styles.value}>{preset?.label ?? providerId}</div>
-      </section>
-
-      <section className={styles.section}>
-        <span className={styles.label}>{tr('模型厂商', 'Provider')}</span>
-        <select
-          className={styles.field}
-          value={providerId}
-          onChange={(event) => {
-            setProvider(event.target.value)
-            setModels([])
-            setStatus('')
-          }}
-        >
-          {PROVIDERS.map((item) => (
-            <option key={item.id} value={item.id}>
-              {item.label}
-              {item.baseUrl ? '' : tr('（需自填地址）', ' (enter URL)')}
-            </option>
-          ))}
-        </select>
-        {preset?.note ? <p className={styles.note}>{preset.note}</p> : null}
-      </section>
-
-      <section className={styles.section}>
-        <span className={styles.label}>API Key</span>
-        <div className={styles.row}>
-          <input
-            className={styles.field}
-            type={reveal ? 'text' : 'password'}
-            value={apiKey ?? ''}
-            autoComplete="off"
-            spellCheck={false}
-            onChange={(event) => useSettings.setState({ apiKey: event.target.value })}
+      <section className={settingsStyles.group}>
+        <div className={settingsStyles.card}>
+          <Row
+            label={tr('模型厂商', 'Provider')}
+            value={preset?.label ?? providerId}
+            active={open === 'provider'}
+            onClick={() => toggle('provider')}
           />
-          <button
-            type="button"
-            className={styles.ghost}
-            aria-label={reveal ? tr('隐藏', 'Hide') : tr('显示', 'Show')}
-            onClick={() => setReveal((value) => !value)}
-          >
-            {reveal ? '🙈' : '👁'}
-          </button>
-        </div>
-      </section>
+          {open === 'provider' ? (
+            <div className={styles.editor}>
+              {PROVIDERS.map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  className={styles.option}
+                  data-current={item.id === providerId ? '' : undefined}
+                  onClick={() => {
+                    setProvider(item.id)
+                    setModels([])
+                    setStatus('')
+                    setOpen('')
+                  }}
+                >
+                  <span>{item.label}</span>
+                  {item.baseUrl ? null : <em className={styles.badge}>{tr('需自填', 'enter URL')}</em>}
+                  {item.id === providerId ? <IconCheckOutline16 /> : null}
+                </button>
+              ))}
+            </div>
+          ) : null}
 
-      <section className={styles.section}>
-        <span className={styles.label}>Base URL</span>
-        <input
-          className={styles.field}
-          value={providerBaseUrl}
-          autoComplete="off"
-          spellCheck={false}
-          placeholder={DEEPSEEK_BASE_URL}
-          onChange={(event) => setProviderBaseUrl(event.target.value)}
-        />
-        <p className={styles.note}>
-          {tr('填写完整 API Base URL，例如 ', 'Full API base URL, e.g. ')}
-          {DEEPSEEK_BASE_URL}
-        </p>
-      </section>
-
-      <section className={styles.section}>
-        <span className={styles.label}>{tr('模型名称', 'Model')}</span>
-        <div className={styles.row}>
-          <input
-            className={styles.field}
-            value={providerModel ?? ''}
-            autoComplete="off"
-            spellCheck={false}
-            placeholder={tr('例如 deepseek-chat', 'e.g. deepseek-chat')}
-            onChange={(event) => setProviderModel(event.target.value)}
+          <Row
+            label="API Key"
+            value={apiKey ? '••••••••' : tr('未设置', 'not set')}
+            active={open === 'key'}
+            onClick={() => toggle('key')}
           />
-          <button
-            type="button"
-            className={styles.ghost}
-            disabled={busy !== ''}
-            onClick={() => void loadModels(setStatus)}
-          >
-            {busy === 'models' ? '…' : tr('获取模型', 'Fetch')}
-          </button>
+          {open === 'key' ? (
+            <div className={styles.editor}>
+              <div className={styles.inline}>
+                <input
+                  className={styles.field}
+                  type={reveal ? 'text' : 'password'}
+                  value={apiKey ?? ''}
+                  autoComplete="off"
+                  spellCheck={false}
+                  placeholder={tr('粘贴 API Key', 'Paste API key')}
+                  onChange={(event) => useSettings.setState({ apiKey: event.target.value })}
+                />
+                <button type="button" className={styles.ghost} onClick={() => setReveal((value) => !value)}>
+                  {reveal ? tr('隐藏', 'Hide') : tr('显示', 'Show')}
+                </button>
+              </div>
+            </div>
+          ) : null}
+
+          <Row
+            label="Base URL"
+            value={host}
+            active={open === 'url'}
+            onClick={() => toggle('url')}
+          />
+          {open === 'url' ? (
+            <div className={styles.editor}>
+              <input
+                className={styles.field}
+                value={providerBaseUrl}
+                autoComplete="off"
+                spellCheck={false}
+                placeholder={DEEPSEEK_BASE_URL}
+                onChange={(event) => setProviderBaseUrl(event.target.value)}
+              />
+              <p className={styles.note}>
+                {tr('填写完整地址，例如 ', 'Full URL, e.g. ')}
+                {DEEPSEEK_BASE_URL}
+                {preset?.note ? ' · ' + preset.note : ''}
+              </p>
+            </div>
+          ) : null}
+
+          <Row
+            label={tr('模型', 'Model')}
+            value={providerModel ?? tr('未选择', 'not set')}
+            active={open === 'model'}
+            onClick={() => toggle('model')}
+          />
+          {open === 'model' ? (
+            <div className={styles.editor}>
+              <div className={styles.inline}>
+                <input
+                  className={styles.field}
+                  value={providerModel ?? ''}
+                  autoComplete="off"
+                  spellCheck={false}
+                  placeholder={tr('模型名称，例如 deepseek-chat', 'Model name')}
+                  onChange={(event) => setProviderModel(event.target.value)}
+                />
+                <button type="button" className={styles.ghost} disabled={busy !== ''} onClick={() => void loadModels()}>
+                  {busy === 'models' ? '…' : tr('获取模型', 'Fetch')}
+                </button>
+              </div>
+              {models.length > 0 ? (
+                <div className={styles.chips}>
+                  {models.slice(0, 40).map((item) => (
+                    <button
+                      key={item.id}
+                      type="button"
+                      className={styles.chip}
+                      data-active={providerModel === item.id ? '' : undefined}
+                      onClick={() => setProviderModel(item.id)}
+                    >
+                      {item.id}
+                    </button>
+                  ))}
+                </div>
+              ) : null}
+            </div>
+          ) : null}
         </div>
-        {models.length > 0 ? (
-          <div className={styles.chips}>
-            {models.slice(0, 40).map((item) => (
-              <button
-                key={item.id}
-                type="button"
-                className={styles.chip}
-                data-active={providerModel === item.id ? '' : undefined}
-                onClick={() => setProviderModel(item.id)}
-              >
-                {item.id}
-              </button>
-            ))}
-          </div>
-        ) : null}
       </section>
 
-      <section className={styles.section}>
-        <div className={styles.row}>
-          <span className={styles.label}>
-            {tr('已保存的模型', 'Saved models')} {savedModels.length}
-          </span>
-          <button
-            type="button"
-            className={styles.pill}
-            disabled={!providerModel}
-            onClick={() => providerModel && toggleSavedModel(providerModel)}
-          >
-            + {tr('保存当前模型', 'Save current')}
-          </button>
-        </div>
-        {savedModels.length > 0 ? (
-          <div className={styles.chips}>
-            {savedModels.map((item) => (
-              <button
-                key={item}
-                type="button"
-                className={styles.chip}
-                data-active={providerModel === item ? '' : undefined}
-                onClick={() => setProviderModel(item)}
-                onDoubleClick={() => toggleSavedModel(item)}
-                title={tr('双击移除', 'Double-click to remove')}
-              >
-                {item} <span className={styles.trash}>⌫</span>
-              </button>
-            ))}
-          </div>
-        ) : (
-          <p className={styles.note}>{tr('还没有保存的模型', 'Nothing saved yet')}</p>
-        )}
-      </section>
-
-      <section className={styles.section}>
-        <button type="button" className={styles.advanced} onClick={() => setAdvanced((value) => !value)}>
-          {tr('API 高级设置', 'Advanced')}
-          <span data-open={advanced ? '' : undefined}>⌄</span>
-        </button>
-        {advanced ? (
-          <div className={styles.advancedBody}>
-            <p className={styles.note}>
-              {tr(
-                '内置 30+ 国内外厂商预设。厂商地址留空的，需要按官方文档自行填写完整 Base URL。',
-                '30+ providers are preset. Where the URL is blank, fill it in from the provider docs.'
-              )}
-            </p>
+      <section className={settingsStyles.group}>
+        <div className={settingsStyles.card}>
+          <div className={settingsStyles.row}>
+            <span className={settingsStyles.rowLabel}>{tr('已保存的模型', 'Saved models')}</span>
+            <span className={styles.rowValue}>{savedModels.length}</span>
             <button
               type="button"
               className={styles.ghost}
-              onClick={() => {
-                setProvider('deepseek')
-                setProviderBaseUrl(DEEPSEEK_BASE_URL)
-                setStatus(tr('已恢复官方地址', 'Restored official URL'))
-              }}
+              disabled={!providerModel}
+              onClick={() => providerModel && toggleSavedModel(providerModel)}
             >
-              {tr('恢复 DeepSeek 官方地址', 'Reset to DeepSeek')}
+              + {tr('保存当前', 'Save')}
             </button>
           </div>
-        ) : null}
+          {savedModels.length > 0 ? (
+            <div className={styles.editor}>
+              <div className={styles.chips}>
+                {savedModels.map((item) => (
+                  <button
+                    key={item}
+                    type="button"
+                    className={styles.chip}
+                    data-active={providerModel === item ? '' : undefined}
+                    onClick={() => setProviderModel(item)}
+                  >
+                    {item}
+                    <span
+                      className={styles.trash}
+                      role="button"
+                      tabIndex={0}
+                      onClick={(event) => {
+                        event.stopPropagation()
+                        toggleSavedModel(item)
+                      }}
+                      onKeyDown={(event) => {
+                        if (event.key === 'Enter' || event.key === ' ') {
+                          event.stopPropagation()
+                          toggleSavedModel(item)
+                        }
+                      }}
+                    >
+                      ×
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          ) : null}
+        </div>
       </section>
 
-      <div className={styles.actions}>
-        <button type="button" className={styles.pill} disabled={busy !== ''} onClick={() => void testConnection()}>
-          ⚡ {tr('测试模型连接', 'Test connection')}
-        </button>
-        <button type="button" className={styles.pill} disabled={busy !== ''} onClick={() => void testPerformance()}>
-          ◠ {tr('测试模型性能', 'Test performance')}
-        </button>
-      </div>
+      <section className={settingsStyles.group}>
+        <div className={settingsStyles.card}>
+          <Row
+            label={tr('测试模型连接', 'Test connection')}
+            value={busy === 'conn' ? tr('测试中…', 'testing…') : ''}
+            onClick={() => void testConnection()}
+          />
+          <Row
+            label={tr('测试模型性能', 'Test performance')}
+            value={busy === 'perf' ? tr('测试中…', 'testing…') : ''}
+            onClick={() => void testPerformance()}
+          />
+        </div>
+      </section>
 
-      {status ? (
-        <p className={styles.status} role="status">
-          {status}
-        </p>
-      ) : null}
-
-      {!isDeepSeek && !normalizeBaseUrl(providerBaseUrl) ? (
-        <p className={styles.warn}>{tr('Base URL 无效，无法请求。', 'Base URL is invalid.')}</p>
+      {status ? <p className={settingsStyles.caption}>{status}</p> : null}
+      {providerId !== 'deepseek' && !normalizeBaseUrl(providerBaseUrl) ? (
+        <p className={settingsStyles.caption}>{tr('Base URL 无效，无法请求。', 'Base URL is invalid.')}</p>
       ) : null}
     </div>
   )
