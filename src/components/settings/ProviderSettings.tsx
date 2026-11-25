@@ -10,6 +10,7 @@ import {
 } from '../../services/api/providers.js'
 import { streamOpenAiChat } from '../../services/api/openaiChat.js'
 import {
+  setApiKey,
   setProvider,
   setProviderBaseUrl,
   setProviderModel,
@@ -61,6 +62,21 @@ export const ProviderSettings = () => {
   const [models, setModels] = useState<RemoteModel[]>([])
   const [busy, setBusy] = useState<'models' | 'conn' | 'perf' | ''>('')
   const [status, setStatus] = useState('')
+  // Key 用草稿：存盘要过 AndroidKeyStore 加密，逐字符写既慢又会让 store 出现空值，
+  // 而 store 一空主界面就会切到首次引导页。
+  const [keyDraft, setKeyDraft] = useState('')
+
+  const commitKey = (): void => {
+    const next = keyDraft.trim()
+    // 空草稿不落盘：清空输入框再失焦就把 Key 删掉太容易误伤，
+    // 而且 Key 一空主界面会切到首次引导页。要删 Key 请走显式的入口。
+    if (!next || next === (apiKey ?? '')) {
+      return
+    }
+    if (!setApiKey(next)) {
+      setStatus(tr('API Key 保存失败', 'Could not save the key'))
+    }
+  }
 
   const preset = findProvider(providerId)
   const toggle = (section: typeof open) => setOpen((current) => (current === section ? '' : section))
@@ -89,10 +105,12 @@ export const ProviderSettings = () => {
   }
 
   const loadModels = async () => {
+    commitKey()
+    const key = useSettings.getState().apiKey ?? ''
     setBusy('models')
     setStatus(tr('正在获取模型…', 'Fetching…'))
     try {
-      const list = await fetchProviderModels(providerBaseUrl, apiKey ?? '')
+      const list = await fetchProviderModels(providerBaseUrl, key)
       setModels(list)
       setStatus(list.length ? tr(`${list.length} 个模型可用`, `${list.length} models`) : tr('没有返回模型', 'No models'))
     } catch (error) {
@@ -103,11 +121,13 @@ export const ProviderSettings = () => {
   }
 
   const testConnection = async () => {
+    commitKey()
+    const key = useSettings.getState().apiKey ?? ''
     setBusy('conn')
     setStatus(tr('正在测试连接…', 'Testing…'))
     const started = performance.now()
     try {
-      const list = await fetchProviderModels(providerBaseUrl, apiKey ?? '')
+      const list = await fetchProviderModels(providerBaseUrl, key)
       const ms = Math.round(performance.now() - started)
       setModels(list)
       setStatus(tr(`连接正常 · ${list.length} 个模型 · ${ms}ms`, `OK · ${list.length} models · ${ms}ms`))
@@ -127,13 +147,14 @@ export const ProviderSettings = () => {
     setBusy('perf')
     setStatus(tr('正在测首字延迟…', 'Measuring…'))
     const started = performance.now()
+    commitKey()
     // 首字延迟要量"第一个增量到达"，不是整条流跑完；推理模型尤其会把总时长拉得很长。
     let firstTokenAt = 0
     try {
       await streamOpenAiChat(
         {
           baseUrl: providerBaseUrl,
-          apiKey: apiKey ?? '',
+          apiKey: useSettings.getState().apiKey ?? '',
           model,
           messages: [{ role: 'user', content: 'ping' }],
           maxTokens: 1,
@@ -190,7 +211,10 @@ export const ProviderSettings = () => {
             label="API Key"
             value={apiKey ? '••••••••' : tr('未设置', 'not set')}
             active={open === 'key'}
-            onClick={() => toggle('key')}
+            onClick={() => {
+              setKeyDraft(apiKey ?? '')
+              toggle('key')
+            }}
           />
           {open === 'key' ? (
             <div className={styles.editor}>
@@ -198,11 +222,17 @@ export const ProviderSettings = () => {
                 <input
                   className={styles.field}
                   type={reveal ? 'text' : 'password'}
-                  value={apiKey ?? ''}
+                  value={keyDraft}
                   autoComplete="off"
                   spellCheck={false}
                   placeholder={tr('粘贴 API Key', 'Paste API key')}
-                  onChange={(event) => useSettings.setState({ apiKey: event.target.value })}
+                  onChange={(event) => setKeyDraft(event.target.value)}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter' && !event.nativeEvent.isComposing) {
+                      commitKey()
+                    }
+                  }}
+                  onBlur={commitKey}
                 />
                 <button type="button" className={styles.ghost} onClick={() => setReveal((value) => !value)}>
                   {reveal ? tr('隐藏', 'Hide') : tr('显示', 'Show')}

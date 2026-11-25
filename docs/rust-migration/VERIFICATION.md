@@ -162,3 +162,27 @@ OpenAI 兼容的，而手机里那枚 `sk-2…` 正是 DeepSeek 的 Key（对 Ag
 （上一轮用你提供的 Key 从本机直连是通的，12 个模型 + `收到`），换一枚有效 Key 即可复跑。
 测试后状态已复原为 Agnes（中国）+ 其官方地址、未选模型。
 
+
+### 修掉：切供应商填 Key 会跳回首次引导页（用户报的 bug）
+
+两处原因，互相放大：
+
+1. `ProviderSettings` 的 Key 输入框直接 `useSettings.setState({ apiKey })`，从不走 `setApiKey`
+   —— 既没落盘，又让 store 在「清空旧 Key 准备粘贴新 Key」的那一刻变成空串；
+2. `App.tsx` 只要 `apiKey` 为空就整屏换成 `ApiKeyScreen`，于是正在编辑的设置页当场消失，
+   输入到一半的内容也没了。
+
+修法：Key 改成草稿，失焦 / 回车时用 `setApiKey` 落盘（逐字符写要过 AndroidKeyStore，太慢，
+不做逐字符写）；**空草稿不落盘**，否则清空输入框再失焦就把 Key 删了；引导页在设置开着时不弹。
+
+真机验证（同一台机，写入占位 Key 后逐条断言）：
+
+| 断言 | 结果 |
+| --- | --- |
+| 清空草稿后失焦，Key 仍在 | `KEPT_AFTER_EMPTY_BLUR true` |
+| 输入新 Key 后失焦，落进原生存储 | `SAVED_NEW_KEY true` |
+| Key 为空但设置开着，不跳引导页 | `providerPage true, chatUi true` |
+
+代价与现状：验证过程中我先把手机里的 DeepSeek Key 清掉了（早期脚本用「点行标题收起编辑区」
+来失焦，那时的空草稿还是会落盘），**现在手机里没有 Key**，需要你在引导页重新粘贴一次。
+
