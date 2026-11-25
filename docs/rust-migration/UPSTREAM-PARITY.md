@@ -192,3 +192,33 @@ ode scripts/seed-emulator-session.mjs —— 往 SQLite 镜像里写一条 10 �
 - 导入在主线程解压，可搬到 worker（与第 4 项一起做）。
 - `planContext` 每轮全量估算，可用上一轮 `inputTokens` 做增量。
 - 长列表渲染：消息列表未做虚拟化，长会话滚动是主要卡顿来源。
+
+
+### 真机运行时审计（回归检查）
+
+用 CDP 的 Runtime.exceptionThrown + consoleAPICalled + Log.entryAdded 抓住运行期异常，
+同时走一遍主要交互（开抽屉 → 开会话 → 滚到顶 → 点回到底部 → 滚到中间）：
+
+**零异常、零 console.error**。唯一的日志是两条 404：
+
+`
+404 https://appassets.androidplatform.net/favicon.ico
+404 https://appassets.androidplatform.net/manifest.json
+`
+
+这两个是 WebView 对任何页面都会自动探测的默认资源，index.html 里并没有引用它们——**不是缺陷**，
+不需要为此添加文件。三个 worker 产物（inflate / chat-parse / parse）全部 200。
+
+### 导入在真机上仍未跑通（记录原因，避免重复踩）
+
+设置页无法用脚本打开，逐轮排查过：
+
+- [aria-label="设置"] 确实存在，点击后 hasBack 变 true，但页面文本仍停留在会话列表
+- 设置按钮底边在 CSS y≈776，视口高 792——只有 16px 余量，落在手势导航的底部感应区内
+  （设备 
+avigation_mode=2，手势导航；--android-nav-inset 未定义，应用只设了 --android-status-inset: 40px）
+- db input tap 与按住 150ms 均无效；DOM.querySelector('input[accept*="zip"]') 始终为 0，说明数据页从未挂载
+
+**待办**：人工点一次「设置 → 数据 → 导入 → deepseek_data-2026-11-24.zip」即可闭环
+（该归档 7 个会话全部已存在，预期"新增 0、更新 7"、总数仍 539）。
+顺手值得查的：抽屉底部的设置入口离手势感应区只有 16px，建议给抽屉列表加底部安全内边距。
