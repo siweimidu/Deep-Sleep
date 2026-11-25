@@ -10,13 +10,17 @@ import {
 } from '../../services/api/providers.js'
 import { streamOpenAiChat } from '../../services/api/openaiChat.js'
 import {
-  setApiKey,
+  addProviderKey,
+  removeProviderKey,
+  selectProviderKey,
   setProvider,
   setProviderBaseUrl,
   setProviderModel,
   toggleSavedModel,
   useSettings,
+  withKeyRotation,
 } from '../../services/settings.js'
+import { maskKey } from '../../services/api/keyring.js'
 import settingsStyles from './AndroidSettings.module.css'
 import styles from './ProviderSettings.module.css'
 
@@ -54,6 +58,7 @@ export const ProviderSettings = () => {
   const providerModel = useSettings((state) => state.providerModel)
   const savedModels = useSettings((state) => state.savedModels)
   const apiKey = useSettings((state) => state.apiKey)
+  const providerKeys = useSettings((state) => state.providerKeys)
   const locale = useSettings((state) => (state as { locale?: string }).locale ?? 'zh')
   const tr = (zh: string, en: string) => (locale === 'en' ? en : zh)
 
@@ -68,14 +73,15 @@ export const ProviderSettings = () => {
 
   const commitKey = (): void => {
     const next = keyDraft.trim()
-    // 空草稿不落盘：清空输入框再失焦就把 Key 删掉太容易误伤，
-    // 而且 Key 一空主界面会切到首次引导页。要删 Key 请走显式的入口。
-    if (!next || next === (apiKey ?? '')) {
+    // 空草稿不落盘：清空输入框再失焦就把 Key 删掉太容易误伤。要删请点 Key 上的 ×。
+    if (!next) {
       return
     }
-    if (!setApiKey(next)) {
+    if (!addProviderKey(next)) {
       setStatus(tr('API Key 保存失败', 'Could not save the key'))
+      return
     }
+    setKeyDraft('')
   }
 
   const preset = findProvider(providerId)
@@ -112,11 +118,11 @@ export const ProviderSettings = () => {
 
   const loadModels = async () => {
     commitKey()
-    const key = useSettings.getState().apiKey ?? ''
     setBusy('models')
     setStatus(tr('正在获取模型…', 'Fetching…'))
     try {
-      const list = await fetchProviderModels(providerBaseUrl, key)
+      // 这一家的 Key 用不了就自动换下一把
+      const list = await withKeyRotation(providerId, (key) => fetchProviderModels(providerBaseUrl, key))
       setModels(list)
       setStatus(list.length ? tr(`${list.length} 个模型可用`, `${list.length} models`) : tr('没有返回模型', 'No models'))
     } catch (error) {
@@ -128,12 +134,11 @@ export const ProviderSettings = () => {
 
   const testConnection = async () => {
     commitKey()
-    const key = useSettings.getState().apiKey ?? ''
     setBusy('conn')
     setStatus(tr('正在测试连接…', 'Testing…'))
     const started = performance.now()
     try {
-      const list = await fetchProviderModels(providerBaseUrl, key)
+      const list = await withKeyRotation(providerId, (key) => fetchProviderModels(providerBaseUrl, key))
       const ms = Math.round(performance.now() - started)
       setModels(list)
       setStatus(tr(`连接正常 · ${list.length} 个模型 · ${ms}ms`, `OK · ${list.length} models · ${ms}ms`))
@@ -216,15 +221,53 @@ export const ProviderSettings = () => {
 
           <Row
             label="API Key"
-            value={apiKey ? '••••••••' : tr('未设置', 'not set')}
+            value={
+              providerKeys.length === 0
+                ? tr('未设置', 'not set')
+                : providerKeys.length === 1
+                  ? maskKey(providerKeys[0] ?? '')
+                  : tr(`${providerKeys.length} 把 · ${maskKey(apiKey ?? '')}`, `${providerKeys.length} keys`)
+            }
             active={open === 'key'}
             onClick={() => {
-              setKeyDraft(apiKey ?? '')
+              setKeyDraft('')
               toggle('key')
             }}
           />
           {open === 'key' ? (
             <div className={styles.editor}>
+              {providerKeys.length > 0 ? (
+                <div className={styles.chips}>
+                  {providerKeys.map((item) => (
+                    <button
+                      key={item}
+                      type="button"
+                      className={styles.chip}
+                      data-active={apiKey === item ? '' : undefined}
+                      onClick={() => selectProviderKey(item)}
+                    >
+                      {maskKey(item)}
+                      <span
+                        className={styles.trash}
+                        role="button"
+                        tabIndex={0}
+                        onClick={(event) => {
+                          event.stopPropagation()
+                          removeProviderKey(item)
+                        }}
+                        onKeyDown={(event) => {
+                          if (event.key === 'Enter' || event.key === ' ') {
+                            event.stopPropagation()
+                            removeProviderKey(item)
+                          }
+                        }}
+                      >
+                        ×
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              ) : null}
               <div className={styles.inline}>
                 <input
                   className={styles.field}
@@ -232,7 +275,7 @@ export const ProviderSettings = () => {
                   value={keyDraft}
                   autoComplete="off"
                   spellCheck={false}
-                  placeholder={tr('粘贴 API Key', 'Paste API key')}
+                  placeholder={tr('粘贴 API Key，可存多把', 'Paste a key; several allowed')}
                   onChange={(event) => setKeyDraft(event.target.value)}
                   onKeyDown={(event) => {
                     if (event.key === 'Enter' && !event.nativeEvent.isComposing) {
@@ -245,6 +288,12 @@ export const ProviderSettings = () => {
                   {reveal ? tr('隐藏', 'Hide') : tr('显示', 'Show')}
                 </button>
               </div>
+              <p className={styles.hint}>
+                {tr(
+                  '同一家可以存多把，当前这把没额度时自动换下一把',
+                  'Several keys per vendor; the next one is used when this one runs out'
+                )}
+              </p>
             </div>
           ) : null}
 

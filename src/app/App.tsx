@@ -45,7 +45,8 @@ export const App = () => {
     }
   }, [t])
   const isMobile = useIsMobile()
-  const apiKey = useSettings((state) => state.apiKey)
+  // 只要存过任意厂商的 Key 就不再拦：按某一家有没有 Key 来拦，用户就没法切到别家去了。
+  const anyKey = useSettings((state) => state.anyKey)
   // 设置开着的时候不弹首次引导：否则用户在输入框里清空旧 Key 准备粘贴新 Key 的那一刻，
   // apiKey 短暂为空就会把整个界面换成引导页，正在编辑的内容也就丢了。
   const settingsOpen = useSettingsDialog((state) => state.open)
@@ -128,7 +129,7 @@ export const App = () => {
     return () => window.removeEventListener('android-back', onBack)
   }, [])
 
-  if (android && !apiKey && !settingsOpen) {
+  if (android && !anyKey && !settingsOpen) {
     return <ApiKeyScreen />
   }
 

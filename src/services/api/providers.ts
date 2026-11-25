@@ -152,7 +152,8 @@ export const fetchProviderModels = async (
     signal,
   })
   if (!response.ok) {
-    throw new Error(`HTTP ${response.status}`)
+    // 带上 status：多 Key 轮换靠它判断"这把还能不能用"（界面上仍按 HTTP xxx 的文案显示）
+    throw Object.assign(new Error(`HTTP ${response.status}`), { status: response.status })
   }
   const body: unknown = await response.json()
   const data = (body as { data?: unknown })?.data

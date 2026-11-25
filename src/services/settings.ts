@@ -5,6 +5,20 @@ import { normalizeLocation, type UserLocation } from './location.js'
 import { setOriginOverride } from './api/originStore.js'
 import { normalizeOrigin } from './api/endpoint.js'
 import { DEEPSEEK_BASE_URL, findProvider } from './api/providers.js'
+import {
+  activeKeyOf,
+  addKey,
+  hasAnyKey,
+  isKeyUnusable,
+  keysOf,
+  parseKeyring,
+  removeKey,
+  replaceActiveKey,
+  rotateKey,
+  selectKey,
+  serializeKeyring,
+  type Keyring,
+} from './api/keyring.js'
 
 export type Locale = 'zh-CN' | 'en-US'
 export type LocalePreference = Locale | 'system'
@@ -41,10 +55,16 @@ type Settings = {
   providerModel: string | null
   /** 已保存的模型 chips */
   savedModels: string[]
+  /** 当前厂商存的所有 Key（在用的那把就是 apiKey） */
+  providerKeys: string[]
+  /** 任意厂商存过 Key；用来决定要不要弹首次引导页 */
+  anyKey: boolean
 }
 
 const KEYS = {
   apiKey: 'chat-demo:api-key',
+  /** 多 Key 钥匙串（Web 端用；Android 存进原生加密槽） */
+  keyring: 'replica:keyring',
   locale: 'chat-demo:locale',
   location: 'chat-demo:location',
   themePreference: 'chat-demo:theme-preference',
@@ -165,8 +185,104 @@ const initialProvider = (): { providerId: string; providerBaseUrl: string } => {
   return { providerId: preset.id, providerBaseUrl: read(KEYS.providerBaseUrl) ?? preset.baseUrl }
 }
 
+/**
+ * 钥匙串的原始串。Android 上存在原生加密槽里（整份 JSON 当一个字符串），Web 存 localStorage；
+ * 老版本槽里是一把裸 Key，解析时会迁到当前厂商名下。
+ */
+const readKeyringRaw = (): string | null =>
+  android ? android.readApiKey() : (read(KEYS.keyring) ?? read(KEYS.apiKey))
+
+const startProvider = initialProvider()
+let keyring: Keyring = parseKeyring(readKeyringRaw(), startProvider.providerId)
+
+const persistKeyring = (next: Keyring): boolean => {
+  const payload = serializeKeyring(next)
+  if (android) {
+    return android.writeApiKey(payload)
+  }
+  write(KEYS.keyring, payload)
+  return true
+}
+
+/** 改完钥匙串后同步对外状态：在用的 Key、当前厂商的列表、是否存过任何 Key。 */
+const applyKeyring = (next: Keyring, providerId: string): boolean => {
+  if (!persistKeyring(next)) {
+    return false
+  }
+  keyring = next
+  useSettings.setState({
+    apiKey: activeKeyOf(next, providerId),
+    providerKeys: keysOf(next, providerId),
+    anyKey: hasAnyKey(next),
+  })
+  return true
+}
+
+/** 这把 Key 用不了就换同厂商下一把，直到都试过一遍。 */
+export const withKeyRotation = async <T>(
+  providerId: string,
+  run: (apiKey: string) => Promise<T>
+): Promise<T> => {
+  const total = keysOf(keyring, providerId).length
+  if (total === 0) {
+    throw new Error('missing api key')
+  }
+  let lastError: unknown = null
+  for (let attempt = 0; attempt < total; attempt += 1) {
+    const apiKey = activeKeyOf(keyring, providerId)
+    if (!apiKey) {
+      break
+    }
+    try {
+      return await run(apiKey)
+    } catch (error) {
+      if (total === 1 || !isKeyUnusable(error)) {
+        throw error
+      }
+      lastError = error
+      applyKeyring(rotateKey(keyring, providerId), providerId)
+    }
+  }
+  throw lastError instanceof Error ? lastError : new Error('missing api key')
+}
+
+/**
+ * 流式版本：只在"一个增量都还没吐出来"的时候换 Key 重来，
+ * 否则用户会看到半截回答接上半截回答。
+ */
+export async function* streamWithKeyRotation<T>(
+  providerId: string,
+  make: (apiKey: string) => AsyncGenerator<T>
+): AsyncGenerator<T> {
+  const total = Math.max(keysOf(keyring, providerId).length, 1)
+  let lastError: unknown = null
+  for (let attempt = 0; attempt < total; attempt += 1) {
+    const apiKey = activeKeyOf(keyring, providerId)
+    if (!apiKey) {
+      throw new Error('missing api key')
+    }
+    let produced = false
+    try {
+      for await (const event of make(apiKey)) {
+        produced = true
+        yield event
+      }
+      return
+    } catch (error) {
+      if (produced || total === 1 || !isKeyUnusable(error)) {
+        throw error
+      }
+      lastError = error
+      applyKeyring(rotateKey(keyring, providerId), providerId)
+    }
+  }
+  throw lastError instanceof Error ? lastError : new Error('missing api key')
+}
+
 export const useSettings = create<Settings>(() => ({
-  apiKey: android ? android.readApiKey() : read(KEYS.apiKey),
+  apiKey: activeKeyOf(keyring, startProvider.providerId),
+  providerKeys: keysOf(keyring, startProvider.providerId),
+  anyKey: hasAnyKey(keyring),
   locale: resolveLocale(initialLocalePreference()),
   localePreference: initialLocalePreference(),
   location: initialLocation(),
@@ -182,7 +298,7 @@ export const useSettings = create<Settings>(() => ({
   avatar: read(KEYS.avatar),
   accountName: read(KEYS.accountName),
   apiBaseUrl: initialApiBaseUrl(),
-  ...initialProvider(),
+  ...startProvider,
   providerModel: read(KEYS.providerModel),
   savedModels: initialSavedModels(),
 }))
@@ -241,16 +357,18 @@ export const setAutoRead = (autoRead: boolean) => {
   useSettings.setState({ autoRead })
 }
 
-export const setApiKey = (apiKey: string | null) => {
-  if (android) {
-    if (!android.writeApiKey(apiKey)) {
-      return false
-    }
-  } else {
-    write(KEYS.apiKey, apiKey)
+/**
+ * 设置"当前厂商在用的那把 Key"：替换在用的那把，没有就追加；传空表示删掉它。
+ * 官方引导页和设置里的单 Key 输入都用这个入口。
+ */
+export const setApiKey = (apiKey: string | null): boolean => {
+  const { providerId } = useSettings.getState()
+  const value = apiKey?.trim() ?? ''
+  if (!value) {
+    const current = activeKeyOf(keyring, providerId)
+    return current ? applyKeyring(removeKey(keyring, providerId, current), providerId) : true
   }
-  useSettings.setState({ apiKey })
-  return true
+  return applyKeyring(replaceActiveKey(keyring, providerId, value), providerId)
 }
 
 export const setThinking = (thinking: boolean) => {
@@ -292,8 +410,38 @@ export const setProvider = (id: string): void => {
   write(KEYS.apiBaseUrl, origin)
   // 模型名是厂商私有的：留着别的厂商的模型名，发出去只会是一个必然失败的请求。
   write(KEYS.providerModel, null)
-  useSettings.setState({ providerId: id, providerBaseUrl: baseUrl, apiBaseUrl: origin, providerModel: null })
+  // 每家有自己的钥匙串，换厂商要连 Key 一起换过去；否则会拿上一家的 Key 去请求这一家。
+  useSettings.setState({
+    providerId: id,
+    providerBaseUrl: baseUrl,
+    apiBaseUrl: origin,
+    providerModel: null,
+    apiKey: activeKeyOf(keyring, id),
+    providerKeys: keysOf(keyring, id),
+  })
   setOriginOverride(origin)
+}
+
+/** 给当前厂商追加一把 Key，并设为在用。 */
+export const addProviderKey = (apiKey: string): boolean => {
+  const { providerId } = useSettings.getState()
+  const key = apiKey.trim()
+  if (!key) {
+    return false
+  }
+  return applyKeyring(addKey(keyring, providerId, key), providerId)
+}
+
+/** 删掉当前厂商的一把 Key。 */
+export const removeProviderKey = (apiKey: string): boolean => {
+  const { providerId } = useSettings.getState()
+  return applyKeyring(removeKey(keyring, providerId, apiKey), providerId)
+}
+
+/** 指定当前厂商用哪一把。 */
+export const selectProviderKey = (apiKey: string): boolean => {
+  const { providerId } = useSettings.getState()
+  return applyKeyring(selectKey(keyring, providerId, apiKey), providerId)
 }
 
 /** 手填完整 base url（带路径），origin 同步给 Anthropic 通路。 */

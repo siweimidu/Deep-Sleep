@@ -4,7 +4,7 @@ import { ApiError, streamMessage } from '../api/client.js'
 import type { ChatModel, CreateMessageRequest } from '../api/types.js'
 import { extractFileIds, getFileErrorCode, isRetryableApiError } from '../api/errors.js'
 import { cancelUpload, describeUploadError, uploadAttachment, useUploads } from '../attachments.js'
-import { useSettings } from '../settings.js'
+import { streamWithKeyRotation, useSettings } from '../settings.js'
 import { planContext } from './context/budget.js'
 import { ensureAnchor, withAnchor } from './context/anchor.js'
 import { streamThirdPartyChat } from '../api/openaiChat.js'
@@ -1154,14 +1154,16 @@ const streamReply = async (sessionId: string, initial: AssistantMessage, request
         )
         const events = (
           useThirdParty
-            ? (streamThirdPartyChat({
-                baseUrl: providerState.providerBaseUrl,
-                apiKey: providerState.apiKey ?? '',
-                model: thirdPartyModel as string,
-                system: systemPrompt,
-                history: messages,
-                signal: controller.signal,
-              }) as unknown as ReturnType<typeof streamMessage>)
+            ? (streamWithKeyRotation(providerState.providerId, (apiKey) =>
+                streamThirdPartyChat({
+                  baseUrl: providerState.providerBaseUrl,
+                  apiKey,
+                  model: thirdPartyModel as string,
+                  system: systemPrompt,
+                  history: messages,
+                  signal: controller.signal,
+                })
+              ) as unknown as ReturnType<typeof streamMessage>)
             : streamMessage(
                 providerState.apiKey ?? '',
                 {

@@ -56,7 +56,6 @@ export const isRetryableApiError = (error: unknown): boolean => {
 
 /** 服务端判定附件失效的情况：本地有原件时重新上传即可自愈 */
 export type FileErrorCode = 'fileIdMissing' | 'fileDataMissing' | 'invalidFileId'
-
 /** 400 只带 message 文本，按文案前缀区分；顺序无关，互不重叠 */
 const FILE_ERROR_PATTERNS: ReadonlyArray<readonly [FileErrorCode, RegExp]> = [
   ['fileIdMissing', /file_ids do not exist or are not created under your account/i],

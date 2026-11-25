@@ -29,6 +29,13 @@
   gap: 8px;
 }
 
+.hint {
+  margin: 0;
+  color: var(--dsw-alias-label-tertiary, rgb(127 127 127 / 80%));
+  font-size: 12px;
+  line-height: 1.5;
+}
+
 .field {
   flex: 1;
   min-width: 0;

@@ -226,3 +226,36 @@ anthropic=TypeError  nvidia=TypeError  perplexity=TypeError  cloudflare=TypeErro
 
 测试后应用停在可用的配置上：Google AI Studio + `models/gemini-flash-lite-latest`。
 
+
+### 一厂商多 Key + 额度用完自动轮换
+
+数据层：`api/keyring.ts`（纯函数，可单测）。形状是
+`{ keys: { <厂商 id>: [k1, k2…] }, active: { <厂商 id>: 下标 } }`，
+整份 JSON 存进 Android 那个原生加密槽（仍是加密的），Web 存 localStorage。
+老版本槽里是一把裸 Key，读到时迁到"当前厂商"名下，不会丢。
+
+轮换判定 `isKeyUnusable`：401 / 402 / 403 / 429，或报文里出现
+`insufficient quota` / `余额` / `额度` 这类字样。400、404、5xx 不换——那是请求本身或对方服务的问题，
+换 Key 没用。轮换次数以该厂商的 Key 数量为上限，换成功就把新下标写回存储，下次从能用的那把开始。
+
+流式通路只在"一个增量都还没吐出来"时换 Key 重来，否则用户会看到半截回答接半截回答。
+
+界面：API Key 行显示 `2 把 · sk-…robe`；展开后是 Key 的 chip 列表（点一下设为在用，`×` 删除），
+下面一个输入框粘贴新 Key，失焦或回车即存；底部一句说明"同一家可以存多把，当前这把没额度时自动换下一把"。
+首次引导页的判定改成"任何厂商存过 Key 就不再拦"——按单家判定的话，用户存了别家的 Key 就会卡在引导页。
+
+真机验证（本轮手机中途被断开，以下在 emulator-5554 / Android 14 上完成）：
+
+| 断言 | 结果 |
+| --- | --- |
+| 同一厂商存两把 Key | `{"providerId":"csdn","count":2,"activeIsInvalid":true}` |
+| 拉模型时当前这把 401 自动换下一把 | `MODELS 3 picked=deepseek-ai/DeepSeek-V4-Flash` |
+| 对话时当前这把 401 自动换下一把 | `BEFORE activeIsInvalid=true` → `REPLY PASS` → `AFTER activeIsInvalid=false` |
+| 轮换结果写回存储 | 上面 AFTER 一行即证据 |
+
+过程中修掉的真 bug：`fetchProviderModels` 抛的是纯 `Error("HTTP 401")`，没有 `status` 属性，
+而轮换靠 `status` 判断——于是"拉模型"这条路上永远不轮换。现在抛错时带上 status，界面文案不变。
+
+单测 `scripts/test-keyring.mjs`（28 条）：迁移、去重、指定在用、删到空、轮换绕回、只有一把不轮换、
+替换在用那把、掩码，以及哪些错误该换 Key。
+
