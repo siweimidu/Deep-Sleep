@@ -39,6 +39,16 @@
 3. **`adb reverse` + 本地 HTTP + 应用自身的"导入链接"入口**：被 CSP 挡住
    （`connect-src 'self' https://api.deepseek.com`）——这是正确的安全策略，不为测试放宽
 
+**根因（已确定，不必再试）**：浏览器禁止用脚本给 	ype=file 的输入框赋值——
+`InvalidStateError: This input element accepts a filename, which may only be programmatically set to
+the empty string`。而 CDP 的 DOM 域在这个 WebView 的自定义 scheme 下解析不了节点
+（`DOM.querySelector` / `DOM.requestNode` 都返回 0）。两者叠加，**任何外部手段都无法触发导入**。
+
+试过的第四条路（部分成功但不能闭环）：把归档放进 APK 的 `assets/static/`，
+页面即可同源取到（`fetch → 200 / 14,669 字节`，CSP 的 `connect-src 'self'` 正好允许）；
+但数据页里"从链接导入"那一行绑定的是 **file input 而不是文本框**，仍然撞上同一条浏览器限制。
+（测试资产已从源码与 APK 中移除，重装后确认 APK 不含 `import-probe`。）
+
 已有的间接证据：worker 在真机可加载可回消息、合并逻辑 10 条断言、代码确认
 `applyImportedHistory` 用 `commitStaging('merge')`（只合并不替换，不会删数据）。
 
