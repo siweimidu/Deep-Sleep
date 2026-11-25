@@ -221,6 +221,23 @@ ode scripts/seed-emulator-session.mjs —— 往 SQLite 镜像里写一条 10 �
 - 长列表渲染：消息列表未做虚拟化，长会话滚动是主要卡顿来源。
 
 
+### 产物语法下限（静态核验，补 Android 5–13 的证据缺口）
+
+这台机器**没有 cmdline-tools**（sdkmanager/vdmanager 缺失），只有 ndroid-34 镜像，
+因此造不出 Android 5–13 的虚拟机——那部分只能给静态证据。
+
+扫描 dist 全部 92 个 JS 文件，找超出 chrome 66 的语法：
+
+| 语法 | 出现 | 判定 |
+| --- | --- | --- |
+| ?. 可选链（80+） | 24 次 | **全是误报**：e?.25:.4 是三元表达式，另有正则字符类 [+*?.] 与字符串里的 \?. |
+| ?? 空值合并（80+） | 5 次 | **误报**：依赖里的正则字面量 /()??/ |
+| class 私有字段 / BigInt / 顶层 await | 0 | ✅ |
+| .at( / Object.hasOwn / 	oSorted | 有 | 由 webviewCompat.ts 在运行时补齐（真机"删掉再重载"已验） |
+
+即：swc 针对 chrome >= 66 的降级**确实生效**，产物没有留下老内核解析不了的语法。
+真正的风险不在语法，而在 **API 缺失**（已由兼容层覆盖）与 **CSS**（已由 color-mix/dvh 兜底覆盖）。
+
 ### 深色/浅色对比度（真机量化，不是肉眼看）
 
 用 Emulation.setEmulatedMedia 切 prefers-color-scheme，读取计算色并算 WCAG 对比度：
