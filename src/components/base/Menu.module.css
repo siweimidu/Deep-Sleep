@@ -84,6 +84,8 @@
     &:active {
       transform: none;
       background-color: rgba(127, 127, 127, 0.12);
+      background-color: rgba(127, 127, 127, 0.12);
+      background-color: rgba(127, 127, 127, 0.12);
       background-color: color-mix(in srgb, currentColor 12%, transparent);
     }
   }
@@ -97,6 +99,8 @@
 }
 
 .roomy .option:active {
+  background-color: rgba(127, 127, 127, 0.1);
+  background-color: rgba(127, 127, 127, 0.1);
   background-color: rgba(127, 127, 127, 0.1);
   background-color: color-mix(in srgb, var(--dsw-alias-label-primary) 10%, transparent);
 }

@@ -194,6 +194,40 @@ ode scripts/seed-emulator-session.mjs —— 往 SQLite 镜像里写一条 10 �
 - 长列表渲染：消息列表未做虚拟化，长会话滚动是主要卡顿来源。
 
 
+### 真机上发现的第二个 bug：color-mix 降级在产物里根本不存在（已修复）
+
+scripts/compat-css.mjs 原本只处理**源码**：在每个 color-mix(...) 前面插一条 gba(127,127,127,α)。
+但 lightningcss 压缩时会把同属性的重复声明去重，于是**产物里一条兜底都没剩下**。
+
+实测证据（同一台手机，装的是对应构建）：
+
+`
+修复前  main.1c9e312b.css   colorMix 26   rgbaFallback 0    dvh 6  vh 8
+修复后  main.901c1414.css   colorMix 26   rgbaFallback 21   dvh 6  vh 12
+`
+
+影响面：Chromium < 111（Android 5–9 的 WebView 上限远低于此）会把 color: color-mix(...) 整条判为非法，
+属性直接失效——背景/边框类会变透明，属于"元素看不见"级别的问题。
+
+修法：加 --dist 步骤在**构建后**处理产物（压缩器之后，不会再被去重），并接入 pnpm build。
+剩余 1 处是双色混合（ar(--a) 26%, var(--b)），静态求不出，属性是 color，
+老内核上最坏是"继承而非精确混合"，不会不可见，故不特殊处理。
+
+dvh 那一半本来就是好的（产物里 100vh 确实在 100dvh 之前）。
+
+### 旧内核模拟测试（补强兼容性证据）
+
+在真机上把这些 API **删掉**再重载，模拟老内核：
+
+`
+删除后   toSorted/toReversed/at/Object.hasOwn/throwIfAborted → undefined
+重载后   全部恢复为 function，且 [3,1,2].toSorted() === [1,2,3]、Object.hasOwn 正常
+应用     照常渲染，开会话 21 段 / 5 处行内代码 / 可滚动
+`
+
+说明兼容层在"API 缺失"这一维度上真的起作用（CSS 那一维由上面的产物检查覆盖；
+不同渲染引擎的差异无法用这种方式模拟）。
+
 ### 真机运行时审计（回归检查）
 
 用 CDP 的 Runtime.exceptionThrown + consoleAPICalled + Log.entryAdded 抓住运行期异常，

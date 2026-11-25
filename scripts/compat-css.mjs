@@ -52,3 +52,27 @@ for (const file of files) {
 
 const label = check ? '待补' : '已补'
 console.log(`${label}: color-mix 降级 ${mixCount} 条, dvh 降级 ${dvhCount} 条, 涉及 ${touched} 个文件`)
+// ── 构建后处理 ────────────────────────────────────────────────────────────────
+// 源码里插的重复声明会被 lightningcss 压缩时去重丢掉（实测：产物 26 处 color-mix、0 处兜底），
+// 所以真正生效的一步必须在**产物**上做：直接改 dist 里的 CSS，压缩器不会再碰它。
+if (process.argv.includes('--dist')) {
+  const distFiles = globSync('dist/**/*.css')
+  const DECL = /([a-z-]+):color-mix\(in srgb,\s*([^,;{}]+?)\s+(\d+(?:\.\d+)?)%,\s*transparent\s*\)/g
+  let patched = 0
+  let inserted = 0
+  for (const file of distFiles) {
+    const css = readFileSync(file, 'utf8')
+    let count = 0
+    const next = css.replace(DECL, (whole, prop, _color, percent) => {
+      const alpha = Math.round((Number(percent) / 100) * 1000) / 1000
+      count += 1
+      return `${prop}:rgba(127,127,127,${alpha});${whole}`
+    })
+    if (count > 0) {
+      writeFileSync(file, next)
+      patched += 1
+      inserted += count
+    }
+  }
+  console.log(`compat-css(dist): ${inserted} color-mix fallbacks inserted across ${patched} files`)
+}

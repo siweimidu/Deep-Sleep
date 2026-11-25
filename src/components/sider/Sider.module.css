@@ -361,6 +361,8 @@
   border: 0;
   border-radius: 50%;
   background: rgba(127, 127, 127, 0.1);
+  background: rgba(127, 127, 127, 0.1);
+  background: rgba(127, 127, 127, 0.1);
   background: color-mix(in srgb, var(--dsw-alias-label-primary) 10%, transparent);
   color: var(--dsw-alias-label-primary);
   cursor: pointer;
@@ -453,6 +455,8 @@
 
   &:active {
     background-color: rgba(127, 127, 127, 0.11);
+    background-color: rgba(127, 127, 127, 0.11);
+    background-color: rgba(127, 127, 127, 0.11);
     background-color: color-mix(in srgb, var(--dsw-alias-label-primary) 11%, transparent);
     transform: scale(0.985);
   }
@@ -464,7 +468,11 @@
   border-radius: 50%;
   overflow: hidden;
   background: rgba(127, 127, 127, 0.14);
+  background: rgba(127, 127, 127, 0.14);
+  background: rgba(127, 127, 127, 0.14);
   background: color-mix(in srgb, var(--dsw-alias-label-primary) 14%, transparent);
+  color: rgba(127, 127, 127, 0.78);
+  color: rgba(127, 127, 127, 0.78);
   color: rgba(127, 127, 127, 0.78);
   color: color-mix(in srgb, var(--dsw-alias-label-primary) 78%, transparent);
 

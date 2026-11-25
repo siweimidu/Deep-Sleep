@@ -58,6 +58,8 @@
 .count {
   flex-shrink: 0;
   color: rgba(127, 127, 127, 0.55);
+  color: rgba(127, 127, 127, 0.55);
+  color: rgba(127, 127, 127, 0.55);
   color: color-mix(in srgb, var(--dsw-alias-label-primary) 55%, transparent);
   font-variant-numeric: tabular-nums;
 }
@@ -74,6 +76,8 @@
   right: 0;
   bottom: 0;
   height: 2px;
+  background: rgba(127, 127, 127, 0.22);
+  background: rgba(127, 127, 127, 0.22);
   background: rgba(127, 127, 127, 0.22);
   background: color-mix(in srgb, #4d6bfe 22%, transparent);
 
