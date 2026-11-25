@@ -93,3 +93,34 @@ test-budget-parity  → TS 与 wasm 完全一致（10 例）
 **65 个会话、103 个附件（58 图片 + 45 文件）、约 73 MB，无服务端副本，不可恢复。**
 `indexeddb.blob` 目录已空、`.tmp` 备份只含 JSON，三条恢复路径全部排除。
 教训与规矩写在 `UPSTREAM-PARITY.md` 顶部：**验证恢复只能清 sessions/sessionSummaries，不得清 files**。
+---
+
+## 你回来只需做两件事
+
+### 1. 点一次导入（30 秒）
+
+```
+应用 → 设置 → 数据管理 → 导入 → 选择 Download/deepseek_data-2026-11-24.zip
+```
+
+**预期**：提示「新增 0、更新 7」，会话总数仍是 **539**（该归档里 7 个会话全部已存在，走的是合并路径，
+不会删任何东西——`applyImportedHistory` 用的是 `commitStaging('merge')`）。
+
+**若结果不符**，把应用里的提示文字告诉我（或截图），我据此定位。
+
+### 2. 决定 Android 5–13 怎么算
+
+本机没有 `cmdline-tools`，只有 `android-34` 镜像，也**没有老设备**，所以这部分我做不到实测。
+现有的替代证据是三层的：产物语法在 `chrome 66` 之内（92 个文件静态扫描）、
+缺失 API 由 `webviewCompat` 补齐（真机"删掉再重载"验证过）、CSS 有 `color-mix`/`dvh` 兜底（APK 产物内验证过）。
+
+**这三个都不等于真机运行**。老 WebView 上字体度量、`position:fixed`、滚动惯性只能实测。
+所以你只有两个选择，请明确说一个：
+
+- **「接受推断」** → 我把这项标记为"以静态证据接受"，并在总账里保留这条保留意见；
+- **「我来测」** → 在装有 `cmdline-tools` 的机器上 `sdkmanager "system-images;android-21;default;x86"`
+  建 AVD 跑一遍，把结果贴给我。
+
+> 提示：Android 5 的 AOSP 镜像自带 WebView 约 Chromium 37，远低于本项目的 95 下限；
+> 那种环境下应用**会白屏**，属于已知不支持范围（真实设备通常已通过 Play 商店更新过 WebView）。
+> 要覆盖 Chrome 37 需要把整条工具链降到 ES5 并加一整套 polyfill，那是另一个量级的工程。
