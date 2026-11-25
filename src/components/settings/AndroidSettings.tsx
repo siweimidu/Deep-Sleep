@@ -235,7 +235,13 @@ const Settings = ({ start }: { start: Page }) => {
     accountName,
   } = useSettings()
   const tr = (chinese: string, english: string) => (locale === 'zh-CN' ? chinese : english)
-  const [page, setPage] = useState<Page>(start)
+  const [page, setPageState] = useState<Page>(start)
+  // 换页方向：深入一层从右侧进来、返回从左侧回来，两个方向才看得出"我在前进还是后退"
+  const [navDir, setNavDir] = useState<'forward' | 'back'>('forward')
+  const setPage = (next: Page) => {
+    setNavDir('forward')
+    setPageState(next)
+  }
   const [popup, setPopup] = useState<Popup | null>(null)
   const [tone, setTone] = useState(ttsVoice)
   const [busy, setBusy] = useState(false)
@@ -317,7 +323,8 @@ const Settings = ({ start }: { start: Page }) => {
     } else if (page === 'root') {
       closeSettings()
     } else {
-      setPage(page === 'export' ? 'data' : 'root')
+      setNavDir('back')
+      setPageState(page === 'export' ? 'data' : 'root')
     }
   }
 
@@ -393,7 +400,7 @@ const Settings = ({ start }: { start: Page }) => {
         </button>
         <h1>{labels[page]}</h1>
       </header>
-      <div className={styles.scroll} key={page}>
+      <div className={styles.scroll} key={page} data-nav={navDir}>
         {page === 'root' ? (
           <>
             <Group label={tr('账户', 'Account')}>

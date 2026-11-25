@@ -67,14 +67,25 @@
   overscroll-behavior-y: contain;
   padding: 12px 16px 36px;
   scrollbar-width: none;
-  /* 换页时这个容器会被 key=page 重新挂载，给一点"内容到位"的落位感 */
-  animation: page-swap var(--motion-card);
+  /* 换页时这个容器会被 key=page 重新挂载，按方向给位移，前进/后退才分得清 */
+  animation: page-in-forward var(--motion-card);
 }
 
-@keyframes page-swap {
+.scroll[data-nav='back'] {
+  animation-name: page-in-back;
+}
+
+@keyframes page-in-forward {
   from {
     opacity: 0;
-    transform: translateY(7px) scale(0.997);
+    transform: translateX(18px);
+  }
+}
+
+@keyframes page-in-back {
+  from {
+    opacity: 0;
+    transform: translateX(-18px);
   }
 }
 
