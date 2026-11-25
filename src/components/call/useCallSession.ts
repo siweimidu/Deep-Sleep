@@ -117,11 +117,16 @@ export const useCallSession = (active: boolean) => {
               return
             }
             const now = performance.now()
-            const raw = current.level?.() ?? 0
+            // 真机验证用的注入口：只有调试包会用到（页面开 ?diag=1），生产里这个全局不存在
+            const injected = (window as unknown as { __dshCallLevel?: number }).__dshCallLevel
+            const raw = typeof injected === 'number' ? injected : (current.level?.() ?? 0)
             // 判停用原始电平（要灵敏），球体用包络（要好看）
             level.current = smoother.step(raw, now - lastAt)
             lastAt = now
             if (detector.push(raw, now) === TURN_END) {
+              // 记一笔，真机验证据此确认"判停真的走到了这里"
+              const stats = (window as unknown as { __dshCallStats?: { turns: number; at: number } })
+              stats.__dshCallStats = { turns: (stats.__dshCallStats?.turns ?? 0) + 1, at: Math.round(now) }
               recording.current = null
               level.current = 0
               void current

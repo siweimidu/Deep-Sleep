@@ -4,7 +4,8 @@ import { useTranslate } from '../../i18n/index.js'
 import { useSettings, setTtsVoice, setSearch } from '../../services/settings.js'
 import { useChatStore } from '../../services/chat/store.js'
 import { closeVoiceCall, useVoiceCall } from './callState.js'
-import { formatDuration, useCallSession, useOrbPulse } from './useCallSession.js'
+import { formatDuration, PHASE_CODE, useCallSession, useOrbPulse } from './useCallSession.js'
+import { LiquidOrb } from './LiquidOrb.js'
 import { IconGlobeLanguageOutline14 } from '../base/icons.js'
 import { IconPhoneOffOutline, IconSwitchOutline20 } from '../base/appIcons.js'
 import styles from './VoiceCallScreen.module.css'
@@ -141,6 +142,8 @@ export const VoiceCallScreen = () => {
     return active?.title ?? ''
   })
   const [sheet, setSheet] = useState(false)
+  // WebGL 用不了就退回 CSS 球：宁可少点质感，也不能没有球
+  const [webgl, setWebgl] = useState(true)
   const page = useRef<HTMLDivElement>(null)
   const { phase, level, seconds, toggleMute, interrupt, endCall } = useCallSession(open)
 
@@ -194,9 +197,19 @@ export const VoiceCallScreen = () => {
 
       <div className={styles.stage}>
         <div className={styles.orbField} aria-hidden="true">
-          <div className={styles.orb}>
-            <span className={styles.orbCore} />
-          </div>
+          {webgl ? (
+            <LiquidOrb
+              className={styles.orbCanvas}
+              level={level}
+              phaseCode={PHASE_CODE[phase]}
+              size={176}
+              onFallback={() => setWebgl(false)}
+            />
+          ) : (
+            <div className={styles.orb}>
+              <span className={styles.orbCore} />
+            </div>
+          )}
         </div>
 
         <div className={styles.status} aria-live="polite">
