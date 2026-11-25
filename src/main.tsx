@@ -8,6 +8,7 @@ import { installMirrorFlush } from './services/chat/nativeMirror.js'
 import { installLatexCopy } from './app/latexCopy.js'
 import './app/theme.css'
 import './app/motion.css'
+import './app/motion-kit.css'
 import './app/global.css'
 import './app/android.css'
 

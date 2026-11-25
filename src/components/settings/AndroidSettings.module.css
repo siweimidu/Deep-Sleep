@@ -67,6 +67,15 @@
   overscroll-behavior-y: contain;
   padding: 12px 16px 36px;
   scrollbar-width: none;
+  /* 换页时这个容器会被 key=page 重新挂载，给一点"内容到位"的落位感 */
+  animation: page-swap var(--motion-card);
+}
+
+@keyframes page-swap {
+  from {
+    opacity: 0;
+    transform: translateY(7px) scale(0.997);
+  }
 }
 
 .group {
@@ -688,16 +697,7 @@ a.row:active,
   line-height: 18px;
 }
 
-/* 预测性返回：手势期间整页跟随右移并轻微缩小 */
-.page {
-  transform: translateX(calc(var(--back-progress, 0) * 34%))
-    scale(calc(1 - var(--back-progress, 0) * 0.1));
-  transition: transform var(--motion-gesture);
-}
-
-.page[data-back='active'] {
-  transition: none;
-}
+/* 预测性返回：位移/缩放/圆角/投影由 motion-kit.css 的 [data-back-stage] 统一驱动 */
 
 /* 页面内可点行：按下时给一点重量，配合弹簧曲线回弹 */
 .page button:not(:disabled) {
@@ -708,6 +708,16 @@ a.row:active,
 
 .page button:not(:disabled):active {
   transform: scale(0.972);
+}
+
+/* 行尾箭头跟着手指走一点点：比整行缩一下更有"点到了"的实感 */
+.page .row .arrow,
+.page .row > span:last-child {
+  transition: transform var(--motion-press);
+}
+
+.page .row:active .arrow {
+  transform: translateX(3px);
 }
 
 /* 账户名称编辑：居中卡片，填充式输入，无边框无分隔线 */

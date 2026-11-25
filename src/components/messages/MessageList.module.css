@@ -44,6 +44,11 @@
   padding-bottom: 24px;
 }
 
+/* 只有新挂载的最后一条才入场：切换会话时也只动一条，不会整屏一起跳 */
+.column > *:last-child {
+  animation: motion-rise-in var(--motion-card);
+}
+
 /* 搜索命中的消息：短暂高亮，2s 后淡出 */
 .flash {
   border-radius: 14px;

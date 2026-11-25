@@ -100,6 +100,13 @@ export const App = () => {
   // 移动端选中会话、切换布局后收起抽屉
   useEffect(closeMobileSider, [activeId, isMobile])
 
+  // 设置页是铺满全屏的独立层：抽屉还开着的话，预测性返回揭开的是抽屉而不是聊天页
+  useEffect(() => {
+    if (settingsOpen) {
+      closeMobileSider()
+    }
+  }, [settingsOpen])
+
   useEffect(() => {
     void initChat()
     // 首次打开先在设置里输入 API Key

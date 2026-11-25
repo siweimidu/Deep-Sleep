@@ -17,7 +17,15 @@
   outline: none;
   transition:
     background-color var(--ds-transition-duration) var(--ds-ease-in-out),
-    opacity var(--ds-transition-duration) var(--ds-ease-in-out);
+    opacity var(--ds-transition-duration) var(--ds-ease-in-out),
+    transform var(--motion-press),
+    box-shadow var(--motion-press);
+
+  /* 按下立刻给到位（90ms），松手交给弹簧回弹：这样才"跟手" */
+  &:active:not(:disabled) {
+    transform: scale(0.955);
+    transition-duration: var(--ds-transition-duration), var(--ds-transition-duration), 90ms, 90ms;
+  }
 
   &:focus-visible {
     box-shadow: 0 0 0 2px var(--dsw-alias-button-primary-fill);
@@ -50,6 +58,15 @@
 
 .block {
   width: 100%;
+}
+
+/* 实心按钮悬停时轻轻抬起 1px：指针设备上才做，触摸屏会粘住 */
+@media (hover: hover) {
+  .primary:not(:disabled):hover,
+  .danger:not(:disabled):hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgb(0 0 0 / 0.16);
+  }
 }
 
 .primary {

@@ -56,7 +56,13 @@
   display: flex;
   color: var(--dsw-alias-label-secondary);
   transform: translateY(-50%);
+  transition: transform var(--motion-press);
   pointer-events: none;
+}
+
+/* 展开时箭头翻过来：这一下"翻转"比单纯变色更能说明状态 */
+.trigger[aria-expanded='true'] .arrow {
+  transform: translateY(-50%) rotate(180deg);
 }
 
 .menu {
@@ -75,6 +81,9 @@
     0 0 1px 0 rgba(0, 0, 0, 0.2),
     0 0 4px 0 rgba(0, 0, 0, 0.02),
     0 12px 32px 0 rgba(0, 0, 0, 0.08);
+  /* 从触发器方向长出来，而不是凭空出现 */
+  transform-origin: top center;
+  animation: motion-pop-in var(--motion-card);
 }
 
 .option {

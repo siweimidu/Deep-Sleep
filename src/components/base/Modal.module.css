@@ -7,6 +7,7 @@
   align-items: center;
   justify-content: center;
   background-color: rgba(0, 0, 0, var(--overlay-opacity));
+  animation: motion-fade-in 180ms ease-out;
   /* 弹层不做实时背景模糊：Android WebView 上每帧回读，删除这类操作会像卡死 */
 
   [data-ds-dark-theme] & {
@@ -31,6 +32,7 @@
     0 0 1px 0 rgba(0, 0, 0, 0.2),
     0 0 4px 0 rgba(0, 0, 0, 0.02),
     0 12px 32px 0 rgba(0, 0, 0, 0.08);
+  animation: motion-pop-in var(--motion-card);
 }
 
 .header {

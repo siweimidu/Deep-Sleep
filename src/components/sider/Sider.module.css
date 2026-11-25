@@ -274,6 +274,8 @@
   /* 位置完全由 --drawer-progress 决定，拖动时改它就同时带动卡片 */
   transform: translateX(calc((var(--drawer-progress) - 1 + var(--back-progress, 0)) * 100%));
   transition: transform var(--drawer-transition);
+  /* 边缘抽屉是"抽出来的一块"，不是浮起的卡片：不要圆角，投影由 motion-kit 按进度给 */
+  border-radius: 0;
   box-sizing: border-box;
   backface-visibility: hidden;
 }

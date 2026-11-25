@@ -9,16 +9,23 @@
   background-color: transparent;
   cursor: pointer;
   font-size: 16px;
-  transition: background-color var(--ds-transition-duration) var(--ds-ease-in-out);
+  transition:
+    background-color var(--ds-transition-duration) var(--ds-ease-in-out),
+    transform var(--motion-press),
+    color var(--ds-transition-duration) var(--ds-ease-in-out);
   outline: none;
 
+  /* 图标按钮是圆的：缩得比文字按钮狠一点才看得出"按下去了" */
   &:active:not(:disabled) {
     background-color: var(--dsw-alias-interactive-bg-hover);
+    transform: scale(0.88);
+    transition-duration: var(--ds-transition-duration), 90ms, var(--ds-transition-duration);
   }
 
   @media (hover: hover) {
     &:hover:not(:disabled) {
       background-color: var(--dsw-alias-interactive-bg-hover);
+      transform: scale(1.06);
     }
   }
 

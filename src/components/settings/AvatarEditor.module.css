@@ -7,13 +7,7 @@
   flex-direction: column;
   background: #f7f7f9;
   color: #101012;
-  /* 只由预测性返回手势驱动位移；不做入场动画，避免被冻结在起始帧 */
-  transform: translateX(calc(var(--back-progress, 0) * 100%));
-  transition: transform var(--motion-gesture);
-}
-
-.page[data-back='active'] {
-  transition: none;
+  /* 位移/圆角/投影由 motion-kit.css 的 [data-back-stage] 统一驱动，这里不再自己写 */
 }
 
 body[data-ds-dark-theme] .page {

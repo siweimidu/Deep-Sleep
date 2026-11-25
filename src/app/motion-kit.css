@@ -1,0 +1,166 @@
+/* 动效基座：token 在 motion.css（由脚本生成），这里放「手感」本身。
+   两条原则：
+   1. 所有可点元素默认就有一条像样的按压反馈（低特异性 :where，组件自己的规则一定覆盖得住）；
+   2. 预测性返回是统一舞台：任何调用 usePredictiveBack 的层自动获得同一套位移/缩放/圆角/投影。 */
+
+:root {
+  /* 按压：按下要立刻响应，回弹走弹簧 */
+  --press-scale: 0.968;
+  --press-scale-strong: 0.94;
+  /* M3 手势：起势跟随手指（无过渡），松手/取消走弹簧 */
+  --back-slide: 30%;
+  --back-scale: 0.14;
+  --back-radius: 24px;
+}
+
+/* ── 1. 通用交互地板 ────────────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: no-preference) {
+  :where(button, [role='button'], [role='tab'], [role='option'], [role='menuitem'], summary) {
+    transition:
+      transform var(--motion-press),
+      background-color 150ms ease-out,
+      color 150ms ease-out,
+      border-color 150ms ease-out,
+      opacity 150ms ease-out,
+      box-shadow 180ms ease-out;
+    /* 触摸时不要有 300ms 延迟，也不要把按下态拖到手指抬起之后 */
+    touch-action: manipulation;
+  }
+
+  /* :where 让特异性保持 0，组件里任何一条自己的 :active 都能盖掉这条 */
+  :where(button, [role='button'], [role='tab'], [role='option'], [role='menuitem']):not(
+      :disabled,
+      [aria-disabled='true'],
+      [data-no-press]
+    ):active {
+    transform: scale(var(--press-scale));
+    /* 按下瞬间不要弹簧那么"慢"，先给到位，回弹再交给上面的 transition */
+    transition-duration: 90ms;
+  }
+}
+
+/* 指针设备才做悬停：触摸屏上 hover 会粘住 */
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  :where(button, [role='button']):not(:disabled, [data-no-press]) {
+    transition-timing-function: ease-out, ease-out, ease-out, ease-out, ease-out, ease-out;
+  }
+}
+
+/* 键盘可达：只在 focus-visible 出圈，鼠标点不出现 */
+:where(button, [role='button'], [role='tab'], a[href]):focus-visible {
+  outline: 2px solid var(--dsw-alias-brand-primary, #4d6bfe);
+  outline-offset: 2px;
+}
+
+/* ── 2. 预测性返回舞台 ──────────────────────────────────────────────────── */
+
+/* usePredictiveBack 在挂载时给元素打上 data-back-stage，手势期间再补 data-back="active"
+   与 --back-progress；松手取消后属性消失，位移由上面的 transition 弹回去。 */
+[data-back-stage] {
+  transform-origin: 0 50%;
+  /* 松手回弹用临界阻尼的软弹簧：不来回晃，收得干净 */
+  transition:
+    transform var(--spring-soft),
+    border-radius var(--spring-soft);
+  transform: translateX(calc(var(--back-progress, 0) * var(--back-slide)))
+    scale(calc(1 - var(--back-progress, 0) * var(--back-scale)));
+  border-radius: calc(var(--back-progress, 0) * var(--back-radius));
+  will-change: transform;
+}
+
+/* 投影放在伪元素上，只动 opacity：box-shadow 每帧重算会把整层重绘一遍，
+   跟手时直接掉一半帧率。投影画在 border-box 外面，不会盖住内容。 */
+[data-back-stage]::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  /* 深色主题下页面和背景都是暗的：不给一道细边，圆角根本看不出来 */
+  box-shadow:
+    0 14px 44px rgb(0 0 0 / 0.34),
+    0 0 0 1px rgb(255 255 255 / 0.08);
+  opacity: var(--back-progress, 0);
+}
+
+/* 跟手期间禁止过渡，否则界面会"追不上"手指。
+   注意：不要在这里加 overflow: hidden —— 裁剪子层会让整棵子树每帧重新裁剪，
+   圆角只作用在层自身的背景上就已经看得见了。 */
+[data-back-stage][data-back='active'] {
+  transition: none;
+}
+
+/* 全屏层被拉开时，下面那一层同时轻轻放大，做出景深；只在手势期间生效 */
+html[data-back-active] [data-back-under] {
+  transition: transform var(--spring-soft);
+  transform: scale(calc(0.94 + var(--back-progress, 0) * 0.06));
+  transform-origin: 50% 50%;
+}
+
+/* ── 3. 通用入场动画（弹层/页内块共用一套，避免各写一遍） ──────────────── */
+
+@keyframes motion-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes motion-pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.92) translateY(10px);
+  }
+}
+
+@keyframes motion-sheet-in {
+  from {
+    opacity: 0.6;
+    transform: translateY(100%);
+  }
+}
+
+@keyframes motion-slide-in-right {
+  from {
+    opacity: 0.7;
+    transform: translateX(24%);
+  }
+}
+
+@keyframes motion-toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.96);
+  }
+}
+
+@keyframes motion-rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+
+/* 列表逐项入场：容器给 data-stagger，子项按 --i 递增延迟 */
+@media (prefers-reduced-motion: no-preference) {
+  [data-stagger] > * {
+    animation: motion-rise-in var(--motion-card) backwards;
+    animation-delay: calc(var(--i, 0) * 24ms);
+  }
+}
+
+.motionFade {
+  animation: motion-fade-in 180ms ease-out;
+}
+
+.motionPop {
+  animation: motion-pop-in var(--motion-card);
+}
+
+.motionSheet {
+  animation: motion-sheet-in var(--motion-sheet);
+}
+
+.motionToast {
+  animation: motion-toast-in var(--motion-card);
+}
