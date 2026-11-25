@@ -67,6 +67,26 @@ Emulation.setDeviceMetricsOverride 在 WebView 内直接改视口——这是真
 「设置 → 账户 → **API 地址**」入口真实存在；朗读音色为 **海星 / 俏皮甜美** 且色块居中；
 **深色主题**在 1024px 下无排版破损。
 
+### 存储被清 → 恢复：真机端到端（完整通过）
+
+这是最危险也最重要的一条，所以先做了两层备份再动手：
+
+1. mirrorDump() 分块（2MB/次）取回 → .tmp/phone-mirror-backup.json（10,022,758 字节）
+2. 校验备份：**539 条、0 条损坏、2336 条消息**
+
+然后清空 IndexedDB 的五个 store（sessions / sessionSummaries / files / sessionsStaging / filesStaging）并重启应用：
+
+`
+清理前   IndexedDB 会话 539，镜像条目 539
+清理后   IndexedDB 0
+重启后   sessions 539 / summaries 539     ← 8 秒内完成
+内容比对 mirrorMessages 2336 == idbMessages 2336   equal: true
+渲染      会话列表 539 项；打开会话 21 段、5 处行内代码、可滚动
+`
+
+即：**539 个真实会话、2336 条消息，清空后完整回来了，一条不少。** 镜像功能在真机上按预期工作。
+（备份文件保留在 .tmp/，已加入 .gitignore。）
+
 ### 本轮在真机上发现并修复的 bug
 
 **镜像对历史数据完全没覆盖**：手机上有 539 个会话，mirrorDump() 却是空数组——因为镜像只在
