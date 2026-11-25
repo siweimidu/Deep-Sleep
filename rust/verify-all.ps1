@@ -27,6 +27,30 @@ foreach ($crate in $crates) {
 }
 Write-Output "  gated $gated/$($crates.Count)"
 
+# 1b. Hand-written crates (no rust-anything.json): cargo test + value-for-value parity with TS.
+# CARGO_TARGET_DIR must live on an ASCII path: this repo path has CJK characters and MinGW's
+# ld fails to read its own .o files there.
+Write-Output ''
+Write-Output '=== 1b. hand-written crates ==='
+$asciiTarget = Join-Path $env:TEMP 'dsh-cargo-target'
+$env:CARGO_TARGET_DIR = $asciiTarget
+$manual = @(
+  @{ name = 'call-rs'; parity = 'scripts/test-call-core.mjs' }
+)
+foreach ($item in $manual) {
+  Push-Location (Join-Path $repo "rust/$($item.name)")
+  $test = & cargo test --quiet 2>&1
+  $testOk = ($LASTEXITCODE -eq 0)
+  Pop-Location
+  if (-not $testOk) { $failed += "test $($item.name)" }
+  $parity = & node --experimental-transform-types --no-warnings --import ./rust/register-ts.mjs $item.parity 2>&1
+  $parityOk = ($LASTEXITCODE -eq 0)
+  if (-not $parityOk) { $failed += "parity $($item.name)" }
+  $cases = ($test | Select-String -Pattern '(\d+) passed' | Select-Object -First 1).Matches.Groups[1].Value
+  $pairs = ($parity | Select-String -Pattern 'PARITY (\d+) cases' | Select-Object -First 1).Matches.Groups[1].Value
+  '{0,-17} cargo test {1} passed, TS parity {2} cases' -f $item.name, $cases, $pairs
+}
+
 Write-Output ''
 Write-Output '=== 2. browser artifact parity ==='
 powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $repo 'rust/web-parity.ps1') 2>$null

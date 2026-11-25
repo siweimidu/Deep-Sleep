@@ -528,3 +528,60 @@ RESET             true → protocol 自动 / endpoint 未覆盖
 1. 抽屉和搜索页各有一个「搜索对话内容」输入框，脚本一直往**被压在下面**的那个里填词；
 2. 高亮用的是 `<b class="mark">` 而不是 `<mark>`，断言数错了元素。
 改成「取可见面积最大的输入框」+ 数 `b, mark` 之后一次通过。
+
+
+## 电话（语音通话）界面的 Rust 重构
+
+### 为什么这部分值得搬到 Rust
+
+通话界面原来把三件事混在一个 rAF 里：判停（说完没有）、电平跟随、状态切换。
+这些东西**给定输入就该有确定输出**，却在 React 的 effect 里散着写，既测不了也改不动。
+现在拆成 `rust/call-rs`：
+
+| 模块 | 职责 | 证明 |
+| --- | --- | --- |
+| `TurnDetector` | 说完没有：余量 220ms 内不计静音，之后静音 620ms 且说够 260ms 才判停 | 5 条 cargo 测试（含"重新开口要重置计时"） |
+| `LevelSmoother` | 包络：起音 90ms、释放 260ms，球体跟手但不抖 | 2 条测试（起音快于释放、收敛并夹紧） |
+| `orb_params` | 光球形状：core/glow/halo/spin/breathe | 3 条测试（听时跟电平、思考时忽略麦克风、静音时变暗） |
+| `next_phase` | 状态机：静音态只认 Unmute，其余事件原地不动 | 1 条测试 |
+| `format_duration` | 00:00 / 1:02:05 | 1 条测试 |
+
+`cargo test` **11/11 通过**，clippy 干净。wasm 42KB，走 `wasm-bindgen --target web`。
+
+TS 侧 `src/rust-core/call.ts` 是适配层：Rust 在位就用 Rust，加载失败整段走**逐行等价**的 TS 回退。
+`scripts/test-call-core.mjs` 把两份实现逐值对照：**2903 项，0 失败**（时长 15 组、阶段迁移 4×7 全组合、
+光球参数 140 组、判停随机序列 40 轮×60 帧、包络 4 组×80 帧）。
+
+`rust/verify-all.ps1` 加了一节 `1b. hand-written crates`，输出：
+`call-rs cargo test 11 passed, TS parity 2903 cases`。
+（踩坑：仓库路径带中文，MinGW 的 `ld` 读不到自己产出的 `.o`，`CARGO_TARGET_DIR` 必须指到纯 ASCII 路径。）
+
+### 界面：照官方 App 的实际观感重做
+
+原来的通话页是我按"深蓝极光 + 声波环"想象的，跟官方差得远。这次把官方 App（`com.deepseek.chat` v2.8.0，
+分身空间 user 999）的通话页截下来逐项对齐：
+
+| | 官方 | 改前 | 改后 |
+| --- | --- | --- | --- |
+| 背景 | 中性深灰 #191b20 | 深蓝 + 两层极光 | 中性深灰 + 球后一圈极淡光 |
+| 球体 | 磨砂白玉，渐变柔边 | 蓝色发光球 + 3 圈声波环 | 磨砂白玉，渐变柔边 |
+| 状态 | `••• 正在聆听` | 药丸 + 波形条 | `••• 正在聆听` |
+| 挂断 | 深色圆钮 + 红色听筒 | 红色实心大按钮 | 深色圆钮 + 红色听筒 |
+| 标题 | 标题 + `通话中 00:16` | 标题 + 计时药丸 | 标题 + `通话中 00:16` |
+
+逐帧参数由 Rust 算好后由 `useOrbPulse` **直接写 CSS 变量**（`--orb-core/glow/halo/spin/breathe`），
+不进 React 渲染 —— 60fps 的 `setState` 会把主线程吃满。真机实测：
+
+```
+ORB1 {"phase":"listening","core":"0.6000","glow":"0.1800","halo":"0.5500","spin":"0.3500","breathe":"0.0167"}
+ORB2 {"phase":"listening","core":"0.6000","glow":"0.1800","halo":"0.5500","spin":"0.3500","breathe":"0.3488"}
+                                                  ↑ breathe 在变，说明每帧都在跑；数值正是 orb_params(level=0, Listening)
+GEOM  {"dpr":3,"viewport":[360,792],"round":[[56,56],[56,56],[56,56]],"orb":[164,164]}
+```
+
+**踩过的坑（都是脚本/工具的，不是应用的）**：
+1. `useOrbPulse` 的 effect 依赖里漏了「是否打开」，组件首次挂载时 ref 还是 null 就直接返回了，
+   打开后不会重跑 —— CSS 变量永远停在样式表默认值。真机读到 `core:.6`（样式表值）而不是 `0.6000`（Rust 值）才发现。
+2. 用 PowerShell 的 `Get-Content | -replace | Set-Content` 改带中文的源码，会按 GBK 落盘把文件写坏（踩了两次）。
+3. CDP 的 `Page.captureScreenshot` 与 `adb shell screencap` 的栅格化不一致：同一屏截图，
+   前者把 56×56 的圆钮渲染成竖椭圆（DOM 测量是正圆）。判定形状必须用 `screencap`。

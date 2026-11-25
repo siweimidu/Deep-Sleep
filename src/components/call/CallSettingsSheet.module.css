@@ -1,0 +1,288 @@
+﻿/* 閫氳瘽椤甸噷鐨勩€屾湕璇婚煶鑹?+ 鍥炵瓟璁剧疆銆嶅簳閮ㄥ脊灞傦紙浠?VoiceCallScreen.module.css 鎷嗗嚭鏉ワ級 */
+  z-index: 2;
+  display: flex;
+  align-items: flex-end;
+  background: rgb(0 0 0 / 55%);
+}
+
+.sheet {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 22px 22px calc(22px + env(safe-area-inset-bottom));
+  border-radius: 26px 26px 0 0;
+  background: #16181c;
+  animation: sheet-rise var(--motion-sheet);
+
+  h2 {
+    margin: 0;
+    text-align: center;
+    font-size: 17px;
+    font-weight: 600;
+  }
+
+  .sectionTitle {
+    margin-top: 26px;
+    text-align: left;
+    font-size: 15px;
+    color: rgb(242 243 245 / 62%);
+  }
+}
+
+@keyframes sheet-rise {
+  from {
+    transform: translateY(100%);
+  }
+}
+
+.voiceStage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* 濡亜鎮滈悾娆戠舶閸掑洦宕查棅瀹犲閿涘瞼鏃遍崥鎴犳殌缂佹瑥鑴婄仦鍌涚泊閸?*/
+  touch-action: pan-y;
+  user-select: none;
+  /* 閺夌偓澧滈崥搴℃礀閸掗鑵戞担宥忕窗閹锋牗瀚块張鐔兼？閻㈠彉绗呴棃銏㈡畱 data-dragging 閸忚櫕甯€閿涘奔绻氱拠浣峰紬閺嶈壈绐￠幍?*/
+  transition: transform var(--motion-sheet);
+}
+
+.voiceStage[data-dragging] {
+  transition: none;
+}
+
+.voicePreview {
+  height: 104px;
+  width: 200px;
+  margin: 18px 0 14px;
+  border-radius: 44px;
+  /* 濞撮攱妲﹂敍姘濮楁ê銈跺▽鐧哥幢閺嗘鐤嗛敍姘枎閽冩繈娴?*/
+  background: radial-gradient(120% 140% at 30% 24%, #ffe9c4 0%, #ffd79a 38%, #f6b96a 72%, #e79a4a 100%);
+  transition: background 260ms ease-out;
+  will-change: transform, opacity;
+  /* 閹广垽鐓堕懝鍙夋閸嬫矮绔村▎?缂堟槒绻冮崢?閻ㄥ嫭宕查棃顫窗濞撴劕褰夐懝鍙夋￥濞夋洘褰冮崐纭风礉閻劑鈧繑妲戞惔?+ 鏉炶浜曞Ο锛勭ˇ娴狅絾娴涢妴?     娑撱倓閲滈棅瀹犲閻劋琚遍弶鈥虫倱閸氬秴鍙ч柨顔兼姎閿涘苯鎯侀崚娆忕潣閹冨綁閸栨牔绗夋导姘跺櫢閸氼垰濮╅悽姹団偓?*/
+  animation: voice-swap-a var(--motion-card);
+}
+
+.voicePreview[data-voice='tide'] {
+  background: radial-gradient(120% 140% at 26% 22%, #dfe9f2 0%, #b9cfe0 40%, #7f9bb2 74%, #56707f 100%);
+  animation: voice-swap-b var(--motion-card);
+}
+
+@keyframes voice-swap-a {
+  from {
+    opacity: 0.55;
+    filter: blur(6px);
+  }
+
+  to {
+    opacity: 1;
+    filter: blur(0);
+  }
+}
+
+@keyframes voice-swap-b {
+  from {
+    opacity: 0.55;
+    filter: blur(6px);
+  }
+
+  to {
+    opacity: 1;
+    filter: blur(0);
+  }
+}
+
+.voiceName {
+  text-align: center;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.voiceDesc {
+  margin-top: 4px;
+  text-align: center;
+  font-size: 13px;
+  color: rgb(242 243 245 / 46%);
+}
+
+.dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 14px 0 6px;
+}
+
+.dot {
+  width: 7px;
+  height: 7px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgb(242 243 245 / 22%);
+  cursor: pointer;
+  transition: transform var(--motion-press), background-color 160ms ease-out;
+}
+
+.dot[aria-checked='true'] {
+  background: #7ba1ff;
+  transform: scale(1.3);
+}
+
+.toggleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 12px;
+  padding: 14px 16px;
+  border: 0;
+  border-radius: 16px;
+  background: rgb(255 255 255 / 6%);
+  color: inherit;
+  font: inherit;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.toggleLabel {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.switch {
+  position: relative;
+  width: 44px;
+  height: 26px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 18%);
+  transition: background-color 200ms ease-out;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #fff;
+    transition: transform var(--motion-press);
+  }
+
+  &[data-on='true'] {
+    background: #34c759;
+  }
+
+  &[data-on='true']::after {
+    transform: translateX(18px);
+  }
+}
+
+.confirm {
+  width: 100%;
+  margin-top: 20px;
+  padding: 15px;
+  border: 0;
+  border-radius: 18px;
+  background: #4d6bfe;
+  color: #fff;
+  font: inherit;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform var(--motion-press);
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+/* 妫板嫭绁撮幀褑绻戦崶鐑囩窗閺佹挳銆夌捄鐔烘絻閹靛濞嶉崣宕囆╅敍灞界俺闁劌鑴婄仦鍌涘ⅵ瀵偓閺冭泛鍘涢崗鍐茶剨鐏?*/
+/* ---- 閺傚洤鐡уΟ鈥崇础閿涙艾鐨悶鍐ㄧサ鏉╂稒瀵滈柦顔藉笓娑擃參妫块敍灞肩瑓闂堫澀绔存稉顏勭潔瀵偓缁狀厼銇?---- */
+.inlineOrb {
+  display: grid;
+  place-items: center;
+  width: 74px;
+  height: 74px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* 閹稿鎸抽幒鎺楀櫡閻ㄥ嫬鐨悶鍐跨窗娑撳秴寮稉?layout 閸欐ê鑸伴敍灞藉涧閺€鐟版槀鐎甸晲绗屾禍顔煎 */
+.inlineOrb .orb {
+  width: 58px;
+  height: 58px;
+  animation: none;
+  transform: scale(calc(1 + var(--level) * 0.14));
+  transition: transform var(--spring-pop), opacity 240ms ease-out;
+}
+
+.inlineOrb .orb::before {
+  inset: -70%;
+  filter: blur(20px);
+  opacity: 0.7;
+}
+
+.inlineOrb .orbCore {
+  width: 46%;
+  height: 42%;
+  top: 18%;
+  left: 20%;
+  filter: blur(7px);
+}
+
+.chevron {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 26px;
+  margin: -4px auto 6px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: rgb(240 242 246 / 42%);
+  cursor: pointer;
+  transition: transform var(--motion-press);
+
+  svg {
+    transform: rotate(180deg);
+  }
+
+  &:active {
+    transform: scale(0.9);
+  }
+}
+
+/* 閺堟顕版稉顓犳畱閹垫挻鏌囬幓鎰仛閿涙艾鐣奸弬瑙勬Ц閸﹀棜顫楅懗璺烘抄 + 娑撯偓娑擃亜鐨弬鐟版健閸ョ偓鐖?*/
+.interrupt {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  align-self: center;
+  margin: 0 auto 18px;
+  padding: 12px 22px;
+  border: 1px solid rgb(255 255 255 / 10%);
+  border-radius: 999px;
+  background: rgb(255 255 255 / 7%);
+  color: rgb(242 243 245 / 82%);
+  font: inherit;
+  font-size: 15px;
+  cursor: pointer;
+  transition: transform var(--motion-press), background-color 160ms ease-out;
+
+  &:active {
+    transform: scale(0.96);
+    background: rgb(255 255 255 / 13%);
+  }
+}
+
+.interruptMark {
+  width: 13px;
+  height: 13px;
+  border-radius: 4px;
+  background: rgb(242 243 245 / 72%);
+}
